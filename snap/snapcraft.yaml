@@ -1,21 +1,17 @@
-name: stack-utils
+name: lscompute
 base: core24
 version: git
-summary: Utilities for selecting hardware optimised engines
+summary: A hardware discovery utility for AI workloads
 description: |
-  These utilities help decide which components should be installed on a particular system.
+  lscompute is a command-line utility that provides detailed information about
+  the compute hardware available on a system, with a focus on components
+  relevant to AI workloads such as GPUs and NPUs.
+  
+  It gathers information from various sources including PCI devices, OpenCL, and
+  NVIDIA SMI to give users insights into their hardware capabilities.
 
-grade: devel
+grade: stable
 confinement: strict
-
-plugs:
-  intel-npu:
-    interface: custom-device
-    custom-device: intel-npu-device
-  npu-libs:
-    interface: content
-    content: npu-libs-2404
-    target: $SNAP/npu-libs
 
 layout:
   # OpenCL looks in /etc/OpenCL/vendors for .icd files containing the paths to shared objects
@@ -28,19 +24,7 @@ layout:
   /usr/lib/wsl:
     bind: $SNAP_COMMON/usr/lib/wsl
 
-environment:
-  # Path to access current revision of components
-  SNAP_COMPONENTS: /snap/$SNAP_INSTANCE_NAME/components/$SNAP_REVISION
-
 parts:
-  scripts:
-    source: snap/local
-    plugin: dump
-    organize:
-      "completion.bash": bin/
-      "server.sh": bin/
-      "server-webui.sh": bin/
-
   system-utilities:
     plugin: nil
     stage-packages:
@@ -87,89 +71,19 @@ parts:
       
       craftctl default
   
-  dummy-components:
-    plugin: nil
-    override-prime: |
-      cat <<EOF > "$CRAFT_COMPONENT_DUMMY_COMPONENT_1_PRIME/component.yaml"
-      environment:
-        - MODEL_PATH=\$COMPONENT
-        - MODEL_NAME=gemma-3-4b-it-ov-int4-fq
-      servers:
-        openvino:
-          protocol: http
-          base-path: /v1
-        kserve:
-          protocol: http
-          base-path: /2
-        openai:
-          protocol: http
-          base-path: /v3
-      EOF
-      touch "$CRAFT_COMPONENT_DUMMY_COMPONENT_2_PRIME/component.yaml"
-      touch "$CRAFT_COMPONENT_DUMMY_COMPONENT_3_PRIME/component.yaml"
-
-  # To use `version: git` in this file, we require git as a build dependency.
-  # This is fixed but not published yet. See https://github.com/canonical/snapcraft/issues/4944
-  git:
-    plugin: nil
-    build-packages:
-      - git
-
-  cli:
+  commands:
     plugin: go
-    build-snaps:
+    build-snaps: 
       - go/1.26/stable
     source: .
-    source-type: local
-    override-build: |
-      craftctl default
-      # For tab completion
-      ln --symbolic ./modelctl $CRAFT_PART_INSTALL/bin/stack-utils
-    organize:
-      bin/cli: bin/modelctl
 
-  webui:
-    plugin: dump
-    source: https://github.com/canonical/inference-snaps-webui/releases/download/v1.0.0-beta.5/inference-snaps-webui.tar.xz
-    organize:
-      "*": webui/
-
-  engines:
-    plugin: dump
-    source: test_data/engines
-    organize:
-      "*": engines/
-
-  mock-openai-server:
-    plugin: dump
-    source: test_data/mock-openai-server
-    organize:
-      "*": bin/mock-openai-server/
-
-components:
-  dummy-component-1: &test-component
-    type: standard
-    summary: Just a test component
-    description: Component for testing purposes
-  dummy-component-2:
-    <<: *test-component
-  dummy-component-3:
-    <<: *test-component
-
-      
 apps:
-  stack-utils:
-    command: bin/modelctl
-    completer: bin/completion.bash
+  lscompute:
+    command: bin/lscompute
     plugs:
       - hardware-observe
-      - home
-      - network
-      - network-bind # for serving webui 
+      - network # For looking up PCI IDs
       - opengl
-      - desktop # for xdg-open
-    environment:
-      ADDITIONAL_FEATURES: chat, webui
 
   clinfo:
     plugs:
@@ -183,15 +97,3 @@ apps:
       - hardware-observe
       - opengl
     command: usr/bin/nvidia-smi
-
-  server:
-    command: bin/server.sh
-    daemon: simple
-    plugs:
-      - network-bind
-
-  server-webui:
-    command: bin/server-webui.sh
-    daemon: simple
-    plugs:
-      - network-bind
