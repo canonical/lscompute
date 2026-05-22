@@ -3,7 +3,7 @@ package memory
 import (
 	"fmt"
 
-	"github.com/canonical/inference-snaps-cli/pkg/types"
+	"github.com/canonical/lscompute/pkg/types"
 )
 
 func Info() (types.MemoryInfo, error) {

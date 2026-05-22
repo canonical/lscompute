@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/canonical/inference-snaps-cli/pkg/hardware_info"
+	"github.com/canonical/lscompute/pkg/hardware_info"
 )
 
 func main() {

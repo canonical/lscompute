@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/canonical/inference-snaps-cli/pkg/utils"
+	"github.com/canonical/lscompute/pkg/utils"
 )
 
 func TestParseHwInfo(t *testing.T) {

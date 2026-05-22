@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/canonical/inference-snaps-cli/pkg/types"
+	"github.com/canonical/lscompute/pkg/types"
 )
 
 const clInfoTimeout = 10 * time.Second

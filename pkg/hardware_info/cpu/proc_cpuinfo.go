@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/canonical/inference-snaps-cli/pkg/constants"
+	"github.com/canonical/lscompute/pkg/constants"
 )
 
 func hostProcCpuInfo() (string, error) {

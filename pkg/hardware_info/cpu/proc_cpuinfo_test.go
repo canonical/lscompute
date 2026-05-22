@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/canonical/inference-snaps-cli/pkg/constants"
+	"github.com/canonical/lscompute/pkg/constants"
 )
 
 var procCpuInfoTestFiles = map[string]string{
