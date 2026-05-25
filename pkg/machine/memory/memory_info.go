@@ -3,7 +3,7 @@ package memory
 import (
 	"fmt"
 
-	"github.com/canonical/lscompute/pkg/types"
+	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 func Info() (types.MemoryInfo, error) {

@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/canonical/lscompute/pkg/types"
+	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 func gpuProperties(pciDevice types.PciDevice) (map[string]string, error) {

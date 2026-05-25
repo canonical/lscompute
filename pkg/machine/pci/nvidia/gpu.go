@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/canonical/lscompute/pkg/types"
+	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 const nvidiaSmiTimeout = 30 * time.Second

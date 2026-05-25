@@ -1,15 +1,15 @@
-package hardware_info
+package machine
 
 import (
 	"encoding/json"
 	"fmt"
 	"os"
 
-	"github.com/canonical/lscompute/pkg/hardware_info/cpu"
-	"github.com/canonical/lscompute/pkg/hardware_info/disk"
-	"github.com/canonical/lscompute/pkg/hardware_info/memory"
-	"github.com/canonical/lscompute/pkg/hardware_info/pci"
-	"github.com/canonical/lscompute/pkg/types"
+	"github.com/canonical/lscompute/pkg/machine/cpu"
+	"github.com/canonical/lscompute/pkg/machine/disk"
+	"github.com/canonical/lscompute/pkg/machine/memory"
+	"github.com/canonical/lscompute/pkg/machine/pci"
+	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 func Get(friendlyNames bool) (*types.HwInfo, []string, error) {

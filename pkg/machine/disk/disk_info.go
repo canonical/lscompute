@@ -3,8 +3,8 @@ package disk
 import (
 	"fmt"
 
-	"github.com/canonical/lscompute/pkg/constants"
-	"github.com/canonical/lscompute/pkg/types"
+	"github.com/canonical/lscompute/pkg/machine/constants"
+	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 var directories = []string{

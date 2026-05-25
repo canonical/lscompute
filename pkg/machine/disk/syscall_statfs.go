@@ -3,7 +3,7 @@ package disk
 import (
 	"fmt"
 
-	"github.com/canonical/lscompute/pkg/types"
+	"github.com/canonical/lscompute/pkg/machine/types"
 	"golang.org/x/sys/unix"
 )
 

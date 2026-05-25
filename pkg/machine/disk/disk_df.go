@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/canonical/lscompute/pkg/types"
+	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 // hostDf runs the df command on the host to obtain stats about the provided paths.

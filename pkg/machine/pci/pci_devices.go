@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/canonical/lscompute/pkg/constants"
-	"github.com/canonical/lscompute/pkg/hardware_info/pci/amd"
-	"github.com/canonical/lscompute/pkg/hardware_info/pci/intel"
-	"github.com/canonical/lscompute/pkg/hardware_info/pci/nvidia"
-	"github.com/canonical/lscompute/pkg/types"
+	"github.com/canonical/lscompute/pkg/machine/constants"
+	"github.com/canonical/lscompute/pkg/machine/pci/amd"
+	"github.com/canonical/lscompute/pkg/machine/pci/intel"
+	"github.com/canonical/lscompute/pkg/machine/pci/nvidia"
+	"github.com/canonical/lscompute/pkg/machine/types"
 	"github.com/jaypipes/pcidb"
 )
 
