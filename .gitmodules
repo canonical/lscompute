@@ -1,4 +1,0 @@
-[submodule "dev"]
-	path = dev
-	url = https://github.com/canonical/inference-snaps-dev
-	branch = v2

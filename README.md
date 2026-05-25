@@ -1,14 +1,20 @@
-# Inference Snaps CLI
+# lscompute
 
-Configuration and engine management for inference snaps.
+## Install
 
-## Resources
+```bash
+sudo snap install lscompute
+sudo snap connect lscompute:hardware-observe # TODO: auto connect
+```
 
-📚 **[Documentation](https://documentation.ubuntu.com/inference-snaps/)**, learn how to use inference snaps and find the [CLI reference](https://documentation.ubuntu.com/inference-snaps/reference/models-cli/)
+To build and install from source, refer to [here](#build-snap).
 
-💬 **[Discussions](https://github.com/canonical/inference-snaps/discussions)**, ask questions and share ideas
+## Usage
 
-🐛 **[Issues](https://github.com/canonical/inference-snaps/issues)**, report bugs and request features
+Currently the only output format is JSON:
+```bash
+lscompute 
+```
 
 ## Development
 
@@ -18,118 +24,32 @@ Configuration and engine management for inference snaps.
 go test -count 1 -failfast ./...
 ```
 
-### Build binaries
-
-The CLIs included in this repo can be built using the following commands:
+### Compile and run
 
 ```bash
-go build ./cmd/cli
+go run ./cmd/lscompute
+```
+
+### Build binaries
+
+```bash
+go build ./cmd/lscompute
+```
+
+For cross-compilation, set the `GOOS` and `GOARCH` environment variables. For example, to build for ARM64 architecture on Linux:
+```bash
+GOOS=linux GOARCH=arm64 go build -o lscompute-arm64 ./cmd/lscompute
 ```
 
 ### Build snap
-
-To build a snap for these applications, run:
 
 ```bash
 snapcraft -v
 ```
 
 Then install the snap and connect the required interfaces:
-
 ```bash
-sudo snap install --dangerous ./stack-utils_*.snap
-sudo snap connect stack-utils:hardware-observe 
+sudo snap install --dangerous *.snap
+sudo snap connect lscompute:hardware-observe 
 ```
 
-> [!NOTE]
-> This snap is named `stack-utils` for historical reasons. It will be refactored in the future.
-
-## Installation
-
-```bash
-sudo snap install stack-utils
-sudo snap connect stack-utils:hardware-observe 
-sudo snap alias stack-utils inference-snaps-cli
-```
-
-To build and install from source, refer to [here](#build-snap).
-
-## Usage
-
-The following assumes use of the stack-utils snap to use the CLI.
-
-### Machine Info
-
-A summary of the current host machine can be obtained by running:
-
-```
-inference-snaps-cli show-machine
-```
-
-This prints a machine-readable summary of the host system. 
-
-Errors and warnings are printed as standard errors.
-This allows piping the output to another application.
-
-### Select Engine
-
-This command can be used to perform engine selection using static data.
-It is useful for testing purposes.
-
-To use, pipe the machine info in JSON format into `select-engine`.
-You also need to provide the location of the engine manifests from which the selection should be made.
-
-The result is printed as JSON to the standard output, while any other log messages are written as standard errors.
-
-Example:
-
-```bash
-$ inference-snaps-cli show-machine --format=json | inference-snaps-cli debug select-engine --engines test_data/engines/
-❌ ampere - not compatible: required cpu device not found
-❌ ampere-altra - not compatible: required cpu device not found
-❌ arm-neon - not compatible: required device not found
-✅ cpu-avx1 - compatible, score = 14
-✅ cpu-avx2 - compatible, score = 17
-❌ cpu-avx512 - not compatible: required cpu device not found
-🟠 cpu-devel - score = 12, grade = devel
-✅ cuda-generic - compatible, score = 107
-✅ example-memory - compatible, score = 18
-✅ intel-cpu - compatible, score = 18
-✅ intel-gpu - compatible, score = 72
-❌ intel-npu - not compatible: required device not found
-Selected engine for your hardware configuration: cuda-generic
-
-engines:
-    - name: ampere
-      description: Test ampere selection
-      ...
-```
-
-## Notes
-
-### Detecting NVIDIA GPU
-
-On a clean 24.04 installation, you need to install the NVIDIA drivers and utils:
-
-```
-sudo apt install nvidia-driver-550-server nvidia-utils-550-server
-sudo reboot
-```
-
-After a reboot run `nvidia-smi` to verify it is working:
-
-```
-$ nvidia-smi    
-+-----------------------------------------------------------------------------------------+
-| NVIDIA-SMI 550.127.05             Driver Version: 550.127.05     CUDA Version: 12.4     |
-|-----------------------------------------+------------------------+----------------------+
-| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
-| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
-|                                         |                        |               MIG M. |
-|=========================================+========================+======================|
-|   0  Quadro T2000 with Max-Q ...    Off |   00000000:01:00.0 Off |                  N/A |
-| N/A   49C    P0              8W /   35W |       1MiB /   4096MiB |      0%      Default |
-|                                         |                        |                  N/A |
-+-----------------------------------------+------------------------+----------------------+
-...
-```

@@ -5,7 +5,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/canonical/inference-snaps-cli/pkg/constants"
+	"github.com/canonical/lscompute/pkg/constants"
 )
 
 func hostUnameMachine() (string, error) {

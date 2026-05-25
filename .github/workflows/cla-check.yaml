@@ -1,6 +1,9 @@
 name: cla-check
 on: [pull_request]
 
+permissions:
+  pull-requests: read
+
 jobs:
   cla-check:
     runs-on: ubuntu-slim
