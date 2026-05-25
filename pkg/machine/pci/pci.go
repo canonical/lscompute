@@ -18,35 +18,30 @@ var (
 )
 
 /*
-Devices returns a slice of PciDevices that are detected on the current system and reported by lspci.
+Devices returns a slice of PciDevices that are detected on the current system via sysfs.
 */
-func Devices(friendlyNames bool) ([]types.PciDevice, []string, error) {
-
-	hostLsPciData, err := hostLsPci()
+func Devices(includeFriendlyNames bool) ([]types.PciDevice, []string, error) {
+	devices, warnings, err := hostSysPci()
 	if err != nil {
-		return nil, nil, fmt.Errorf("executing lspci: %v", err)
-	}
-	devices, lsPciWarnings, err := ParseLsPci(hostLsPciData, friendlyNames)
-	if err != nil {
-		return nil, nil, fmt.Errorf("parsing lspci output: %v", err)
+		return nil, nil, fmt.Errorf("reading sysfs pci devices: %v", err)
 	}
 
-	// Additional properties are obtained by running vendor specific tools on the host
-	// Errors are not fatal, and are printed to stderr
+	if includeFriendlyNames {
+		for i, device := range devices {
+			names, err := friendlyNames(device)
+			if err != nil {
+				warnings = append(warnings, fmt.Sprintf("unable to get friendly name for pci device: %s", err))
+			} else {
+				devices[i].PciFriendlyNames = names
+			}
+		}
+	}
+
 	devices, additionalPropWarnings := addAdditionalProperties(devices)
-
-	warnings := append(lsPciWarnings, additionalPropWarnings...)
+	warnings = append(warnings, additionalPropWarnings...)
 	return devices, warnings, nil
 }
 
-func DevicesFromRawData(lspciData string, friendlyNames bool) ([]types.PciDevice, []string, error) {
-	devices, warnings, err := ParseLsPci(lspciData, friendlyNames)
-	if err != nil {
-		return nil, nil, fmt.Errorf("parsing lspci output: %v", err)
-	}
-
-	return devices, warnings, nil
-}
 
 /*
 friendlyNames uses the numeric PCI ID fields to look up human-readable names for the device from the pci.id database.
