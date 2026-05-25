@@ -9,11 +9,9 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/pci/intel"
 	"github.com/canonical/lscompute/pkg/machine/pci/nvidia"
 	"github.com/canonical/lscompute/pkg/machine/types"
-	"github.com/jaypipes/pcidb"
 )
 
 var (
-	pciDb                   *pcidb.PCIDB
 	ErrorVendorNotSupported = errors.New("vendor not supported")
 )
 
@@ -44,64 +42,32 @@ func Devices(includeFriendlyNames bool) ([]types.PciDevice, []string, error) {
 
 
 /*
-friendlyNames uses the numeric PCI ID fields to look up human-readable names for the device from the pci.id database.
+friendlyNames uses the numeric PCI ID fields to look up human-readable names for the device from the pci.ids database.
 */
 func friendlyNames(device types.PciDevice) (types.PciFriendlyNames, error) {
-	var friendlyNames types.PciFriendlyNames
-
-	if pciDb == nil {
-		// Load pci.ids database if needed
-		var err error
-		pciDb, err = pcidb.New(pcidb.WithEnableNetworkFetch())
-		if err != nil {
-			return friendlyNames, fmt.Errorf("opening pci database: %v", err)
-		}
+	entry, err := lookupPciIds(device.VendorId, device.DeviceId, device.SubvendorId, device.SubdeviceId)
+	if err != nil {
+		return types.PciFriendlyNames{}, fmt.Errorf("pci ids lookup for %04x:%04x: %w", uint64(device.VendorId), uint64(device.DeviceId), err)
 	}
 
-	vendorIdString := fmt.Sprintf("%04x", device.VendorId)
-	deviceIdString := fmt.Sprintf("%04x", device.DeviceId)
-
-	subVendorIdString := ""
-	if device.SubdeviceId != nil {
-		subVendorIdString = fmt.Sprintf("%04x", *device.SubvendorId)
+	var names types.PciFriendlyNames
+	if entry.VendorName != "" {
+		s := entry.VendorName
+		names.VendorName = &s
 	}
-
-	subDeviceIdString := ""
-	if device.SubdeviceId != nil {
-		subDeviceIdString = fmt.Sprintf("%04x", *device.SubdeviceId)
+	if entry.DeviceName != "" {
+		s := entry.DeviceName
+		names.DeviceName = &s
 	}
-
-	for _, vendor := range pciDb.Vendors {
-		if vendor.ID == vendorIdString {
-			vendorName := vendor.Name
-			friendlyNames.VendorName = &vendorName
-
-			for _, product := range vendor.Products {
-				if product.ID == deviceIdString {
-					productName := product.Name
-					friendlyNames.DeviceName = &productName
-
-					// Look up subDevice name from subsystem list
-					if device.SubdeviceId != nil {
-						for _, subSystem := range product.Subsystems {
-							if subSystem.ID == subDeviceIdString {
-								subSystemName := subSystem.Name
-								friendlyNames.SubdeviceName = &subSystemName
-							}
-						}
-					}
-				}
-			}
-		}
-
-		// Look up SubVendor name from main vendor list
-		if device.SubvendorId != nil && vendor.ID == subVendorIdString {
-			vendorName := vendor.Name
-			friendlyNames.SubvendorName = &vendorName
-		}
+	if entry.SubvendorName != "" {
+		s := entry.SubvendorName
+		names.SubvendorName = &s
 	}
-
-	return friendlyNames, nil
+	if entry.SubdeviceName != "" {
+		s := entry.SubdeviceName
+		names.SubdeviceName = &s
+	}
+	return names, nil
 }
 
 /*
