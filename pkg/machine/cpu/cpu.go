@@ -15,12 +15,12 @@ func Info() ([]types.CpuInfo, error) {
 		return nil, fmt.Errorf("querying host cpuinfo: %v", err)
 	}
 
-	hostUname, err := hostUnameMachine()
+	hostArch, err := hostMachineArch()
 	if err != nil {
-		return nil, fmt.Errorf("getting host uname: %v", err)
+		return nil, fmt.Errorf("getting host machine architecture: %v", err)
 	}
 
-	cpus, err := InfoFromRawData(hostProcCpu, hostUname)
+	cpus, err := InfoFromRawData(hostProcCpu, hostArch)
 	if err != nil {
 		return nil, fmt.Errorf("parsing cpu data: %v", err)
 	}

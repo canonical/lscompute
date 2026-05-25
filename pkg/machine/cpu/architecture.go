@@ -1,14 +1,29 @@
 package cpu
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
+	"os"
 	"strings"
 
 	"github.com/canonical/lscompute/pkg/machine/constants"
 	"golang.org/x/sys/unix"
 )
 
-func hostUnameMachine() (string, error) {
+// hostMachineArch returns the kernel's machine architecture string (e.g. "x86_64",
+// "aarch64"), matching the output of `uname -m`. It reads /proc/sys/kernel/arch when
+// available and falls back to the uname(2) syscall on older kernels that do not export
+// the sysctl (Linux < 6.1).
+func hostMachineArch() (string, error) {
+	data, err := os.ReadFile("/proc/sys/kernel/arch")
+	if err == nil {
+		return strings.TrimSpace(string(data)), nil
+	}
+	if !errors.Is(err, fs.ErrNotExist) {
+		return "", fmt.Errorf("reading /proc/sys/kernel/arch: %v", err)
+	}
+
 	var uname unix.Utsname
 	if err := unix.Uname(&uname); err != nil {
 		return "", fmt.Errorf("uname syscall: %w", err)
@@ -16,7 +31,8 @@ func hostUnameMachine() (string, error) {
 	return unix.ByteSliceToString(uname.Machine[:]), nil
 }
 
-// debianArchitecture translates the kernel architecture as reported by uname() to the debian architecture
+// debianArchitecture translates the kernel architecture (as reported by `uname -m` /
+// /proc/sys/kernel/arch) to the debian architecture.
 // Based on lookup table from snapd: https://github.com/canonical/snapd/blob/master/arch/arch.go
 func debianArchitecture(unameArch string) (string, error) {
 	// Trim whitespace
