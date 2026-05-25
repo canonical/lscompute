@@ -1,9 +1,9 @@
-package nvidia
+package intel
 
 import (
 	"fmt"
 
-	"github.com/canonical/lscompute/pkg/types"
+	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 /*
@@ -24,7 +24,7 @@ func AdditionalProperties(pciDevice types.PciDevice) (map[string]string, error) 
 		}
 	}
 
-	// Future: handle other Nvidia device classes like network interface cards
+	// Future: handle other Intel device classes like NPUs
 
 	return properties, nil
 }

@@ -1,9 +1,9 @@
-package amd
+package nvidia
 
 import (
 	"fmt"
 
-	"github.com/canonical/lscompute/pkg/types"
+	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 /*
@@ -24,7 +24,7 @@ func AdditionalProperties(pciDevice types.PciDevice) (map[string]string, error) 
 		}
 	}
 
-	// Future: handle other AMD device classes
+	// Future: handle other Nvidia device classes like network interface cards
 
 	return properties, nil
 }

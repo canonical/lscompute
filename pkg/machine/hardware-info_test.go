@@ -1,12 +1,11 @@
-package hardware_info
+package machine
 
 import (
 	"encoding/json"
 	"os"
 	"testing"
 
-	"github.com/canonical/lscompute/pkg/types"
-
+	"github.com/canonical/lscompute/pkg/machine/types"
 	"github.com/go-test/deep"
 )
 

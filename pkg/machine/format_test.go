@@ -1,4 +1,4 @@
-package utils
+package machine
 
 import (
 	"testing"
@@ -60,20 +60,5 @@ func TestStringToBytes(t *testing.T) {
 	}
 	if sizeBytes != 256 {
 		t.Fatal("incorrectly parsed size")
-	}
-}
-
-func TestIsPrimitive(t *testing.T) {
-	if !IsPrimitive(1) {
-		t.Fatal("int should be primitive")
-	}
-	if !IsPrimitive("test") {
-		t.Fatal("string should be primitive")
-	}
-	if !IsPrimitive(true) {
-		t.Fatal("boolean should be primitive")
-	}
-	if IsPrimitive([]string{"test"}) {
-		t.Fatal("string slice should not be primitive")
 	}
 }

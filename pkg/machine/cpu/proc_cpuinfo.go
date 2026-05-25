@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/canonical/lscompute/pkg/constants"
+	"github.com/canonical/lscompute/pkg/machine/constants"
 )
 
 func hostProcCpuInfo() (string, error) {

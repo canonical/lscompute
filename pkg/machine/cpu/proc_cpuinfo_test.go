@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/canonical/lscompute/pkg/constants"
+	"github.com/canonical/lscompute/pkg/machine/constants"
 )
 
 var procCpuInfoTestFiles = map[string]string{

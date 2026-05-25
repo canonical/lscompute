@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/canonical/lscompute/pkg/types"
+	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 func TestVRam(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/canonical/lscompute/pkg/constants"
+	"github.com/canonical/lscompute/pkg/machine/constants"
 )
 
 func hostUnameMachine() (string, error) {

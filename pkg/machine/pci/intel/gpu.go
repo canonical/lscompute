@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/canonical/lscompute/pkg/types"
+	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 const clInfoTimeout = 10 * time.Second
