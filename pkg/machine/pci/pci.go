@@ -18,7 +18,7 @@ var (
 )
 
 /*
-Devices returns a slice of PciDevices that is detected on the current system and reported by lspci.
+Devices returns a slice of PciDevices that are detected on the current system and reported by lspci.
 */
 func Devices(friendlyNames bool) ([]types.PciDevice, []string, error) {
 

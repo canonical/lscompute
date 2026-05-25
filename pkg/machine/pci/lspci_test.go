@@ -1,14 +1,13 @@
 package pci
 
 import (
+	"fmt"
 	"os"
 	"testing"
-
-	"github.com/canonical/lscompute/pkg/utils"
 )
 
 func TestParseLsCpu(t *testing.T) {
-	machines, err := utils.SubDirectories("../../../test_data/machines")
+	machines, err := subDirectories("../../../test_data/machines")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -40,4 +39,19 @@ func TestParseLsCpu(t *testing.T) {
 			}
 		})
 	}
+}
+
+func subDirectories(dirPath string) ([]string, error) {
+	entries, err := os.ReadDir(dirPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read directory: %w", err)
+	}
+
+	var directories []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			directories = append(directories, entry.Name())
+		}
+	}
+	return directories, nil
 }
