@@ -1,7 +1,7 @@
 package cpu
 
-// ProcCpuInfo contains general information about a system CPU found in /proc/cpuinfo.
-type ProcCpuInfo struct {
+// procCpuInfo contains general information about a system CPU found in /proc/cpuinfo.
+type procCpuInfo struct {
 	Processor    int64 // %d - kernel defines it as long long
 	Architecture string
 

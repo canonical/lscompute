@@ -3,6 +3,8 @@ package machine
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 var devices = []string{
@@ -51,15 +53,22 @@ var devices = []string{
 //	}
 //}
 
-func TestDumpHwInfoFromFiles(t *testing.T) {
-	machine := "i5-3570k+arc-a580+gtx1080ti"
-	hwInfo, err := GetFromRawData(machine, true, "../../test_data")
+func TestGetCurrentHostMarshalUnmarshal(t *testing.T) {
+	machineInfo, _, err := Get(false)
 	if err != nil {
-		t.Error(err)
+		t.Fatalf("Get() failed: %v", err)
 	}
-	jsonData, err := json.MarshalIndent(hwInfo, "", "  ")
+
+	jsonData, err := json.Marshal(machineInfo)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("json.Marshal() failed: %v", err)
 	}
-	t.Log(string(jsonData))
+
+	var unmarshalled types.MachineInfo
+	err = json.Unmarshal(jsonData, &unmarshalled)
+	if err != nil {
+		t.Fatalf("json.Unmarshal() failed: %v", err)
+	}
+
+	t.Logf("Successfully marshalled and unmarshalled machine info: %s", string(jsonData))
 }

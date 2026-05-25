@@ -1,7 +1,6 @@
 package types
 
 type PciDevice struct {
-	Score                int     `json:"score,omitempty"`
 	Slot                 string  `json:"slot"`
 	BusNumber            HexInt  `json:"bus-number"`
 	DeviceClass          HexInt  `json:"device-class"`
@@ -14,6 +13,12 @@ type PciDevice struct {
 
 	// Vendor specific device key-value pairs
 	AdditionalProperties map[string]string `json:"additional-properties,omitempty"`
+}
+
+// IsGpu reports whether the device is a GPU or display controller by PCI class.
+// Covers legacy VGA (0x0001) and the full display-controller class (0x03xx).
+func (d PciDevice) IsGpu() bool {
+	return d.DeviceClass == 0x0001 || d.DeviceClass&0xFF00 == 0x0300
 }
 
 type PciFriendlyNames struct {

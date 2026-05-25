@@ -15,9 +15,7 @@ func AdditionalProperties(pciDevice types.PciDevice) (map[string]string, error) 
 	var properties map[string]string
 	var err error
 
-	// 00 01 - legacy VGA devices
-	// 03 xx - display controllers
-	if pciDevice.DeviceClass == 0x0001 || pciDevice.DeviceClass&0xFF00 == 0x0300 {
+	if pciDevice.IsGpu() {
 		properties, err = gpuProperties(pciDevice)
 		if err != nil {
 			return nil, fmt.Errorf("getting gpu properties: %v", err)

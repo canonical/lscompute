@@ -9,6 +9,7 @@ import (
 // TestDeviceMarshalJSON verifies that a USB device does not leak PCI fields
 // and that a PCI device does not leak USB fields when marshalled to JSON.
 func TestDeviceMarshalJSON(t *testing.T) {
+	productName := "Realtek Semiconductor Corp. Dell dock"
 	usbDevice := DeviceInfo{
 		Bus: "usb",
 		UsbDevice: UsbDevice{
@@ -16,7 +17,9 @@ func TestDeviceMarshalJSON(t *testing.T) {
 			DeviceNumber: 16,
 			VendorId:     0x0bda,
 			ProductId:    0x5487,
-			ProductName:  new("Realtek Semiconductor Corp. Dell dock"),
+			UsbFriendlyNames: UsbFriendlyNames{
+				ProductName: &productName,
+			},
 		},
 	}
 

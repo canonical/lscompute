@@ -5,26 +5,27 @@ import (
 )
 
 func TestVRam(t *testing.T) {
+	expected := uint64(4096 * 1024 * 1024)
 	tests := []struct {
 		name      string
-		testInput *string
+		testInput string
 		expected  *uint64
 		err       error
 		shouldErr bool
 	}{
 		{
 			name:      "converts MiB to bytes",
-			testInput: new("4096 MiB"),
-			expected:  new(uint64(4096 * 1024 * 1024)),
+			testInput: "4096 MiB",
+			expected:  &expected,
 		},
 		{
 			name:      "returns nil for unavailable VRAM",
-			testInput: new("[N/A]"),
+			testInput: "[N/A]",
 			expected:  nil,
 		},
 		{
 			name:      "reports parsing errors",
-			testInput: new("not-a-number MiB"),
+			testInput: "not-a-number MiB",
 			shouldErr: true,
 		},
 	}
