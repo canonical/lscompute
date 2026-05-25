@@ -2,20 +2,18 @@ package cpu
 
 import (
 	"fmt"
-	"os/exec"
 	"strings"
 
 	"github.com/canonical/lscompute/pkg/machine/constants"
+	"golang.org/x/sys/unix"
 )
 
 func hostUnameMachine() (string, error) {
-	// uname --machine
-	out, err := exec.Command("uname", "--machine").Output()
-	if err != nil {
-		return "", err
+	var uname unix.Utsname
+	if err := unix.Uname(&uname); err != nil {
+		return "", fmt.Errorf("uname syscall: %w", err)
 	}
-	architecture := string(out)
-	return strings.TrimSpace(architecture), nil
+	return unix.ByteSliceToString(uname.Machine[:]), nil
 }
 
 // debianArchitecture translates the kernel architecture as reported by uname() to the debian architecture

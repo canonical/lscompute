@@ -28,8 +28,6 @@ parts:
   system-utilities:
     plugin: nil
     stage-packages:
-      - pciutils # lspci
-      - usbutils # lsusb
       - clinfo # used for Intel GPU vRAM detection. It depends on intel-opencl-icd
 
   # Used for NVIDIA vRAM and CUDA Capability detection.
