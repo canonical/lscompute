@@ -8,26 +8,26 @@ import (
 	"testing"
 )
 
-func TestParseHwInfo(t *testing.T) {
+func TestParseMachineInfo(t *testing.T) {
 	machines, err := subDirectories("../../../test_data/machines")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	for _, machine := range machines {
-		hwInfoFile := "../../test_data/machines/" + machine + "/hardware-info.json"
+		machineInfoFile := "../../test_data/machines/" + machine + "/lscompute.json"
 		t.Run(machine, func(t *testing.T) {
-			_, err := os.Stat(hwInfoFile)
+			_, err := os.Stat(machineInfoFile)
 			if err != nil {
 				if os.IsNotExist(err) {
-					// Device does not have hardware-info test data, skipping
+					// Device does not have lscompute.json test data, skipping
 					return
 				} else {
 					t.Fatal(err)
 				}
 			}
 
-			file, err := os.Open(hwInfoFile)
+			file, err := os.Open(machineInfoFile)
 			if err != nil {
 				t.Fatal(err)
 			}
