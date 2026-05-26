@@ -1,27 +1,34 @@
 package machine
 
 import (
-	"encoding/json"
+	"path/filepath"
 	"testing"
 
+	"github.com/canonical/lscompute/pkg/machine/constants"
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
-func TestMarshalUnmarshalDevices(t *testing.T) {
-	machineDevices, warnings, err := Devices(host.Real(), true)
-	if err != nil {
-		t.Fatalf("Failed to get devices: %v", err)
-	}
-	t.Log(warnings)
+func TestDevices_WithFakeHost(t *testing.T) {
+	machineRoot := filepath.Join("..", "..", "test_data", "machines", "xps13-9350", "machine-root")
+	h := host.Fake(machineRoot)
 
-	jsonStr, err := json.Marshal(machineDevices)
+	devices, _, err := Devices(h, false)
 	if err != nil {
-		t.Fatalf("Failed to marshal devices: %v", err)
+		t.Fatalf("Devices() failed: %v", err)
 	}
 
-	var newDevices []types.DeviceInfo
-	if err := json.Unmarshal(jsonStr, &newDevices); err != nil {
-		t.Fatalf("Failed to unmarshal devices: %v", err)
+	if len(devices) == 0 {
+		t.Fatal("expected at least one device, got none")
+	}
+
+	validBuses := map[string]bool{
+		constants.BusPci:     true,
+		constants.BusUsb:     true,
+		constants.BusFastRpc: true,
+	}
+	for _, dev := range devices {
+		if !validBuses[dev.Bus] {
+			t.Errorf("device has unexpected Bus value %q", dev.Bus)
+		}
 	}
 }
