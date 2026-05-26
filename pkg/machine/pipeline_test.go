@@ -16,7 +16,7 @@ var update = flag.Bool("update", false, "rewrite golden files instead of asserti
 // TestGetFromMachineDirs is the full-pipeline golden test. It iterates every
 // directory under test_data/machines/, runs the entire pipeline against the
 // machine-root sub-directory using host.Fake(), and compares against a golden
-// hardware-info.json if one exists.
+// lscompute.json if one exists.
 //
 // Machines without a golden file are still exercised end-to-end — if any
 // machine's raw data trips a parser, the test fails even without a golden file.
@@ -72,7 +72,7 @@ func TestGetFromMachineDirs(t *testing.T) {
 				t.Logf("warning: %s", w)
 			}
 
-			goldenPath := filepath.Join(dir, "hardware-info.json")
+			goldenPath := filepath.Join(dir, "lscompute.json")
 			if _, err := os.Stat(goldenPath); os.IsNotExist(err) {
 				// No golden file: parse-only check. Confirms no panics/fatal errors.
 				return
