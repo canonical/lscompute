@@ -7,10 +7,10 @@ import (
 
 // Device represents a single USB device detected on the system.
 type Device struct {
-	BusNumber    int          `json:"bus-number"`
-	DeviceNumber int          `json:"device-number"`
-	VendorId     types.HexInt `json:"vendor-id"`
-	ProductId    types.HexInt `json:"product-id"`
+	BusNumber     int          `json:"bus-number"`
+	DeviceNumber  int          `json:"device-number"`
+	VendorId      types.HexInt `json:"vendor-id"`
+	ProductId     types.HexInt `json:"product-id"`
 	FriendlyNames `json:",inline"`
 
 	// Vendor specific device key-value pairs
@@ -25,4 +25,3 @@ type FriendlyNames struct {
 	VendorName  *string `json:"vendor-name,omitempty"`
 	ProductName *string `json:"product-name,omitempty"`
 }
-

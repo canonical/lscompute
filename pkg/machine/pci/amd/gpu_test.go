@@ -108,9 +108,9 @@ func TestGetGfxTargetVersion(t *testing.T) {
 }
 func TestGpuProperties(t *testing.T) {
 	tests := []struct {
-		name, machineRoot      string
-		slot                   string
-		shouldErr, checkVram   bool
+		name, machineRoot    string
+		slot                 string
+		shouldErr, checkVram bool
 	}{
 		{name: "hp-zbook AMD GPU", slot: "0000:03:00.0", machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", checkVram: true},
 		{name: "hp-zbook invalid slot", slot: "9999:99:99.9", machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true},

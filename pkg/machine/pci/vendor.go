@@ -60,4 +60,3 @@ func additionalProperties(h host.Host, device Device) (map[string]string, error)
 		return nil, ErrorVendorNotSupported
 	}
 }
-

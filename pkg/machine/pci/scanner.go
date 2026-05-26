@@ -55,5 +55,3 @@ func (s *Scanner) Scan(h host.Host) ([]types.DeviceInfo, []string, error) {
 	}
 	return result, warnings, nil
 }
-
-

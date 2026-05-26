@@ -222,4 +222,3 @@ func TestReadSysPci(t *testing.T) {
 		}
 	})
 }
-
