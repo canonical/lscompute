@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 func TestMarshalUnmarshalDevices(t *testing.T) {
-	machineDevices, warnings, err := Devices(true)
+	machineDevices, warnings, err := Devices(host.Real(), true)
 	if err != nil {
-		t.Fatalf("Failed to marshal devices: %v", err)
+		t.Fatalf("Failed to get devices: %v", err)
 	}
 	t.Log(warnings)
 

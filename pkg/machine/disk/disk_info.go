@@ -2,46 +2,30 @@ package disk
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/canonical/lscompute/pkg/machine/constants"
+	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
+// directories lists the absolute paths whose disk usage we report. The map
+// keys in the result preserve the leading slash for display; we strip it
+// internally to satisfy the host.Host io/fs path convention.
 var directories = []string{
 	constants.SnapStoragePath,
 }
 
-// Info returns the total size and available size for root and snap dirs on the host system, using the statfs syscall.
-func Info() (map[string]types.DirStats, error) {
-	var info = make(map[string]types.DirStats)
-
+// Info returns the total size and available size for configured directories,
+// using the host's StatFs implementation.
+func Info(h host.Host) (map[string]types.DirStats, error) {
+	info := make(map[string]types.DirStats, len(directories))
 	for _, dir := range directories {
-		dirInfo, err := statFs(dir)
+		dirInfo, err := h.StatFs(strings.TrimPrefix(dir, "/"))
 		if err != nil {
 			return nil, fmt.Errorf("getting directory info for %s: %v", dir, err)
 		}
 		info[dir] = dirInfo
 	}
-
-	return info, nil
-}
-
-// InfoFromRawData returns the total size and available size of the root and snap dirs, taking a string in which represents
-// the  output of the df command.
-func InfoFromRawData(dfData string) (map[string]types.DirStats, error) {
-	dirInfos, err := parseDf(dfData)
-	if err != nil {
-		return nil, fmt.Errorf("parsing df: %v", err)
-	}
-
-	if len(dirInfos) != len(directories) {
-		return nil, fmt.Errorf("df did not return info for all dirs")
-	}
-
-	var info = make(map[string]types.DirStats)
-	for i, dir := range directories {
-		info[dir] = dirInfos[i]
-	}
-
 	return info, nil
 }

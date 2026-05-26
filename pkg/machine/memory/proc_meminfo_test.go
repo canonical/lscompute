@@ -3,16 +3,14 @@ package memory
 import (
 	"log"
 	"testing"
+
+	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
 func TestInfoFromData(t *testing.T) {
-	hostData, err := hostProcMemInfo()
+	info, err := Info(host.Real())
 	if err != nil {
-		t.Fatalf("error getting host proc info: %v", err)
-	}
-	info, err := parseProcMemInfo(hostData)
-	if err != nil {
-		t.Fatalf("error parsing host proc info: %v", err)
+		t.Fatalf("error getting host memory info: %v", err)
 	}
 	log.Printf("%+v", info)
 }

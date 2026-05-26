@@ -2,57 +2,46 @@ package amd
 
 import (
 	"fmt"
-	"os"
+	"io/fs"
 	"path/filepath"
 	"strconv"
 	"strings"
 
+	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
-func gpuProperties(pciDevice types.PciDevice) (map[string]string, error) {
-	return gpuPropertiesFromDir(pciDevice, "/")
-}
-
-func gpuPropertiesFromDir(pciDevice types.PciDevice, rootDir string) (map[string]string, error) {
+func gpuProperties(h host.Host, pciDevice types.PciDevice) (map[string]string, error) {
 	properties := make(map[string]string)
 
-	vRamVal, err := vRam(pciDevice, rootDir)
+	vRamVal, err := vRam(h, pciDevice)
 	if err != nil {
 		return nil, fmt.Errorf("looking up vram: %v", err)
 	}
 	if vRamVal != nil {
 		properties["vram"] = strconv.FormatUint(*vRamVal, 10)
 	}
-	gfxArchitecture, err := gfxArchitecture(pciDevice, rootDir)
+	gfxArch, err := gfxArchitecture(h, pciDevice)
 	if err != nil {
 		return nil, fmt.Errorf("looking up gfx architecture: %v", err)
 	}
-	if len(gfxArchitecture) > 0 {
-		properties["microarchitecture"] = gfxArchitecture
+	if len(gfxArch) > 0 {
+		properties["microarchitecture"] = gfxArch
 	}
 
 	return properties, nil
 }
 
-func vRam(device types.PciDevice, rootDir string) (*uint64, error) {
+func vRam(h host.Host, device types.PciDevice) (*uint64, error) {
 	/*
 		AMD vram is listed under /sys/bus/pci/devices/${pci_slot}/mem_info_vram_total
-
-		ubuntu@u-HP-EliteBook-845-G8-Notebook-PC:~$ cat /sys/bus/pci/devices/0000\:04\:00.0/mem_info_
-		mem_info_gtt_total       mem_info_vis_vram_total  mem_info_vram_used
-		mem_info_gtt_used        mem_info_vis_vram_used   mem_info_vram_vendor
-		mem_info_preempt_used    mem_info_vram_total
-
-		ubuntu@u-HP-EliteBook-845-G8-Notebook-PC:~$ cat /sys/bus/pci/devices/0000\:04\:00.0/mem_info_vram_total
-		536870912
 	*/
-	data, err := os.ReadFile(filepath.Join(rootDir, "sys/bus/pci/devices", device.Slot, "mem_info_vram_total"))
+	path := filepath.Join("sys/bus/pci/devices", device.Slot, "mem_info_vram_total")
+	data, err := fs.ReadFile(h.FS(), path)
 	if err != nil {
 		return nil, err
 	}
-	dataStr := string(data)
-	dataStr = strings.TrimSpace(dataStr) // value in file ends in \n
+	dataStr := strings.TrimSpace(string(data))
 	vram, err := strconv.ParseUint(dataStr, 10, 64)
 	if err != nil {
 		return nil, err
@@ -60,9 +49,9 @@ func vRam(device types.PciDevice, rootDir string) (*uint64, error) {
 	return &vram, nil
 }
 
-func gfxArchitecture(device types.PciDevice, rootDir string) (string, error) {
-	nodesDir := filepath.Join(rootDir, "sys/class/kfd/kfd/topology/nodes")
-	files, err := os.ReadDir(nodesDir)
+func gfxArchitecture(h host.Host, device types.PciDevice) (string, error) {
+	nodesDir := "sys/class/kfd/kfd/topology/nodes"
+	files, err := fs.ReadDir(h.FS(), nodesDir)
 	if err != nil {
 		return "", err
 	}
@@ -70,7 +59,7 @@ func gfxArchitecture(device types.PciDevice, rootDir string) (string, error) {
 	for _, file := range files {
 		if file.IsDir() {
 			propertiesPath := filepath.Join(nodesDir, file.Name(), "properties")
-			data, err := os.ReadFile(propertiesPath)
+			data, err := fs.ReadFile(h.FS(), propertiesPath)
 			if err != nil {
 				continue // skip this node if we can't read its properties
 			}
@@ -79,7 +68,7 @@ func gfxArchitecture(device types.PciDevice, rootDir string) (string, error) {
 			var nodeGfxTargetVersion string
 			for _, line := range strings.Split(string(data), "\n") {
 				if strings.HasPrefix(line, "drm_render_minor") {
-					pciSlot, err := getAmdGpuPciSlot(line, rootDir)
+					pciSlot, err := getAmdGpuPciSlot(h, line)
 					if err != nil {
 						break
 					}
@@ -104,20 +93,19 @@ func gfxArchitecture(device types.PciDevice, rootDir string) (string, error) {
 	return "", fmt.Errorf("gfx_target_version not found for device with pci slot %s", device.Slot)
 }
 
-func getAmdGpuPciSlot(drmRenderMinor string, rootDir string) (string, error) {
+func getAmdGpuPciSlot(h host.Host, drmRenderMinor string) (string, error) {
 	parts := strings.Split(drmRenderMinor, " ")
 	if len(parts) == 2 {
 		renderMinor := parts[1]
-		pciSlotFull, err := filepath.EvalSymlinks(filepath.Join(rootDir, "sys/class/drm/renderD"+renderMinor, "device"))
+		// EvalSymlinks uses io/fs convention (no leading slash)
+		symlinkPath := filepath.Join("sys/class/drm/renderD"+renderMinor, "device")
+		resolvedPath, err := h.EvalSymlinks(symlinkPath)
 		if err != nil {
 			return "", err
 		}
-		pciSlot := strings.Split(string(pciSlotFull), "/")
-		if len(pciSlot) == 0 {
-			return "", fmt.Errorf("unexpected format for pci slot path: %s", pciSlotFull)
-		}
-		pciSlotStr := pciSlot[len(pciSlot)-1]
-		return pciSlotStr, nil
+		// The resolved path ends in the PCI slot name (e.g. "sys/bus/pci/devices/0000:03:00.0")
+		pciSlot := filepath.Base(resolvedPath)
+		return pciSlot, nil
 	} else {
 		return "", fmt.Errorf("unexpected format for drm_render_minor: %s", drmRenderMinor)
 	}

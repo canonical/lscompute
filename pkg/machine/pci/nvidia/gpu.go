@@ -1,25 +1,22 @@
 package nvidia
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"os"
-	"os/exec"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
+	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 const nvidiaSmiTimeout = 30 * time.Second
 
-func gpuProperties(pciDevice types.PciDevice) (map[string]string, error) {
+func gpuProperties(h host.Host, pciDevice types.PciDevice) (map[string]string, error) {
 	properties := make(map[string]string)
 
-	vRamVal, err := vRam(pciDevice)
+	vRamVal, err := vRam(h, pciDevice)
 	if err != nil {
 		return nil, fmt.Errorf("looking up vram: %v", err)
 	}
@@ -27,7 +24,7 @@ func gpuProperties(pciDevice types.PciDevice) (map[string]string, error) {
 		properties["vram"] = strconv.FormatUint(*vRamVal, 10)
 	}
 
-	ccVal, err := computeCapability(pciDevice)
+	ccVal, err := computeCapability(h, pciDevice)
 	if err != nil {
 		return nil, fmt.Errorf("looking up compute capability: %v", err)
 	}
@@ -38,20 +35,21 @@ func gpuProperties(pciDevice types.PciDevice) (map[string]string, error) {
 	return properties, nil
 }
 
-func vRam(device types.PciDevice) (*uint64, error) {
+func vRam(h host.Host, device types.PciDevice) (*uint64, error) {
 	/*
 		Nvidia: LANG=C nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits
 
 		$ nvidia-smi --id=00000000:01:00.0 --query-gpu=memory.total --format=csv,noheader
 		4096 MiB
-		$ nvidia-smi --id=00000000:02:00.0 --query-gpu=memory.total --format=csv,noheader
-		No devices were found
 	*/
-	output, err := nvidiaSmi("--id="+device.Slot, "--query-gpu=memory.total", "--format=csv,noheader")
+	ctx, cancel := context.WithTimeout(context.Background(), nvidiaSmiTimeout)
+	defer cancel()
+	output, err := h.RunCommand(ctx, "nvidia-smi", []string{"LANG=C"},
+		"--id="+device.Slot, "--query-gpu=memory.total", "--format=csv,noheader")
 	if err != nil {
 		return nil, fmt.Errorf("executing nvidia-smi: %v", err)
 	}
-	return parseVramAmount(output)
+	return parseVramAmount(strings.TrimSpace(string(output)))
 }
 
 func parseVramAmount(smiOutputString string) (*uint64, error) {
@@ -79,41 +77,13 @@ func parseVramAmount(smiOutputString string) (*uint64, error) {
 	return &vramValue, nil
 }
 
-func computeCapability(device types.PciDevice) (string, error) {
-	// nvidia-smi --query-gpu=compute_cap --format=csv,noheader
-	output, err := nvidiaSmi("--id="+device.Slot, "--query-gpu=compute_cap", "--format=csv,noheader")
+func computeCapability(h host.Host, device types.PciDevice) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), nvidiaSmiTimeout)
+	defer cancel()
+	output, err := h.RunCommand(ctx, "nvidia-smi", []string{"LANG=C"},
+		"--id="+device.Slot, "--query-gpu=compute_cap", "--format=csv,noheader")
 	if err != nil {
 		return "", fmt.Errorf("executing nvidia-smi: %v", err)
 	}
-
-	return output, nil
-}
-
-func nvidiaSmi(args ...string) (string, error) {
-	ctx := context.Background()
-	cmdContext, cancel := context.WithTimeout(ctx, nvidiaSmiTimeout)
-	defer cancel()
-
-	cmd := exec.CommandContext(cmdContext, "nvidia-smi", args...)
-
-	// Set process group and kill the entire process tree on cancel
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	cmd.Cancel = func() error {
-		return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
-	}
-
-	cmd.Env = os.Environ()
-	cmd.Env = append(cmd.Env, "LANG=C")
-
-	output, err := cmd.Output()
-	if err != nil {
-		if len(output) == 0 {
-			return "", err
-		} else {
-			// nvidia-smi writes error messages to stdout
-			return "", fmt.Errorf("%s: %s", err, bytes.TrimSpace(output))
-		}
-	}
-
-	return string(bytes.TrimSpace(output)), nil
+	return strings.TrimSpace(string(output)), nil
 }

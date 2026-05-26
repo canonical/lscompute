@@ -6,12 +6,13 @@ import (
 	"log"
 
 	"github.com/canonical/lscompute/pkg/machine"
+	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
 func main() {
 	log.SetFlags(0) // no timestamps
 
-	output, warnings, err := machine.Get(true)
+	output, warnings, err := machine.Get(host.Real(), true)
 	if err != nil {
 		log.Fatalf("Error: %s", err)
 	}

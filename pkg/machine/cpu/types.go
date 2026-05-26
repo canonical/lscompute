@@ -19,4 +19,5 @@ type procCpuInfo struct {
 	Variant    uint64 // 0x%x
 	PartNumber uint64 // 0x%03x
 	Revision   uint64 // %d
+
 }

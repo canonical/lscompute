@@ -4,21 +4,20 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os/exec"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
+	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 const clInfoTimeout = 10 * time.Second
 
-func gpuProperties(pciDevice types.PciDevice) (map[string]string, error) {
+func gpuProperties(h host.Host, pciDevice types.PciDevice) (map[string]string, error) {
 	properties := make(map[string]string)
 
-	vRamVal, err := vRam(pciDevice)
+	vRamVal, err := vRam(h, pciDevice)
 	if err != nil {
 		return nil, fmt.Errorf("looking up vram: %v", err)
 	}
@@ -29,25 +28,15 @@ func gpuProperties(pciDevice types.PciDevice) (map[string]string, error) {
 	return properties, nil
 }
 
-func vRam(device types.PciDevice) (*uint64, error) {
+func vRam(h host.Host, device types.PciDevice) (*uint64, error) {
 	/*
-		For GPU vRAM information use clinfo. Grep for "Global memory size" and/or "Max memory allocation".
-		After installing necessary drivers for GPU, NPU, you can also use OpenVino APIs to see available devices and their properties, including VRAM.
-		`clinfo --json` reports a field `CL_DEVICE_GLOBAL_MEM_SIZE` which corresponds to the installed hardware's vRAM.
+		For GPU vRAM information use clinfo. `clinfo --json` reports a field
+		`CL_DEVICE_GLOBAL_MEM_SIZE` which corresponds to the installed hardware's vRAM.
 	*/
-	ctx := context.Background()
-	cmdContext, cancel := context.WithTimeout(ctx, clInfoTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), clInfoTimeout)
 	defer cancel()
 
-	command := exec.CommandContext(cmdContext, "clinfo", "--json")
-
-	// Set process group and kill the entire process tree on cancel
-	command.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	command.Cancel = func() error {
-		return syscall.Kill(-command.Process.Pid, syscall.SIGKILL)
-	}
-
-	data, err := command.Output()
+	data, err := h.RunCommand(ctx, "clinfo", nil, "--json")
 	if err != nil {
 		return nil, fmt.Errorf("executing clinfo: %v", err)
 	}

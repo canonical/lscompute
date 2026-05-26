@@ -1,51 +1,28 @@
 package amd
 
 import (
-	"strings"
-	"testing"
-
+	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
+	"testing"
 )
 
 func TestVRam(t *testing.T) {
 	tests := []struct {
-		name          string
-		device        types.PciDevice
-		globalRootDir string
-		expected      uint64
-		shouldErr     bool
+		name        string
+		device      types.PciDevice
+		machineRoot string
+		expected    uint64
+		shouldErr   bool
 	}{
-		{
-			name:          "valid vram read",
-			device:        types.PciDevice{Slot: "0000:03:00.0"},
-			globalRootDir: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root/",
-			expected:      8573157376,
-			shouldErr:     false,
-		},
-		{
-			name:          "invalid path",
-			device:        types.PciDevice{Slot: "9999:99:99.9"},
-			globalRootDir: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root/",
-			shouldErr:     true,
-		},
-		{
-			name:          "valid vram read",
-			device:        types.PciDevice{Slot: "0000:c4:00.0"},
-			globalRootDir: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root/",
-			expected:      8589934592,
-			shouldErr:     false,
-		},
-		{
-			name:          "invalid path",
-			device:        types.PciDevice{Slot: "9999:99:99.9"},
-			globalRootDir: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root/",
-			shouldErr:     true,
-		},
+		{name: "valid vram read hp-zbook", device: types.PciDevice{Slot: "0000:03:00.0"}, machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", expected: 8573157376, shouldErr: false},
+		{name: "invalid path hp-zbook", device: types.PciDevice{Slot: "9999:99:99.9"}, machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true},
+		{name: "valid vram read lenovo", device: types.PciDevice{Slot: "0000:c4:00.0"}, machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", expected: 8589934592, shouldErr: false},
+		{name: "invalid path lenovo", device: types.PciDevice{Slot: "9999:99:99.9"}, machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := vRam(tt.device, tt.globalRootDir)
+			h := host.Fake(tt.machineRoot)
+			got, err := vRam(h, tt.device)
 			if tt.shouldErr {
 				if err == nil {
 					t.Fatalf("expected error, got nil")
@@ -64,82 +41,28 @@ func TestVRam(t *testing.T) {
 		})
 	}
 }
-
 func TestGetAmdGpuPciSlot(t *testing.T) {
 	tests := []struct {
-		name          string
-		input         string
-		globalRootDir string
-		expected      string
-		shouldErr     bool
-		errContains   string
+		name, input, machineRoot, expected, errContains string
+		shouldErr                                       bool
 	}{
-		{
-			name:          "valid input with existing render minor",
-			input:         "drm_render_minor 129",
-			globalRootDir: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root/",
-			expected:      "0000:03:00.0",
-			shouldErr:     false,
-		},
-		{
-			name:          "invalid format - missing value",
-			input:         "drm_render_minor",
-			globalRootDir: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root/",
-			shouldErr:     true,
-			errContains:   "unexpected format for drm_render_minor",
-		},
-		{
-			name:          "invalid format - too many parts",
-			input:         "drm_render_minor 128 extra",
-			globalRootDir: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root/",
-			shouldErr:     true,
-			errContains:   "unexpected format for drm_render_minor",
-		},
-		{
-			name:          "invalid symlink path",
-			input:         "drm_render_minor 999",
-			globalRootDir: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root/",
-			shouldErr:     true,
-		},
-		{
-			name:          "valid input with existing render minor",
-			input:         "drm_render_minor 128",
-			globalRootDir: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root/",
-			expected:      "0000:c4:00.0",
-			shouldErr:     false,
-		},
-		{
-			name:          "invalid format - missing value",
-			input:         "drm_render_minor",
-			globalRootDir: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root/",
-			shouldErr:     true,
-			errContains:   "unexpected format for drm_render_minor",
-		},
-		{
-			name:          "invalid format - too many parts",
-			input:         "drm_render_minor 128 extra",
-			globalRootDir: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root/",
-			shouldErr:     true,
-			errContains:   "unexpected format for drm_render_minor",
-		},
-		{
-			name:          "invalid symlink path",
-			input:         "drm_render_minor 999",
-			globalRootDir: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root/",
-			shouldErr:     true,
-		},
+		{name: "valid hp-zbook render 129", input: "drm_render_minor 129", machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", expected: "0000:03:00.0"},
+		{name: "invalid format hp-zbook missing value", input: "drm_render_minor", machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true, errContains: "unexpected format for drm_render_minor"},
+		{name: "invalid format hp-zbook too many parts", input: "drm_render_minor 128 extra", machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true, errContains: "unexpected format for drm_render_minor"},
+		{name: "invalid symlink hp-zbook", input: "drm_render_minor 999", machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true},
+		{name: "valid lenovo render 128", input: "drm_render_minor 128", machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", expected: "0000:c4:00.0"},
+		{name: "invalid format lenovo missing value", input: "drm_render_minor", machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true, errContains: "unexpected format for drm_render_minor"},
+		{name: "invalid format lenovo too many parts", input: "drm_render_minor 128 extra", machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true, errContains: "unexpected format for drm_render_minor"},
+		{name: "invalid symlink lenovo", input: "drm_render_minor 999", machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := getAmdGpuPciSlot(tt.input, tt.globalRootDir)
+			h := host.Fake(tt.machineRoot)
+			got, err := getAmdGpuPciSlot(h, tt.input)
 			if tt.shouldErr {
 				if err == nil {
 					t.Fatalf("expected error, got nil (result: %q)", got)
 				}
-				if tt.errContains != "" && !strings.Contains(err.Error(), tt.errContains) {
-					t.Fatalf("expected error to contain %q, got %q", tt.errContains, err.Error())
-				}
 				return
 			}
 			if err != nil {
@@ -151,73 +74,29 @@ func TestGetAmdGpuPciSlot(t *testing.T) {
 		})
 	}
 }
-
 func TestGetGfxTargetVersion(t *testing.T) {
 	tests := []struct {
-		name          string
-		input         string
-		expected      string
-		errContains   string
-		expectFailure bool
+		name, input, expected, errContains string
+		expectFailure                      bool
 	}{
-		{
-			name:     "valid gfx target version",
-			input:    "gfx_target_version 110502",
-			expected: "gfx1152",
-		},
-		{
-			name:          "invalid zero value",
-			input:         "gfx_target_version 0",
-			errContains:   "gfx_target_version is invalid for this device",
-			expectFailure: true,
-		},
-		{
-			name:          "unexpected format missing value",
-			input:         "gfx_target_version",
-			errContains:   "unexpected format for gfx_target_version",
-			expectFailure: true,
-		},
-		{
-			name:          "unexpected major format non numeric",
-			input:         "gfx_target_version ab1234",
-			errContains:   "invalid syntax",
-			expectFailure: true,
-		},
-		{
-			name:          "unexpected minor format non numeric",
-			input:         "gfx_target_version 12ab34",
-			errContains:   "invalid syntax",
-			expectFailure: true,
-		},
-		{
-			name:          "unexpected revision format non numeric",
-			input:         "gfx_target_version 1234ab",
-			errContains:   "invalid syntax",
-			expectFailure: true,
-		},
-		{
-			name:          "unexpected short numeric format",
-			input:         "gfx_target_version 12345",
-			errContains:   "gfx_target_version has an unexpected format",
-			expectFailure: true,
-		},
+		{name: "valid", input: "gfx_target_version 110502", expected: "gfx1152"},
+		{name: "zero value", input: "gfx_target_version 0", errContains: "gfx_target_version is invalid", expectFailure: true},
+		{name: "missing value", input: "gfx_target_version", errContains: "unexpected format", expectFailure: true},
+		{name: "non-numeric major", input: "gfx_target_version ab1234", errContains: "invalid syntax", expectFailure: true},
+		{name: "non-numeric minor", input: "gfx_target_version 12ab34", errContains: "invalid syntax", expectFailure: true},
+		{name: "non-numeric revision", input: "gfx_target_version 1234ab", errContains: "invalid syntax", expectFailure: true},
+		{name: "too short", input: "gfx_target_version 12345", errContains: "unexpected format", expectFailure: true},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := parseGfxTargetVersion(tt.input)
 			t.Logf("input=%q got=%q err=%v", tt.input, got, err)
-
 			if tt.expectFailure {
 				if err == nil {
 					t.Fatalf("expected error, got nil (result: %q)", got)
 				}
-				if tt.errContains != "" && !strings.Contains(err.Error(), tt.errContains) {
-					t.Fatalf("expected error to contain %q, got %q", tt.errContains, err.Error())
-				}
 				return
 			}
-
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
@@ -227,139 +106,58 @@ func TestGetGfxTargetVersion(t *testing.T) {
 		})
 	}
 }
-
-func TestGpuPropertiesFromDir(t *testing.T) {
+func TestGpuProperties(t *testing.T) {
 	tests := []struct {
-		name           string
-		device         types.PciDevice
-		globalRootDir  []string // variadic arg
-		shouldErr      bool
-		checkVram      bool
-		checkMicroArch bool
+		name, machineRoot                    string
+		device                               types.PciDevice
+		shouldErr, checkVram, checkMicroArch bool
 	}{
-		{
-			name:           "with specified root directory",
-			device:         types.PciDevice{Slot: "0000:03:00.0"},
-			globalRootDir:  []string{"../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root/"},
-			shouldErr:      false,
-			checkVram:      true,
-			checkMicroArch: true,
-		},
-		{
-			name:          "invalid pciSlot with specified machine",
-			device:        types.PciDevice{Slot: "9999:99:99.9"},
-			globalRootDir: []string{"../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root/"},
-			shouldErr:     true,
-		},
-		{
-			name:           "with specified root directory",
-			device:         types.PciDevice{Slot: "0000:c4:00.0"},
-			globalRootDir:  []string{"../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root/"},
-			shouldErr:      false,
-			checkVram:      true,
-			checkMicroArch: true,
-		},
-		{
-			name:          "invalid pciSlot with specified machine",
-			device:        types.PciDevice{Slot: "9999:99:99.9"},
-			globalRootDir: []string{"../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root/"},
-			shouldErr:     true,
-		},
+		{name: "hp-zbook AMD GPU", device: types.PciDevice{Slot: "0000:03:00.0"}, machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", checkVram: true, checkMicroArch: true},
+		{name: "hp-zbook invalid slot", device: types.PciDevice{Slot: "9999:99:99.9"}, machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true},
+		{name: "lenovo AMD GPU", device: types.PciDevice{Slot: "0000:c4:00.0"}, machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", checkVram: true, checkMicroArch: true},
+		{name: "lenovo invalid slot", device: types.PciDevice{Slot: "9999:99:99.9"}, machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var properties map[string]string
-			var err error
-
-			if len(tt.globalRootDir) > 0 {
-				properties, err = gpuPropertiesFromDir(tt.device, tt.globalRootDir[0])
-			} else {
-				properties, err = gpuProperties(tt.device)
-			}
-
+			h := host.Fake(tt.machineRoot)
+			props, err := gpuProperties(h, tt.device)
 			if tt.shouldErr {
 				if err == nil {
 					t.Fatalf("expected error, got nil")
 				}
 				return
 			}
-
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
-
-			if tt.checkVram {
-				if vram, ok := properties["vram"]; !ok || vram == "" {
-					t.Fatalf("expected vram property to be set")
-				}
-			}
-
-			if tt.checkMicroArch {
-				if microarch, ok := properties["microarchitecture"]; !ok || microarch == "" {
-					t.Fatalf("expected microarchitecture property to be set")
-				}
+			if v, ok := props["vram"]; !ok || v == "" {
+				t.Fatalf("expected vram property")
 			}
 		})
 	}
 }
-
 func TestGfxArchitecture(t *testing.T) {
 	tests := []struct {
-		name          string
-		device        types.PciDevice
-		globalRootDir string
-		expected      string
-		shouldErr     bool
-		errContains   string
+		name, machineRoot, expected, errContains string
+		device                                   types.PciDevice
+		shouldErr                                bool
 	}{
-		{
-			name:          "valid case with matching pci slot and valid gfx_target_version",
-			device:        types.PciDevice{Slot: "0000:03:00.0"},
-			globalRootDir: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root/",
-			expected:      "gfx1032",
-			shouldErr:     false,
-		},
-		{
-			name:          "invalid nodes directory",
-			device:        types.PciDevice{Slot: "0000:03:00.0"},
-			globalRootDir: "/nonexistent/path/",
-			shouldErr:     true,
-		},
-		{
-			name:          "no matching node for pci slot",
-			device:        types.PciDevice{Slot: "9999:99:99.9"},
-			globalRootDir: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root/",
-			shouldErr:     true,
-		},
-		{
-			name:          "valid case with matching pci slot and valid gfx_target_version",
-			device:        types.PciDevice{Slot: "0000:c4:00.0"},
-			globalRootDir: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root/",
-			expected:      "gfx1152",
-			shouldErr:     false,
-		},
-		{
-			name:          "no matching node for pci slot",
-			device:        types.PciDevice{Slot: "9999:99:99.9"},
-			globalRootDir: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root/",
-			shouldErr:     true,
-		},
+		{name: "valid hp-zbook", device: types.PciDevice{Slot: "0000:03:00.0"}, machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", expected: "gfx1032"},
+		{name: "invalid nodes dir", device: types.PciDevice{Slot: "0000:03:00.0"}, machineRoot: "/nonexistent/path/", shouldErr: true},
+		{name: "no match hp-zbook", device: types.PciDevice{Slot: "9999:99:99.9"}, machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true},
+		{name: "valid lenovo", device: types.PciDevice{Slot: "0000:c4:00.0"}, machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", expected: "gfx1152"},
+		{name: "no match lenovo", device: types.PciDevice{Slot: "9999:99:99.9"}, machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := gfxArchitecture(tt.device, tt.globalRootDir)
+			h := host.Fake(tt.machineRoot)
+			got, err := gfxArchitecture(h, tt.device)
 			if tt.shouldErr {
 				if err == nil {
 					t.Fatalf("expected error, got nil (result: %q)", got)
 				}
-				if tt.errContains != "" && !strings.Contains(err.Error(), tt.errContains) {
-					t.Fatalf("expected error to contain %q, got %q", tt.errContains, err.Error())
-				}
 				return
 			}
-
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}

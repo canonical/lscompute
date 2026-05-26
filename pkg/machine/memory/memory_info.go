@@ -2,22 +2,16 @@ package memory
 
 import (
 	"fmt"
+	"io/fs"
 
+	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
-func Info() (types.MemoryInfo, error) {
-	hostProcMemInfoData, err := hostProcMemInfo()
+func Info(h host.Host) (types.MemoryInfo, error) {
+	data, err := fs.ReadFile(h.FS(), "proc/meminfo")
 	if err != nil {
-		return types.MemoryInfo{}, fmt.Errorf("querying host meminfo: %v", err)
+		return types.MemoryInfo{}, fmt.Errorf("reading proc/meminfo: %v", err)
 	}
-	return InfoFromRawData(hostProcMemInfoData)
-}
-
-func InfoFromRawData(procMemInfoData string) (types.MemoryInfo, error) {
-	machineMemInfo, err := parseProcMemInfo(procMemInfoData)
-	if err != nil {
-		return types.MemoryInfo{}, fmt.Errorf("parsing meminfo: %v", err)
-	}
-	return machineMemInfo, nil
+	return parseProcMemInfo(string(data))
 }

@@ -2,18 +2,21 @@ package usb
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
-	"os"
+	"io/fs"
 	"strings"
 
+	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 // usbIdsSearchPaths lists candidate paths for the usb.ids database, in priority order.
+// Paths follow io/fs convention (no leading slash).
 var usbIdsSearchPaths = []string{
-	"/usr/share/misc/usb.ids",
-	"/usr/share/hwdata/usb.ids",
-	"/usr/share/usb.ids",
+	"usr/share/misc/usb.ids",
+	"usr/share/hwdata/usb.ids",
+	"usr/share/usb.ids",
 }
 
 // usbIdEntry holds the names resolved from the USB IDs database.
@@ -23,19 +26,18 @@ type usbIdEntry struct {
 }
 
 // lookupUsbIds looks up the human-readable vendor and product names for the
-// given IDs from the system's usb.ids database file.
+// given IDs from the usb.ids database file.
 // Both names may be empty if the IDs are not found.
-func lookupUsbIds(vendorId, productId types.HexInt) (usbIdEntry, error) {
-	path, err := findUsbIdsFile()
+func lookupUsbIds(h host.Host, vendorId, productId types.HexInt) (usbIdEntry, error) {
+	path, err := findUsbIdsFile(h)
 	if err != nil {
 		return usbIdEntry{}, err
 	}
 
-	f, err := os.Open(path)
+	data, err := fs.ReadFile(h.FS(), path)
 	if err != nil {
 		return usbIdEntry{}, fmt.Errorf("opening usb.ids: %w", err)
 	}
-	defer f.Close()
 
 	vendorHex := fmt.Sprintf("%04x", uint64(vendorId))
 	productHex := fmt.Sprintf("%04x", uint64(productId))
@@ -43,7 +45,7 @@ func lookupUsbIds(vendorId, productId types.HexInt) (usbIdEntry, error) {
 	var result usbIdEntry
 	var inVendor bool
 
-	scanner := bufio.NewScanner(f)
+	scanner := bufio.NewScanner(bytes.NewReader(data))
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -100,8 +102,6 @@ func lookupUsbIds(vendorId, productId types.HexInt) (usbIdEntry, error) {
 
 // splitIdName splits a line of the form "XXXX  Some Name" into id and name.
 func splitIdName(line string) (id, name string, ok bool) {
-	// The separator between ID and name is two or more spaces (or a tab).
-	// Use Fields-based splitting: first field is the ID, rest is the name.
 	fields := strings.SplitN(line, "  ", 2)
 	if len(fields) < 2 {
 		return "", "", false
@@ -109,13 +109,12 @@ func splitIdName(line string) (id, name string, ok bool) {
 	return strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]), true
 }
 
-// findUsbIdsFile returns the path of the first usb.ids file found on the system.
-func findUsbIdsFile() (string, error) {
+// findUsbIdsFile returns the io/fs path of the first usb.ids file found via h.FS().
+func findUsbIdsFile(h host.Host) (string, error) {
 	for _, path := range usbIdsSearchPaths {
-		if _, err := os.Stat(path); err == nil {
+		if _, err := fs.Stat(h.FS(), path); err == nil {
 			return path, nil
 		}
 	}
 	return "", fmt.Errorf("usb.ids database not found (searched: %s)", strings.Join(usbIdsSearchPaths, ", "))
 }
-

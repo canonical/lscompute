@@ -1,26 +1,30 @@
 package cpu
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"reflect"
 	"slices"
+	"strings"
 
 	"github.com/canonical/lscompute/pkg/machine/constants"
+	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
-func Info() ([]types.CpuInfo, error) {
-	hostProcCpu, err := hostProcCpuInfo()
+func Info(h host.Host) ([]types.CpuInfo, error) {
+	procCpuData, err := fs.ReadFile(h.FS(), "proc/cpuinfo")
 	if err != nil {
-		return nil, fmt.Errorf("querying host cpuinfo: %v", err)
+		return nil, fmt.Errorf("reading proc/cpuinfo: %v", err)
 	}
 
-	hostArch, err := hostMachineArch()
+	archData, err := machineArch(h)
 	if err != nil {
-		return nil, fmt.Errorf("getting host machine architecture: %v", err)
+		return nil, fmt.Errorf("getting machine architecture: %v", err)
 	}
 
-	cpus, err := InfoFromRawData(hostProcCpu, hostArch)
+	cpus, err := infoFromRawData(string(procCpuData), archData)
 	if err != nil {
 		return nil, fmt.Errorf("parsing cpu data: %v", err)
 	}
@@ -28,7 +32,24 @@ func Info() ([]types.CpuInfo, error) {
 	return cpus, nil
 }
 
-func InfoFromRawData(procCpuInfoData string, uname string) ([]types.CpuInfo, error) {
+// machineArch returns the kernel machine architecture string (e.g. "x86_64").
+// It reads proc/sys/kernel/arch via the host FS (available on Linux 6.1+).
+// On older kernels the file does not exist; for the real host the architecture.go
+// fallback uses uname(2). For a fake host the file must be present.
+func machineArch(h host.Host) (string, error) {
+	data, err := fs.ReadFile(h.FS(), "proc/sys/kernel/arch")
+	if err == nil {
+		return strings.TrimSpace(string(data)), nil
+	}
+	if !errors.Is(err, fs.ErrNotExist) {
+		return "", fmt.Errorf("reading proc/sys/kernel/arch: %v", err)
+	}
+	// File not present — fall back to uname(2). This only works on a real host;
+	// fake hosts must always provide the file.
+	return hostMachineArchFallback()
+}
+
+func infoFromRawData(procCpuInfoData string, uname string) ([]types.CpuInfo, error) {
 	architecture, err := debianArchitecture(uname)
 	if err != nil {
 		return nil, fmt.Errorf("translating architecture: %v", err)

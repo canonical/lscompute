@@ -2,21 +2,11 @@ package memory
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
-
-func hostProcMemInfo() (string, error) {
-	// cat /proc/meminfo
-	memInfoBytes, err := os.ReadFile("/proc/meminfo")
-	if err != nil {
-		return "", fmt.Errorf("reading /proc/meminfo: %v", err)
-	}
-	return string(memInfoBytes), nil
-}
 
 func parseProcMemInfo(memInfoString string) (types.MemoryInfo, error) {
 	var memInfo = types.MemoryInfo{}
