@@ -41,19 +41,19 @@ func additionalProperties(h host.Host, device Device) (map[string]string, error)
 	case constants.PciVendorAmd:
 		props, err := amd.AdditionalProperties(h, device.Slot, device.IsGpu())
 		if err != nil {
-			return nil, fmt.Errorf("AMD: %v", err)
+			return nil, fmt.Errorf("AMD: %w", err)
 		}
 		return props, nil
 	case constants.PciVendorNvidia:
 		props, err := nvidia.AdditionalProperties(h, device.Slot, device.IsGpu())
 		if err != nil {
-			return nil, fmt.Errorf("NVIDIA: %v", err)
+			return nil, fmt.Errorf("NVIDIA: %w", err)
 		}
 		return props, nil
 	case constants.PciVendorIntel:
 		props, err := intel.AdditionalProperties(h, device.Slot, device.IsGpu())
 		if err != nil {
-			return nil, fmt.Errorf("Intel: %v", err)
+			return nil, fmt.Errorf("Intel: %w", err)
 		}
 		return props, nil
 	default:

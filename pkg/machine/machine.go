@@ -15,25 +15,25 @@ func Get(h host.Host, friendlyNames bool) (*types.MachineInfo, []string, error) 
 
 	memoryInfo, err := memory.Info(h)
 	if err != nil {
-		return nil, nil, fmt.Errorf("getting memory info: %v", err)
+		return nil, nil, fmt.Errorf("getting memory info: %w", err)
 	}
 	machineInfo.Memory = memoryInfo
 
 	cpus, err := cpu.Info(h)
 	if err != nil {
-		return nil, nil, fmt.Errorf("getting cpu info: %v", err)
+		return nil, nil, fmt.Errorf("getting cpu info: %w", err)
 	}
 	machineInfo.Cpus = cpus
 
 	diskInfo, err := disk.Info(h)
 	if err != nil {
-		return nil, nil, fmt.Errorf("getting disk info: %v", err)
+		return nil, nil, fmt.Errorf("getting disk info: %w", err)
 	}
 	machineInfo.Disk = diskInfo
 
 	devices, warnings, err := Devices(h, friendlyNames)
 	if err != nil {
-		return nil, nil, fmt.Errorf("getting devices: %v", err)
+		return nil, nil, fmt.Errorf("getting devices: %w", err)
 	}
 	machineInfo.Devices = devices
 

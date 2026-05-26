@@ -109,3 +109,26 @@ func TestProcStringToBytes(t *testing.T) {
 		})
 	}
 }
+
+func TestParseProcMemInfo_ToleratesMissingSwapAndMalformedLine(t *testing.T) {
+	input := "MemTotal: 1024 kB\nMalformed line\n"
+	got, err := parseProcMemInfo(input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got.TotalRam != 1024*1024 {
+		t.Fatalf("TotalRam: got %d, want %d", got.TotalRam, 1024*1024)
+	}
+	if got.TotalSwap != 0 {
+		t.Fatalf("TotalSwap: got %d, want 0", got.TotalSwap)
+	}
+}
+
+func TestParseProcMemInfo_MemTotalRequired(t *testing.T) {
+	input := "SwapTotal: 0 kB\n"
+	_, err := parseProcMemInfo(input)
+	if err == nil {
+		t.Fatal("expected error for missing MemTotal, got nil")
+	}
+}
+

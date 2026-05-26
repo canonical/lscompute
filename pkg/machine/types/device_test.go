@@ -27,17 +27,6 @@ type stubPciDevice struct {
 
 func (d *stubPciDevice) BusName() string { return "pci" }
 
-func init() {
-	RegisterBusDecoder("usb", func(data []byte) (BusDevice, error) {
-		var d stubUsbDevice
-		return &d, json.Unmarshal(data, &d)
-	})
-	RegisterBusDecoder("pci", func(data []byte) (BusDevice, error) {
-		var d stubPciDevice
-		return &d, json.Unmarshal(data, &d)
-	})
-}
-
 // TestDeviceMarshalJSON verifies that a USB device does not leak PCI fields
 // and that a PCI device does not leak USB fields when marshalled to JSON.
 func TestDeviceMarshalJSON(t *testing.T) {
@@ -74,15 +63,6 @@ func TestDeviceMarshalJSON(t *testing.T) {
 		}
 	}
 
-	// Round-trip: unmarshal back and check
-	var decoded DeviceInfo
-	if err := json.Unmarshal(data, &decoded); err != nil {
-		t.Fatalf("unexpected unmarshal error: %v", err)
-	}
-	if decoded.Bus != "usb" {
-		t.Errorf("expected bus=usb, got %q", decoded.Bus)
-	}
-
 	// PCI device: USB fields must not appear
 	pciDevice := DeviceInfo{
 		Bus: "pci",
@@ -115,25 +95,5 @@ func TestDeviceMarshalJSON_NilPayload(t *testing.T) {
 	_, err := di.MarshalJSON()
 	if err == nil {
 		t.Fatal("expected error for nil Payload, got nil")
-	}
-}
-
-// TestDeviceUnmarshalJSON_UnknownBus verifies that UnmarshalJSON returns an
-// error when no decoder is registered for the bus type.
-func TestDeviceUnmarshalJSON_UnknownBus(t *testing.T) {
-	data := []byte(`{"bus":"unknown-bus-xyz","vendor-id":1}`)
-	var di DeviceInfo
-	if err := di.UnmarshalJSON(data); err == nil {
-		t.Fatal("expected error for unknown bus, got nil")
-	}
-}
-
-// TestDeviceUnmarshalJSON_MalformedJSON verifies that UnmarshalJSON returns an
-// error when the JSON is not valid.
-func TestDeviceUnmarshalJSON_MalformedJSON(t *testing.T) {
-	data := []byte(`not-valid-json`)
-	var di DeviceInfo
-	if err := di.UnmarshalJSON(data); err == nil {
-		t.Fatal("expected error for malformed JSON, got nil")
 	}
 }

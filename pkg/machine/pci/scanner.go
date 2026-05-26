@@ -31,7 +31,7 @@ func (s *Scanner) BusName() string { return constants.BusPci }
 func (s *Scanner) Scan(h host.Host) ([]types.DeviceInfo, []string, error) {
 	devices, warnings, err := readSysPci(h)
 	if err != nil {
-		return nil, nil, fmt.Errorf("reading sysfs pci devices: %v", err)
+		return nil, nil, fmt.Errorf("reading sysfs pci devices: %w", err)
 	}
 
 	if s.opts.FriendlyNames {

@@ -103,6 +103,15 @@ func TestInfoFromRawData_Arm64(t *testing.T) {
 	}
 }
 
+// TestInfoFromRawData_EmptyCpuInfo verifies infoFromRawData fail-fast behavior
+// when proc/cpuinfo content has no CPU entries.
+func TestInfoFromRawData_EmptyCpuInfo(t *testing.T) {
+	_, err := infoFromRawData("\n\n", "x86_64")
+	if err == nil {
+		t.Fatal("expected error for empty cpuinfo, got nil")
+	}
+}
+
 // TestUniqueCpuInfo_Deduplication verifies that identical CPU entries are collapsed.
 func TestUniqueCpuInfo_Deduplication(t *testing.T) {
 	// Two identical cores (same flags/vendor) — should be collapsed to one.

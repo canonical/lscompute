@@ -93,8 +93,8 @@ func assertEqualToGolden(t *testing.T, path string, got *types.MachineInfo) {
 		t.Fatalf("reading golden %s: %v", path, err)
 	}
 
-	var want types.MachineInfo
-	if err := json.Unmarshal(goldenData, &want); err != nil {
+	want, err := DecodeMachineInfo(goldenData)
+	if err != nil {
 		t.Fatalf("parsing golden %s: %v", path, err)
 	}
 
@@ -103,7 +103,7 @@ func assertEqualToGolden(t *testing.T, path string, got *types.MachineInfo) {
 	if err != nil {
 		t.Fatalf("marshalling result: %v", err)
 	}
-	wantData, err := json.MarshalIndent(&want, "", "  ")
+	wantData, err := json.MarshalIndent(want, "", "  ")
 	if err != nil {
 		t.Fatalf("re-marshalling golden: %v", err)
 	}

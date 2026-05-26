@@ -23,7 +23,7 @@ func Info(h host.Host) (map[string]types.DirStats, error) {
 	for _, dir := range directories {
 		dirInfo, err := h.StatFs(strings.TrimPrefix(dir, "/"))
 		if err != nil {
-			return nil, fmt.Errorf("getting directory info for %s: %v", dir, err)
+			return nil, fmt.Errorf("getting directory info for %s: %w", dir, err)
 		}
 		info[dir] = dirInfo
 	}
