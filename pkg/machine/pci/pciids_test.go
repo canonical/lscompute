@@ -46,15 +46,15 @@ func TestLookupPciIds(t *testing.T) {
 	sd := types.HexInt(0x5678)
 
 	tests := []struct {
-		name            string
-		vendorId        types.HexInt
-		deviceId        types.HexInt
-		subvendorId     *types.HexInt
-		subdeviceId     *types.HexInt
-		wantVendor      string
-		wantDevice      string
-		wantSubvendor   string
-		wantSubdevice   string
+		name          string
+		vendorId      types.HexInt
+		deviceId      types.HexInt
+		subvendorId   *types.HexInt
+		subdeviceId   *types.HexInt
+		wantVendor    string
+		wantDevice    string
+		wantSubvendor string
+		wantSubdevice string
 	}{
 		{
 			name:       "known vendor and device",
@@ -136,11 +136,11 @@ func TestLookupPciIds_MissingFile(t *testing.T) {
 
 func TestSplitPciIdName(t *testing.T) {
 	tests := []struct {
-		name    string
-		input   string
-		wantId  string
+		name     string
+		input    string
+		wantId   string
 		wantName string
-		wantOk  bool
+		wantOk   bool
 	}{
 		{
 			name:     "well-formed vendor line",
@@ -160,7 +160,7 @@ func TestSplitPciIdName(t *testing.T) {
 			name:     "name with extra spaces trimmed",
 			input:    "abcd    Some Device With Spaces",
 			wantId:   "abcd",
-			wantName:  "Some Device With Spaces",
+			wantName: "Some Device With Spaces",
 			wantOk:   true,
 		},
 		{
@@ -196,12 +196,12 @@ func TestSplitPciIdName(t *testing.T) {
 
 func TestSplitSubsystemLine(t *testing.T) {
 	tests := []struct {
-		name       string
-		input      string
-		wantSV     string
-		wantSD     string
-		wantName   string
-		wantOk     bool
+		name     string
+		input    string
+		wantSV   string
+		wantSD   string
+		wantName string
+		wantOk   bool
 	}{
 		{
 			name:     "well-formed subsystem line",
@@ -253,3 +253,68 @@ func TestSplitSubsystemLine(t *testing.T) {
 	}
 }
 
+// TestLookupFriendlyNames exercises the higher-level wrapper that converts the
+// raw pciIdEntry result into a FriendlyNames struct with optional string pointers.
+func TestLookupFriendlyNames(t *testing.T) {
+	h := writePciIdsFixture(t)
+
+	sv := types.HexInt(0x8086)
+	sd := types.HexInt(0x5678)
+
+	t.Run("known vendor and device populate names", func(t *testing.T) {
+		dev := Device{VendorId: 0x8086, DeviceId: 0x1234}
+		names, err := lookupFriendlyNames(h, dev)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if names.VendorName == nil || *names.VendorName != "Intel Corporation" {
+			t.Errorf("VendorName = %v, want %q", names.VendorName, "Intel Corporation")
+		}
+		if names.DeviceName == nil || *names.DeviceName != "Fake Display Device" {
+			t.Errorf("DeviceName = %v, want %q", names.DeviceName, "Fake Display Device")
+		}
+		if names.SubvendorName != nil {
+			t.Errorf("SubvendorName should be nil when not requested, got %q", *names.SubvendorName)
+		}
+	})
+
+	t.Run("known subsystem populates all four names", func(t *testing.T) {
+		dev := Device{
+			VendorId:    0x8086,
+			DeviceId:    0x1234,
+			SubvendorId: &sv,
+			SubdeviceId: &sd,
+		}
+		names, err := lookupFriendlyNames(h, dev)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if names.SubvendorName == nil || *names.SubvendorName != "Intel Corporation" {
+			t.Errorf("SubvendorName = %v, want %q", names.SubvendorName, "Intel Corporation")
+		}
+		if names.SubdeviceName == nil || *names.SubdeviceName != "Intel Reference Subsystem" {
+			t.Errorf("SubdeviceName = %v, want %q", names.SubdeviceName, "Intel Reference Subsystem")
+		}
+	})
+
+	t.Run("unknown vendor returns all-nil FriendlyNames", func(t *testing.T) {
+		dev := Device{VendorId: 0xffff, DeviceId: 0xffff}
+		names, err := lookupFriendlyNames(h, dev)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if names.VendorName != nil || names.DeviceName != nil {
+			t.Errorf("expected all-nil names for unknown vendor, got vendor=%v device=%v",
+				names.VendorName, names.DeviceName)
+		}
+	})
+
+	t.Run("missing pci.ids returns error", func(t *testing.T) {
+		emptyHost := host.Fake(t.TempDir())
+		dev := Device{VendorId: 0x8086, DeviceId: 0x1234}
+		_, err := lookupFriendlyNames(emptyHost, dev)
+		if err == nil {
+			t.Fatal("expected error for missing pci.ids, got nil")
+		}
+	})
+}

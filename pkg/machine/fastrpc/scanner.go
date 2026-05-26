@@ -29,4 +29,3 @@ func (s *Scanner) Scan(h host.Host) ([]types.DeviceInfo, []string, error) {
 	// TODO: implement FastRPC device enumeration via /sys/bus/platform or /dev/fastrpc*
 	return nil, nil, nil
 }
-

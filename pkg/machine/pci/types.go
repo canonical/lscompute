@@ -37,4 +37,3 @@ type FriendlyNames struct {
 	SubvendorName *string `json:"subvendor-name,omitempty"`
 	SubdeviceName *string `json:"subdevice-name,omitempty"`
 }
-

@@ -12,4 +12,3 @@ type Device struct {
 
 // BusName satisfies the types.BusDevice interface.
 func (d *Device) BusName() string { return constants.BusFastRpc }
-

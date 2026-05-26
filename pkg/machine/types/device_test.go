@@ -107,3 +107,33 @@ func TestDeviceMarshalJSON(t *testing.T) {
 		}
 	}
 }
+
+// TestDeviceMarshalJSON_NilPayload verifies that MarshalJSON returns an error
+// when the Payload field is nil.
+func TestDeviceMarshalJSON_NilPayload(t *testing.T) {
+	di := DeviceInfo{Bus: "usb", Payload: nil}
+	_, err := di.MarshalJSON()
+	if err == nil {
+		t.Fatal("expected error for nil Payload, got nil")
+	}
+}
+
+// TestDeviceUnmarshalJSON_UnknownBus verifies that UnmarshalJSON returns an
+// error when no decoder is registered for the bus type.
+func TestDeviceUnmarshalJSON_UnknownBus(t *testing.T) {
+	data := []byte(`{"bus":"unknown-bus-xyz","vendor-id":1}`)
+	var di DeviceInfo
+	if err := di.UnmarshalJSON(data); err == nil {
+		t.Fatal("expected error for unknown bus, got nil")
+	}
+}
+
+// TestDeviceUnmarshalJSON_MalformedJSON verifies that UnmarshalJSON returns an
+// error when the JSON is not valid.
+func TestDeviceUnmarshalJSON_MalformedJSON(t *testing.T) {
+	data := []byte(`not-valid-json`)
+	var di DeviceInfo
+	if err := di.UnmarshalJSON(data); err == nil {
+		t.Fatal("expected error for malformed JSON, got nil")
+	}
+}
