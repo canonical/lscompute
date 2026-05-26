@@ -8,15 +8,14 @@ import (
 	"time"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 const nvidiaSmiTimeout = 30 * time.Second
 
-func gpuProperties(h host.Host, pciDevice types.PciDevice) (map[string]string, error) {
+func gpuProperties(h host.Host, slot string) (map[string]string, error) {
 	properties := make(map[string]string)
 
-	vRamVal, err := vRam(h, pciDevice)
+	vRamVal, err := vRam(h, slot)
 	if err != nil {
 		return nil, fmt.Errorf("looking up vram: %v", err)
 	}
@@ -24,7 +23,7 @@ func gpuProperties(h host.Host, pciDevice types.PciDevice) (map[string]string, e
 		properties["vram"] = strconv.FormatUint(*vRamVal, 10)
 	}
 
-	ccVal, err := computeCapability(h, pciDevice)
+	ccVal, err := computeCapability(h, slot)
 	if err != nil {
 		return nil, fmt.Errorf("looking up compute capability: %v", err)
 	}
@@ -35,7 +34,7 @@ func gpuProperties(h host.Host, pciDevice types.PciDevice) (map[string]string, e
 	return properties, nil
 }
 
-func vRam(h host.Host, device types.PciDevice) (*uint64, error) {
+func vRam(h host.Host, slot string) (*uint64, error) {
 	/*
 		Nvidia: LANG=C nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits
 
@@ -45,7 +44,7 @@ func vRam(h host.Host, device types.PciDevice) (*uint64, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), nvidiaSmiTimeout)
 	defer cancel()
 	output, err := h.RunCommand(ctx, "nvidia-smi", []string{"LANG=C"},
-		"--id="+device.Slot, "--query-gpu=memory.total", "--format=csv,noheader")
+		"--id="+slot, "--query-gpu=memory.total", "--format=csv,noheader")
 	if err != nil {
 		return nil, fmt.Errorf("executing nvidia-smi: %v", err)
 	}
@@ -77,11 +76,11 @@ func parseVramAmount(smiOutputString string) (*uint64, error) {
 	return &vramValue, nil
 }
 
-func computeCapability(h host.Host, device types.PciDevice) (string, error) {
+func computeCapability(h host.Host, slot string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), nvidiaSmiTimeout)
 	defer cancel()
 	output, err := h.RunCommand(ctx, "nvidia-smi", []string{"LANG=C"},
-		"--id="+device.Slot, "--query-gpu=compute_cap", "--format=csv,noheader")
+		"--id="+slot, "--query-gpu=compute_cap", "--format=csv,noheader")
 	if err != nil {
 		return "", fmt.Errorf("executing nvidia-smi: %v", err)
 	}

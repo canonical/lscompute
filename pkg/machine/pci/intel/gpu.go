@@ -14,10 +14,10 @@ import (
 
 const clInfoTimeout = 10 * time.Second
 
-func gpuProperties(h host.Host, pciDevice types.PciDevice) (map[string]string, error) {
+func gpuProperties(h host.Host, slot string) (map[string]string, error) {
 	properties := make(map[string]string)
 
-	vRamVal, err := vRam(h, pciDevice)
+	vRamVal, err := vRam(h, slot)
 	if err != nil {
 		return nil, fmt.Errorf("looking up vram: %v", err)
 	}
@@ -28,7 +28,7 @@ func gpuProperties(h host.Host, pciDevice types.PciDevice) (map[string]string, e
 	return properties, nil
 }
 
-func vRam(h host.Host, device types.PciDevice) (*uint64, error) {
+func vRam(h host.Host, slot string) (*uint64, error) {
 	/*
 		For GPU vRAM information use clinfo. `clinfo --json` reports a field
 		`CL_DEVICE_GLOBAL_MEM_SIZE` which corresponds to the installed hardware's vRAM.
@@ -55,7 +55,7 @@ func vRam(h host.Host, device types.PciDevice) (*uint64, error) {
 	var vramValue *uint64 = nil
 	// Search for the device with a matching PCI address
 	for _, clInfoDevice := range clinfo.Devices[0].Online {
-		if strings.Contains(clInfoDevice.ClDevicePciBusInfoKhr, device.Slot) {
+		if strings.Contains(clInfoDevice.ClDevicePciBusInfoKhr, slot) {
 			vram := clInfoDevice.ClDeviceGlobalMemSize
 			vramValue = &vram
 		}

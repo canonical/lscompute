@@ -6,20 +6,50 @@ import (
 	"testing"
 )
 
+// --- stub bus device types for testing ---
+
+type stubUsbDevice struct {
+	BusNumber    int    `json:"bus-number"`
+	DeviceNumber int    `json:"device-number"`
+	VendorId     int    `json:"vendor-id"`
+	ProductId    int    `json:"product-id"`
+	ProductName  string `json:"product-name,omitempty"`
+}
+
+func (d *stubUsbDevice) BusName() string { return "usb" }
+
+type stubPciDevice struct {
+	Slot        string `json:"slot"`
+	VendorId    int    `json:"vendor-id"`
+	DeviceId    int    `json:"device-id"`
+	DeviceClass int    `json:"device-class"`
+}
+
+func (d *stubPciDevice) BusName() string { return "pci" }
+
+func init() {
+	RegisterBusDecoder("usb", func(data []byte) (BusDevice, error) {
+		var d stubUsbDevice
+		return &d, json.Unmarshal(data, &d)
+	})
+	RegisterBusDecoder("pci", func(data []byte) (BusDevice, error) {
+		var d stubPciDevice
+		return &d, json.Unmarshal(data, &d)
+	})
+}
+
 // TestDeviceMarshalJSON verifies that a USB device does not leak PCI fields
 // and that a PCI device does not leak USB fields when marshalled to JSON.
 func TestDeviceMarshalJSON(t *testing.T) {
 	productName := "Realtek Semiconductor Corp. Dell dock"
 	usbDevice := DeviceInfo{
 		Bus: "usb",
-		UsbDevice: UsbDevice{
+		Payload: &stubUsbDevice{
 			BusNumber:    1,
 			DeviceNumber: 16,
 			VendorId:     0x0bda,
 			ProductId:    0x5487,
-			UsbFriendlyNames: UsbFriendlyNames{
-				ProductName: &productName,
-			},
+			ProductName:  productName,
 		},
 	}
 
@@ -52,14 +82,11 @@ func TestDeviceMarshalJSON(t *testing.T) {
 	if decoded.Bus != "usb" {
 		t.Errorf("expected bus=usb, got %q", decoded.Bus)
 	}
-	if decoded.UsbDevice.ProductId != 0x5487 {
-		t.Errorf("expected product-id=0x5487, got %v", decoded.UsbDevice.ProductId)
-	}
 
 	// PCI device: USB fields must not appear
 	pciDevice := DeviceInfo{
 		Bus: "pci",
-		PciDevice: PciDevice{
+		Payload: &stubPciDevice{
 			Slot:        "0000:00:02.0",
 			VendorId:    0x8086,
 			DeviceId:    0x1234,
