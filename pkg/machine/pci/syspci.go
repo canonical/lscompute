@@ -2,20 +2,21 @@ package pci
 
 import (
 	"fmt"
-	"os"
+	"io/fs"
 	"path/filepath"
 	"strconv"
 	"strings"
 
+	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
-const pciDevicesPath = "/sys/bus/pci/devices"
+const pciDevicesDir = "sys/bus/pci/devices" // io/fs path (no leading slash)
 
-func hostSysPci() ([]types.PciDevice, []string, error) {
-	entries, err := os.ReadDir(pciDevicesPath)
+func readSysPci(h host.Host) ([]types.PciDevice, []string, error) {
+	entries, err := fs.ReadDir(h.FS(), pciDevicesDir)
 	if err != nil {
-		return nil, nil, fmt.Errorf("reading %s: %w", pciDevicesPath, err)
+		return nil, nil, fmt.Errorf("reading %s: %w", pciDevicesDir, err)
 	}
 
 	var devices []types.PciDevice
@@ -23,9 +24,9 @@ func hostSysPci() ([]types.PciDevice, []string, error) {
 
 	for _, entry := range entries {
 		slot := entry.Name()
-		dir := filepath.Join(pciDevicesPath, slot)
+		dir := filepath.Join(pciDevicesDir, slot)
 
-		device, err := readSysPciDevice(dir, slot)
+		device, err := readSysPciDevice(h, dir, slot)
 		if err != nil {
 			warnings = append(warnings, fmt.Sprintf("reading pci device %s: %v", slot, err))
 			continue
@@ -36,7 +37,7 @@ func hostSysPci() ([]types.PciDevice, []string, error) {
 	return devices, warnings, nil
 }
 
-func readSysPciDevice(dir, slot string) (types.PciDevice, error) {
+func readSysPciDevice(h host.Host, dir, slot string) (types.PciDevice, error) {
 	var device types.PciDevice
 	device.Slot = slot
 
@@ -51,13 +52,13 @@ func readSysPciDevice(dir, slot string) (types.PciDevice, error) {
 	}
 	device.BusNumber = types.HexInt(busNum)
 
-	vendor, err := readHexFile(filepath.Join(dir, "vendor"))
+	vendor, err := readHexFSFile(h, filepath.Join(dir, "vendor"))
 	if err != nil {
 		return device, fmt.Errorf("vendor: %w", err)
 	}
 	device.VendorId = types.HexInt(vendor)
 
-	deviceId, err := readHexFile(filepath.Join(dir, "device"))
+	deviceId, err := readHexFSFile(h, filepath.Join(dir, "device"))
 	if err != nil {
 		return device, fmt.Errorf("device: %w", err)
 	}
@@ -65,7 +66,7 @@ func readSysPciDevice(dir, slot string) (types.PciDevice, error) {
 
 	// class is 24-bit 0xCCSSPP: upper 16 bits are the device class (class+subclass),
 	// lower 8 bits are the programming interface.
-	classVal, err := readHexFile(filepath.Join(dir, "class"))
+	classVal, err := readHexFSFile(h, filepath.Join(dir, "class"))
 	if err != nil {
 		return device, fmt.Errorf("class: %w", err)
 	}
@@ -74,12 +75,12 @@ func readSysPciDevice(dir, slot string) (types.PciDevice, error) {
 		device.ProgrammingInterface = &progIf
 	}
 
-	if subVendor, err := readHexFile(filepath.Join(dir, "subsystem_vendor")); err == nil {
+	if subVendor, err := readHexFSFile(h, filepath.Join(dir, "subsystem_vendor")); err == nil {
 		sv := types.HexInt(subVendor)
 		device.SubvendorId = &sv
 	}
 
-	if subDevice, err := readHexFile(filepath.Join(dir, "subsystem_device")); err == nil {
+	if subDevice, err := readHexFSFile(h, filepath.Join(dir, "subsystem_device")); err == nil {
 		sd := types.HexInt(subDevice)
 		device.SubdeviceId = &sd
 	}
@@ -87,8 +88,8 @@ func readSysPciDevice(dir, slot string) (types.PciDevice, error) {
 	return device, nil
 }
 
-func readHexFile(path string) (uint64, error) {
-	data, err := os.ReadFile(path)
+func readHexFSFile(h host.Host, path string) (uint64, error) {
+	data, err := fs.ReadFile(h.FS(), path)
 	if err != nil {
 		return 0, err
 	}

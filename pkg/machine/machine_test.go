@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 func TestGetCurrentHostMarshalUnmarshal(t *testing.T) {
-	machineInfo, _, err := Get(false)
+	machineInfo, _, err := Get(host.Real(), false)
 	if err != nil {
 		t.Fatalf("Get() failed: %v", err)
 	}

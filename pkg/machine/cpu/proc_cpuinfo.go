@@ -2,21 +2,11 @@ package cpu
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 
 	"github.com/canonical/lscompute/pkg/machine/constants"
 )
-
-func hostProcCpuInfo() (string, error) {
-	// cat /proc/cpuinfo
-	cpuInfoBytes, err := os.ReadFile("/proc/cpuinfo")
-	if err != nil {
-		return "", fmt.Errorf("reading /proc/cpuinfo: %v", err)
-	}
-	return string(cpuInfoBytes), nil
-}
 
 func parseProcCpuInfo(cpuInfoString string, architecture string) ([]procCpuInfo, error) {
 	switch architecture {

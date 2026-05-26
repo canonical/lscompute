@@ -2,18 +2,21 @@ package pci
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
-	"os"
+	"io/fs"
 	"strings"
 
+	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 // pciIdsSearchPaths lists candidate paths for the pci.ids database, in priority order.
+// Paths follow io/fs convention (no leading slash).
 var pciIdsSearchPaths = []string{
-	"/usr/share/misc/pci.ids",
-	"/usr/share/hwdata/pci.ids",
-	"/usr/share/pci.ids",
+	"usr/share/misc/pci.ids",
+	"usr/share/hwdata/pci.ids",
+	"usr/share/pci.ids",
 }
 
 // pciIdEntry holds the names resolved from the PCI IDs database.
@@ -25,19 +28,18 @@ type pciIdEntry struct {
 }
 
 // lookupPciIds looks up the human-readable vendor, device, subvendor and
-// subdevice names for the given IDs from the system's pci.ids database file.
+// subdevice names for the given IDs from the pci.ids database file.
 // Any name may be empty if the corresponding ID is not found.
-func lookupPciIds(vendorId, deviceId types.HexInt, subvendorId, subdeviceId *types.HexInt) (pciIdEntry, error) {
-	path, err := findPciIdsFile()
+func lookupPciIds(h host.Host, vendorId, deviceId types.HexInt, subvendorId, subdeviceId *types.HexInt) (pciIdEntry, error) {
+	path, err := findPciIdsFile(h)
 	if err != nil {
 		return pciIdEntry{}, err
 	}
 
-	f, err := os.Open(path)
+	data, err := fs.ReadFile(h.FS(), path)
 	if err != nil {
 		return pciIdEntry{}, fmt.Errorf("opening pci.ids: %w", err)
 	}
-	defer f.Close()
 
 	vendorHex := fmt.Sprintf("%04x", uint64(vendorId))
 	deviceHex := fmt.Sprintf("%04x", uint64(deviceId))
@@ -54,11 +56,11 @@ func lookupPciIds(vendorId, deviceId types.HexInt, subvendorId, subdeviceId *typ
 	var result pciIdEntry
 
 	// Parsing state
-	var inTargetVendor bool  // inside the vendor block for vendorId
-	var inTargetDevice bool  // inside the device block for deviceId (implies inTargetVendor)
+	var inTargetVendor bool // inside the vendor block for vendorId
+	var inTargetDevice bool // inside the device block for deviceId (implies inTargetVendor)
 	var currentVendorId string
 
-	scanner := bufio.NewScanner(f)
+	scanner := bufio.NewScanner(bytes.NewReader(data))
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -160,13 +162,12 @@ func splitSubsystemLine(line string) (subvendor, subdevice, name string, ok bool
 	return ids[0], ids[1], strings.TrimSpace(fields[1]), true
 }
 
-// findPciIdsFile returns the path of the first pci.ids file found on the system.
-func findPciIdsFile() (string, error) {
+// findPciIdsFile returns the io/fs path of the first pci.ids file found via h.FS().
+func findPciIdsFile(h host.Host) (string, error) {
 	for _, path := range pciIdsSearchPaths {
-		if _, err := os.Stat(path); err == nil {
+		if _, err := fs.Stat(h.FS(), path); err == nil {
 			return path, nil
 		}
 	}
 	return "", fmt.Errorf("pci.ids database not found (searched: %s)", strings.Join(pciIdsSearchPaths, ", "))
 }
-

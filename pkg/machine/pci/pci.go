@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/canonical/lscompute/pkg/machine/constants"
+	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/pci/amd"
 	"github.com/canonical/lscompute/pkg/machine/pci/intel"
 	"github.com/canonical/lscompute/pkg/machine/pci/nvidia"
@@ -18,15 +19,15 @@ var (
 /*
 Devices returns a slice of PciDevices that are detected on the current system via sysfs.
 */
-func Devices(includeFriendlyNames bool) ([]types.PciDevice, []string, error) {
-	devices, warnings, err := hostSysPci()
+func Devices(h host.Host, includeFriendlyNames bool) ([]types.PciDevice, []string, error) {
+	devices, warnings, err := readSysPci(h)
 	if err != nil {
 		return nil, nil, fmt.Errorf("reading sysfs pci devices: %v", err)
 	}
 
 	if includeFriendlyNames {
 		for i, device := range devices {
-			names, err := friendlyNames(device)
+			names, err := lookupFriendlyNames(h, device)
 			if err != nil {
 				warnings = append(warnings, fmt.Sprintf("unable to get friendly name for pci device: %s", err))
 			} else {
@@ -35,17 +36,16 @@ func Devices(includeFriendlyNames bool) ([]types.PciDevice, []string, error) {
 		}
 	}
 
-	devices, additionalPropWarnings := addAdditionalProperties(devices)
+	devices, additionalPropWarnings := addAdditionalProperties(h, devices)
 	warnings = append(warnings, additionalPropWarnings...)
 	return devices, warnings, nil
 }
 
-
 /*
-friendlyNames uses the numeric PCI ID fields to look up human-readable names for the device from the pci.ids database.
+lookupFriendlyNames uses the numeric PCI ID fields to look up human-readable names for the device from the pci.ids database.
 */
-func friendlyNames(device types.PciDevice) (types.PciFriendlyNames, error) {
-	entry, err := lookupPciIds(device.VendorId, device.DeviceId, device.SubvendorId, device.SubdeviceId)
+func lookupFriendlyNames(h host.Host, device types.PciDevice) (types.PciFriendlyNames, error) {
+	entry, err := lookupPciIds(h, device.VendorId, device.DeviceId, device.SubvendorId, device.SubdeviceId)
 	if err != nil {
 		return types.PciFriendlyNames{}, fmt.Errorf("pci ids lookup for %04x:%04x: %w", uint64(device.VendorId), uint64(device.DeviceId), err)
 	}
@@ -72,15 +72,12 @@ func friendlyNames(device types.PciDevice) (types.PciFriendlyNames, error) {
 
 /*
 addAdditionalProperties returns devices with their AdditionalProperties field populated with device specific properties.
-Additional properties are obtained by running vendor specific tools on the host system.
-No error is returned as a failure to look up properties is considered non-fatal, and likely due to missing drivers.
-Errors are instead logged to STDERR.
 */
-func addAdditionalProperties(devices []types.PciDevice) ([]types.PciDevice, []string) {
+func addAdditionalProperties(h host.Host, devices []types.PciDevice) ([]types.PciDevice, []string) {
 	var warnings []string
 
 	for i, device := range devices {
-		properties, err := deviceAdditionalProperties(device)
+		properties, err := deviceAdditionalProperties(h, device)
 		if err != nil {
 			if errors.Is(err, ErrorVendorNotSupported) {
 				// We do not log unsupported vendors, as that would be the majority of PCI devices
@@ -94,23 +91,23 @@ func addAdditionalProperties(devices []types.PciDevice) ([]types.PciDevice, []st
 	return devices, warnings
 }
 
-func deviceAdditionalProperties(device types.PciDevice) (map[string]string, error) {
+func deviceAdditionalProperties(h host.Host, device types.PciDevice) (map[string]string, error) {
 	var properties map[string]string
 	var err error
 
 	switch device.VendorId {
 	case constants.PciVendorAmd:
-		properties, err = amd.AdditionalProperties(device)
+		properties, err = amd.AdditionalProperties(h, device)
 		if err != nil {
 			return nil, fmt.Errorf("AMD: %v", err)
 		}
 	case constants.PciVendorNvidia:
-		properties, err = nvidia.AdditionalProperties(device)
+		properties, err = nvidia.AdditionalProperties(h, device)
 		if err != nil {
 			return nil, fmt.Errorf("NVIDIA: %v", err)
 		}
 	case constants.PciVendorIntel:
-		properties, err = intel.AdditionalProperties(device)
+		properties, err = intel.AdditionalProperties(h, device)
 		if err != nil {
 			return nil, fmt.Errorf("Intel: %v", err)
 		}

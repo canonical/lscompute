@@ -1,21 +1,26 @@
 package usb
 
 import (
+	"errors"
 	"fmt"
-	"os"
+	"io/fs"
 	"path/filepath"
 	"strconv"
 	"strings"
 
+	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
-const usbDevicesPath = "/sys/bus/usb/devices"
+const usbDevicesDir = "sys/bus/usb/devices" // io/fs path (no leading slash)
 
-func hostSysUsb() ([]types.UsbDevice, []string, error) {
-	entries, err := os.ReadDir(usbDevicesPath)
+func readSysUsb(h host.Host) ([]types.UsbDevice, []string, error) {
+	entries, err := fs.ReadDir(h.FS(), usbDevicesDir)
 	if err != nil {
-		return nil, nil, fmt.Errorf("reading %s: %w", usbDevicesPath, err)
+		if errors.Is(err, fs.ErrNotExist) {
+			return nil, nil, nil
+		}
+		return nil, nil, fmt.Errorf("reading %s: %w", usbDevicesDir, err)
 	}
 
 	var devices []types.UsbDevice
@@ -28,8 +33,8 @@ func hostSysUsb() ([]types.UsbDevice, []string, error) {
 			continue
 		}
 
-		dir := filepath.Join(usbDevicesPath, name)
-		device, err := readSysUsbDevice(dir)
+		dir := filepath.Join(usbDevicesDir, name)
+		device, err := readSysUsbDevice(h, dir)
 		if err != nil {
 			warnings = append(warnings, fmt.Sprintf("reading usb device %s: %v", name, err))
 			continue
@@ -40,10 +45,10 @@ func hostSysUsb() ([]types.UsbDevice, []string, error) {
 	return devices, warnings, nil
 }
 
-func readSysUsbDevice(dir string) (types.UsbDevice, error) {
+func readSysUsbDevice(h host.Host, dir string) (types.UsbDevice, error) {
 	var device types.UsbDevice
 
-	vendorStr, err := readTrimmedFile(filepath.Join(dir, "idVendor"))
+	vendorStr, err := readTrimmedFSFile(h, filepath.Join(dir, "idVendor"))
 	if err != nil {
 		return device, fmt.Errorf("idVendor: %w", err)
 	}
@@ -53,7 +58,7 @@ func readSysUsbDevice(dir string) (types.UsbDevice, error) {
 	}
 	device.VendorId = types.HexInt(vendorId)
 
-	productStr, err := readTrimmedFile(filepath.Join(dir, "idProduct"))
+	productStr, err := readTrimmedFSFile(h, filepath.Join(dir, "idProduct"))
 	if err != nil {
 		return device, fmt.Errorf("idProduct: %w", err)
 	}
@@ -63,7 +68,7 @@ func readSysUsbDevice(dir string) (types.UsbDevice, error) {
 	}
 	device.ProductId = types.HexInt(productId)
 
-	busStr, err := readTrimmedFile(filepath.Join(dir, "busnum"))
+	busStr, err := readTrimmedFSFile(h, filepath.Join(dir, "busnum"))
 	if err != nil {
 		return device, fmt.Errorf("busnum: %w", err)
 	}
@@ -73,7 +78,7 @@ func readSysUsbDevice(dir string) (types.UsbDevice, error) {
 	}
 	device.BusNumber = busNum
 
-	devStr, err := readTrimmedFile(filepath.Join(dir, "devnum"))
+	devStr, err := readTrimmedFSFile(h, filepath.Join(dir, "devnum"))
 	if err != nil {
 		return device, fmt.Errorf("devnum: %w", err)
 	}
@@ -86,8 +91,8 @@ func readSysUsbDevice(dir string) (types.UsbDevice, error) {
 	return device, nil
 }
 
-func readTrimmedFile(path string) (string, error) {
-	data, err := os.ReadFile(path)
+func readTrimmedFSFile(h host.Host, path string) (string, error) {
+	data, err := fs.ReadFile(h.FS(), path)
 	if err != nil {
 		return "", err
 	}

@@ -9,23 +9,21 @@ import (
 )
 
 var procCpuInfoTestFiles = map[string]string{
-	"../../../test_data/machines/ampere-one-m-banshee-12/cpuinfo.txt":           constants.Arm64,
-	"../../../test_data/machines/ampere-one-siryn/cpuinfo.txt":                  constants.Arm64,
-	"../../../test_data/machines/ampere-one-x-banshee-8/cpuinfo.txt":            constants.Arm64,
-	"../../../test_data/machines/hp-proliant-rl300-gen11-altra/cpuinfo.txt":     constants.Arm64,
-	"../../../test_data/machines/hp-proliant-rl300-gen11-altra-max/cpuinfo.txt": constants.Arm64,
-	"../../../test_data/machines/i7-2600k+arc-a580/cpuinfo.txt":                 constants.Amd64,
-	"../../../test_data/machines/i7-10510U/cpuinfo.txt":                         constants.Amd64,
-	"../../../test_data/machines/mustang/cpuinfo.txt":                           constants.Amd64,
-	//"../../../test_data/machines/orange-pi-rv2/cpuinfo.txt":                     constants.Riscv64,
-	"../../../test_data/machines/raspberry-pi-5/cpuinfo.txt":         constants.Arm64,
-	"../../../test_data/machines/raspberry-pi-5+hailo-8/cpuinfo.txt": constants.Arm64,
-	"../../../test_data/machines/xps13-7390/cpuinfo.txt":             constants.Amd64,
-	"../../../test_data/machines/xps13-9350/cpuinfo.txt":             constants.Amd64,
+	"../../../test_data/machines/ampere-one-m-banshee-12/machine-root/proc/cpuinfo":           constants.Arm64,
+	"../../../test_data/machines/ampere-one-siryn/machine-root/proc/cpuinfo":                  constants.Arm64,
+	"../../../test_data/machines/ampere-one-x-banshee-8/machine-root/proc/cpuinfo":            constants.Arm64,
+	"../../../test_data/machines/hp-proliant-rl300-gen11-altra/machine-root/proc/cpuinfo":     constants.Arm64,
+	"../../../test_data/machines/hp-proliant-rl300-gen11-altra-max/machine-root/proc/cpuinfo": constants.Arm64,
+	"../../../test_data/machines/i7-2600k+arc-a580/machine-root/proc/cpuinfo":                 constants.Amd64,
+	"../../../test_data/machines/i7-10510U/machine-root/proc/cpuinfo":                         constants.Amd64,
+	"../../../test_data/machines/mustang/machine-root/proc/cpuinfo":                           constants.Amd64,
+	"../../../test_data/machines/raspberry-pi-5/machine-root/proc/cpuinfo":                    constants.Arm64,
+	"../../../test_data/machines/raspberry-pi-5+hailo-8/machine-root/proc/cpuinfo":            constants.Arm64,
+	"../../../test_data/machines/xps13-7390/machine-root/proc/cpuinfo":                        constants.Amd64,
+	"../../../test_data/machines/xps13-9350/machine-root/proc/cpuinfo":                        constants.Amd64,
 }
 
 func TestParseProcCpuInfo(t *testing.T) {
-
 	for procCpuInfoFile, arch := range procCpuInfoTestFiles {
 		t.Run(procCpuInfoFile, func(t *testing.T) {
 			procCpuInfoBytes, err := os.ReadFile(procCpuInfoFile)
@@ -41,13 +39,12 @@ func TestParseProcCpuInfo(t *testing.T) {
 			for _, cpuInfo := range parsed {
 				log.Printf("%+v", cpuInfo)
 			}
-
 		})
 	}
 }
 
 func TestParseProcCpuInfoAmd64(t *testing.T) {
-	cpuInfoData, err := os.ReadFile("../../../test_data/machines/xps13-7390/cpuinfo.txt")
+	cpuInfoData, err := os.ReadFile("../../../test_data/machines/xps13-7390/machine-root/proc/cpuinfo")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -63,7 +60,7 @@ func TestParseProcCpuInfoAmd64(t *testing.T) {
 }
 
 func TestParseProcCpuInfoArm64(t *testing.T) {
-	cpuInfoData, err := os.ReadFile("../../../test_data/machines/raspberry-pi-5/cpuinfo.txt")
+	cpuInfoData, err := os.ReadFile("../../../test_data/machines/raspberry-pi-5/machine-root/proc/cpuinfo")
 	if err != nil {
 		t.Fatal(err)
 	}
