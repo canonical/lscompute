@@ -3,7 +3,6 @@ package types
 import (
 	"encoding/json"
 	"fmt"
-	"sync"
 )
 
 // BusDevice is implemented by every bus-specific device struct.
@@ -45,42 +44,4 @@ func (d DeviceInfo) MarshalJSON() ([]byte, error) {
 	merged = append(merged, ',')
 	merged = append(merged, payloadBytes[1:]...)
 	return merged, nil
-}
-
-// UnmarshalJSON peeks at the "bus" field and delegates to the registered decoder.
-func (d *DeviceInfo) UnmarshalJSON(data []byte) error {
-	var peek struct {
-		Bus string `json:"bus"`
-	}
-	if err := json.Unmarshal(data, &peek); err != nil {
-		return err
-	}
-	d.Bus = peek.Bus
-
-	decodersMu.RLock()
-	decode, ok := decoders[peek.Bus]
-	decodersMu.RUnlock()
-	if !ok {
-		return fmt.Errorf("unknown device bus: %q", peek.Bus)
-	}
-	payload, err := decode(data)
-	if err != nil {
-		return err
-	}
-	d.Payload = payload
-	return nil
-}
-
-// Decoder registry — populated explicitly in devices.go via RegisterBusDecoder.
-var (
-	decodersMu sync.RWMutex
-	decoders   = map[string]func([]byte) (BusDevice, error){}
-)
-
-// RegisterBusDecoder teaches UnmarshalJSON how to decode a given bus type.
-// Call this explicitly for every registered bus — see pkg/machine/devices.go.
-func RegisterBusDecoder(busName string, decode func([]byte) (BusDevice, error)) {
-	decodersMu.Lock()
-	defer decodersMu.Unlock()
-	decoders[busName] = decode
 }

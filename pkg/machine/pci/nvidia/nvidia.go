@@ -16,7 +16,7 @@ func AdditionalProperties(h host.Host, slot string, isGpu bool) (map[string]stri
 	if isGpu {
 		properties, err = gpuProperties(h, slot)
 		if err != nil {
-			return nil, fmt.Errorf("getting gpu properties: %v", err)
+			return nil, fmt.Errorf("getting gpu properties: %w", err)
 		}
 	}
 

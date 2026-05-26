@@ -19,7 +19,7 @@ func gpuProperties(h host.Host, slot string) (map[string]string, error) {
 
 	vRamVal, err := vRam(h, slot)
 	if err != nil {
-		return nil, fmt.Errorf("looking up vram: %v", err)
+		return nil, fmt.Errorf("looking up vram: %w", err)
 	}
 	if vRamVal != nil {
 		properties["vram"] = strconv.FormatUint(*vRamVal, 10)
@@ -38,7 +38,7 @@ func vRam(h host.Host, slot string) (*uint64, error) {
 
 	data, err := h.RunCommand(ctx, "clinfo", nil, "--json")
 	if err != nil {
-		return nil, fmt.Errorf("executing clinfo: %v", err)
+		return nil, fmt.Errorf("executing clinfo: %w", err)
 	}
 
 	clinfo, err := parseClinfoJson(data)

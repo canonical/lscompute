@@ -1,10 +1,7 @@
 package machine
 
 import (
-	"encoding/json"
-
 	"github.com/canonical/lscompute/pkg/machine/bus"
-	"github.com/canonical/lscompute/pkg/machine/constants"
 	"github.com/canonical/lscompute/pkg/machine/fastrpc"
 	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/pci"
@@ -12,24 +9,9 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/usb"
 )
 
-func init() {
-	types.RegisterBusDecoder(constants.BusPci, func(data []byte) (types.BusDevice, error) {
-		var dev pci.Device
-		return &dev, json.Unmarshal(data, &dev)
-	})
-	types.RegisterBusDecoder(constants.BusUsb, func(data []byte) (types.BusDevice, error) {
-		var dev usb.Device
-		return &dev, json.Unmarshal(data, &dev)
-	})
-	types.RegisterBusDecoder(constants.BusFastRpc, func(data []byte) (types.BusDevice, error) {
-		var dev fastrpc.Device
-		return &dev, json.Unmarshal(data, &dev)
-	})
-}
-
 // Devices iterates all registered bus scanners and returns the combined device list.
-// To add a new bus: add its NewScanner() to the scanners slice below and add a
-// RegisterBusDecoder call in init() above.
+// To add a new bus: add its NewScanner() to the scanners slice below and update
+// DecodeDeviceInfo in device_decode.go.
 func Devices(h host.Host, friendlyNames bool) ([]types.DeviceInfo, []string, error) {
 	scanners := []bus.Scanner{
 		pci.NewScanner(pci.Options{FriendlyNames: friendlyNames}),

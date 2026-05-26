@@ -2,9 +2,9 @@
 
 ## How to add a new hardware bus
 
-Adding support for a new bus (e.g. I2C, MIPI CSI, AMBA) follows a fixed four-step
-recipe. You only touch files inside your new package directory plus **two lines in
-`devices.go`**. No other existing file needs editing.
+Adding support for a new bus (e.g. I2C, MIPI CSI, AMBA) follows a fixed six-step
+recipe. You only touch files inside your new package directory plus **one scanner
+registration in `devices.go`** and **one device-decoder branch in `device_decode.go`**.
 
 ### Step 1 — Create the bus package directory
 
@@ -53,7 +53,7 @@ import (
 // Options holds <BusName>-specific scanner configuration.
 type Options struct {
     // Add bus-specific tuning fields here. These are set at construction time
-    // via NewScanner() and do NOT affect the shared bus.ScanOptions interface.
+    // via NewScanner().
 }
 
 // Scanner implements bus.Scanner for the <BusName> bus.
@@ -70,9 +70,9 @@ func (s *Scanner) Scan(h host.Host) ([]types.DeviceInfo, []string, error) {
 }
 ```
 
-### Step 4 — Register in `devices.go`
+### Step 4 — Register scanner in `devices.go`
 
-Open `pkg/machine/devices.go` and add **two lines**:
+Open `pkg/machine/devices.go` and add the new scanner:
 
 ```go
 func Devices(h host.Host, friendlyNames bool) ([]types.DeviceInfo, []string, error) {
@@ -84,17 +84,23 @@ func Devices(h host.Host, friendlyNames bool) ([]types.DeviceInfo, []string, err
     }
     // ...
 }
-
-func init() {
-    // existing registrations …
-    types.RegisterBusDecoder(constants.Bus<BusName>, func(data []byte) (types.BusDevice, error) {
-        var dev <busname>.Device
-        return &dev, json.Unmarshal(data, &dev)
-    })  // ← add this
-}
 ```
 
-### Step 5 — Add test fixtures (recommended)
+### Step 5 — Register device decoder in `device_decode.go`
+
+Open `pkg/machine/device_decode.go` and add one switch branch in
+`DecodeDeviceInfo`:
+
+```go
+case constants.Bus<BusName>:
+    var dev <busname>.Device
+    if err := json.Unmarshal(data, &dev); err != nil {
+        return types.DeviceInfo{}, fmt.Errorf("decoding <busname> device: %w", err)
+    }
+    return types.DeviceInfo{Bus: constants.Bus<BusName>, Payload: &dev}, nil
+```
+
+### Step 6 — Add test fixtures (recommended)
 
 Place pre-captured sysfs or command output under:
 
@@ -110,10 +116,11 @@ The golden-file pipeline test (`TestGetFromMachineDirs`) will pick it up automat
 
 ```
 pkg/machine/
-    bus/scanner.go          ← Scanner interface + ScanOptions (shared contract)
-    devices.go              ← scanner registry + decoder registrations
+    bus/scanner.go          ← Scanner interface (shared contract)
+    devices.go              ← scanner registry
+    device_decode.go        ← explicit JSON decode for bus payloads
     machine.go              ← top-level Get()
-    types/device.go         ← DeviceInfo, BusDevice interface, decoder registry
+    types/device.go         ← DeviceInfo + BusDevice interface
     pci/
         device.go           ← pci.Device implements BusDevice
         scanner.go          ← pci.Scanner implements bus.Scanner
@@ -128,10 +135,10 @@ pkg/machine/
         scanner.go          ← fastrpc.Scanner (stub, not yet implemented)
 ```
 
-### Two-level options model
+### Configuration model
 
 | Scope | Where | When |
 |---|---|---|
-| Cross-bus (e.g. `FriendlyNames`) | `bus.ScanOptions`, passed via `Scan()` | Applies to all scanners |
+| Cross-bus (e.g. `FriendlyNames`) | `machine.Devices(..., friendlyNames)` | Passed once and forwarded to buses that support it |
 | Bus-specific tuning | `<busname>.Options`, passed via `NewScanner()` | Only for one bus |
 

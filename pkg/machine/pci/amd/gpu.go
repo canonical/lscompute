@@ -15,14 +15,14 @@ func gpuProperties(h host.Host, slot string) (map[string]string, error) {
 
 	vRamVal, err := vRam(h, slot)
 	if err != nil {
-		return nil, fmt.Errorf("looking up vram: %v", err)
+		return nil, fmt.Errorf("looking up vram: %w", err)
 	}
 	if vRamVal != nil {
 		properties["vram"] = strconv.FormatUint(*vRamVal, 10)
 	}
 	gfxArch, err := gfxArchitecture(h, slot)
 	if err != nil {
-		return nil, fmt.Errorf("looking up gfx architecture: %v", err)
+		return nil, fmt.Errorf("looking up gfx architecture: %w", err)
 	}
 	if len(gfxArch) > 0 {
 		properties["microarchitecture"] = gfxArch
@@ -124,19 +124,19 @@ func parseGfxTargetVersion(gfxTargetVersionLine string) (string, error) {
 
 		majorInt, err := strconv.Atoi(deviceLower[0:2])
 		if err != nil {
-			return "", fmt.Errorf("parsing major version from gfx_target_version: %v", err)
+			return "", fmt.Errorf("parsing major version from gfx_target_version: %w", err)
 		}
 		major := strconv.Itoa(majorInt)
 
 		minorInt, err := strconv.Atoi(deviceLower[2:4])
 		if err != nil {
-			return "", fmt.Errorf("parsing minor version from gfx_target_version: %v", err)
+			return "", fmt.Errorf("parsing minor version from gfx_target_version: %w", err)
 		}
 		minor := strconv.Itoa(minorInt)
 
 		revisionInt, err := strconv.Atoi(deviceLower[4:6])
 		if err != nil {
-			return "", fmt.Errorf("parsing revision from gfx_target_version: %v", err)
+			return "", fmt.Errorf("parsing revision from gfx_target_version: %w", err)
 		}
 		revision := strconv.Itoa(revisionInt)
 

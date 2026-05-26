@@ -16,17 +16,17 @@ import (
 func Info(h host.Host) ([]types.CpuInfo, error) {
 	procCpuData, err := fs.ReadFile(h.FS(), "proc/cpuinfo")
 	if err != nil {
-		return nil, fmt.Errorf("reading proc/cpuinfo: %v", err)
+		return nil, fmt.Errorf("reading proc/cpuinfo: %w", err)
 	}
 
 	archData, err := machineArch(h)
 	if err != nil {
-		return nil, fmt.Errorf("getting machine architecture: %v", err)
+		return nil, fmt.Errorf("getting machine architecture: %w", err)
 	}
 
 	cpus, err := infoFromRawData(string(procCpuData), archData)
 	if err != nil {
-		return nil, fmt.Errorf("parsing cpu data: %v", err)
+		return nil, fmt.Errorf("parsing cpu data: %w", err)
 	}
 
 	return cpus, nil
@@ -42,7 +42,7 @@ func machineArch(h host.Host) (string, error) {
 		return strings.TrimSpace(string(data)), nil
 	}
 	if !errors.Is(err, fs.ErrNotExist) {
-		return "", fmt.Errorf("reading proc/sys/kernel/arch: %v", err)
+		return "", fmt.Errorf("reading proc/sys/kernel/arch: %w", err)
 	}
 	// File not present — fall back to uname(2). This only works on a real host;
 	// fake hosts must always provide the file.
@@ -52,17 +52,23 @@ func machineArch(h host.Host) (string, error) {
 func infoFromRawData(procCpuInfoData string, uname string) ([]types.CpuInfo, error) {
 	architecture, err := debianArchitecture(uname)
 	if err != nil {
-		return nil, fmt.Errorf("translating architecture: %v", err)
+		return nil, fmt.Errorf("translating architecture: %w", err)
 	}
 
 	machineprocCpuInfo, err := parseProcCpuInfo(procCpuInfoData, architecture)
 	if err != nil {
-		return nil, fmt.Errorf("parsing cpuinfo: %v", err)
+		return nil, fmt.Errorf("parsing cpuinfo: %w", err)
+	}
+	if len(machineprocCpuInfo) == 0 {
+		return nil, fmt.Errorf("parsing cpuinfo: no cpu entries found")
 	}
 
 	cpus, err := uniqueCpuInfo(machineprocCpuInfo)
 	if err != nil {
-		return nil, fmt.Errorf("filtering cpu info: %v", err)
+		return nil, fmt.Errorf("filtering cpu info: %w", err)
+	}
+	if len(cpus) == 0 {
+		return nil, fmt.Errorf("filtering cpu info: no cpu info entries produced")
 	}
 
 	return cpus, nil
@@ -78,7 +84,7 @@ func uniqueCpuInfo(procCpus []procCpuInfo) ([]types.CpuInfo, error) {
 
 	cpuInfos, err := cpuInfoFromProc(procCpus)
 	if err != nil {
-		return nil, fmt.Errorf("converting cpu info: %v", err)
+		return nil, fmt.Errorf("converting cpu info: %w", err)
 	}
 	return cpuInfos, nil
 }

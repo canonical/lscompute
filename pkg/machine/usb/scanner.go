@@ -31,7 +31,7 @@ func (s *Scanner) BusName() string { return constants.BusUsb }
 func (s *Scanner) Scan(h host.Host) ([]types.DeviceInfo, []string, error) {
 	devices, warnings, err := readSysUsb(h)
 	if err != nil {
-		return nil, nil, fmt.Errorf("reading sysfs usb devices: %v", err)
+		return nil, nil, fmt.Errorf("reading sysfs usb devices: %w", err)
 	}
 
 	if s.opts.FriendlyNames {

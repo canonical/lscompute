@@ -14,14 +14,14 @@ func parseProcCpuInfo(cpuInfoString string, architecture string) ([]procCpuInfo,
 	case constants.Amd64:
 		cpuInfo, err := parseProcCpuInfoAmd64(cpuInfoString)
 		if err != nil {
-			return nil, fmt.Errorf("amd64: %v", err)
+			return nil, fmt.Errorf("amd64: %w", err)
 		}
 		return cpuInfo, nil
 
 	case constants.Arm64:
 		cpuInfo, err := parseProcCpuInfoArm64(cpuInfoString)
 		if err != nil {
-			return nil, fmt.Errorf("arm64: %v", err)
+			return nil, fmt.Errorf("arm64: %w", err)
 		}
 		return cpuInfo, nil
 
@@ -35,7 +35,7 @@ func parseProcCpuInfoAmd64(cpuInfoString string) ([]procCpuInfo, error) {
 	var parsedCpus []procCpuInfo
 
 	lines := strings.Split(cpuInfoString, "\n")
-	cpuIndex := 0
+	cpuIndex := -1
 
 	for _, line := range lines {
 		if strings.TrimSpace(line) == "" {
@@ -43,6 +43,9 @@ func parseProcCpuInfoAmd64(cpuInfoString string) ([]procCpuInfo, error) {
 		}
 
 		fields := strings.SplitN(line, ":", 2)
+		if len(fields) != 2 {
+			return nil, fmt.Errorf("malformed cpuinfo line: %q", line)
+		}
 		key := strings.TrimSpace(fields[0]) // remove \t between key and colon
 		value := strings.TrimSpace(fields[1])
 
@@ -52,6 +55,10 @@ func parseProcCpuInfoAmd64(cpuInfoString string) ([]procCpuInfo, error) {
 			newCpu.Architecture = constants.Amd64
 			parsedCpus = append(parsedCpus, newCpu)
 			cpuIndex = len(parsedCpus) - 1
+		}
+
+		if cpuIndex < 0 {
+			return nil, fmt.Errorf("field %q encountered before first processor", key)
 		}
 
 		switch key {
@@ -65,7 +72,7 @@ func parseProcCpuInfoAmd64(cpuInfoString string) ([]procCpuInfo, error) {
 			parsedCpus[cpuIndex].ManufacturerId = value
 
 		case "flags":
-			flags := strings.Split(value, " ")
+			flags := strings.Fields(value)
 			parsedCpus[cpuIndex].Flags = append(parsedCpus[cpuIndex].Flags, flags...)
 
 		case "model name":
@@ -80,7 +87,7 @@ func parseProcCpuInfoArm64(cpuInfoString string) ([]procCpuInfo, error) {
 	var parsedCpus []procCpuInfo
 
 	lines := strings.Split(cpuInfoString, "\n")
-	cpuIndex := 0
+	cpuIndex := -1
 
 	for _, line := range lines {
 		if strings.TrimSpace(line) == "" {
@@ -88,6 +95,9 @@ func parseProcCpuInfoArm64(cpuInfoString string) ([]procCpuInfo, error) {
 		}
 
 		fields := strings.SplitN(line, ":", 2)
+		if len(fields) != 2 {
+			return nil, fmt.Errorf("malformed cpuinfo line: %q", line)
+		}
 		key := strings.TrimSpace(fields[0]) // remove \t between key and colon
 		value := strings.TrimSpace(fields[1])
 
@@ -97,6 +107,10 @@ func parseProcCpuInfoArm64(cpuInfoString string) ([]procCpuInfo, error) {
 			newCpu.Architecture = constants.Arm64
 			parsedCpus = append(parsedCpus, newCpu)
 			cpuIndex = len(parsedCpus) - 1
+		}
+
+		if cpuIndex < 0 {
+			return nil, fmt.Errorf("field %q encountered before first processor", key)
 		}
 
 		switch key {
@@ -125,7 +139,7 @@ func parseProcCpuInfoArm64(cpuInfoString string) ([]procCpuInfo, error) {
 
 		// "Features\t:"+" %s"
 		case "Features":
-			flags := strings.Split(value, " ")
+			flags := strings.Fields(value)
 			parsedCpus[cpuIndex].Features = append(parsedCpus[cpuIndex].Features, flags...)
 
 		// "CPU implementer\t: 0x%02x\n"

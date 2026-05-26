@@ -43,7 +43,7 @@ func (realHost) RunCommand(ctx context.Context, name string, env []string, args 
 func (realHost) StatFs(path string) (types.DirStats, error) {
 	var st unix.Statfs_t
 	if err := unix.Statfs(filepath.Join("/", path), &st); err != nil {
-		return types.DirStats{}, fmt.Errorf("statfs %s: %v", path, err)
+		return types.DirStats{}, fmt.Errorf("statfs %s: %w", path, err)
 	}
 	return types.DirStats{
 		Total: st.Blocks * uint64(st.Bsize),
