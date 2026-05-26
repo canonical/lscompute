@@ -26,12 +26,12 @@ test_data/machines/<machine-name>/
         run/nvidia-smi/<slot>/compute_cap       ← NVIDIA GPU only
     lscompute.json                          ← golden file (curated machines only)
 ```
-Machines with a `lscompute.json` are **golden machines**: the full-pipeline
-test asserts that `machine.Get()` produces output that matches the file exactly.
-Machines without one are still exercised end-to-end (any parser crash fails the
-test), they just have no assertion on the output structure.
-Current golden machines: `raspberry-pi-5`, `raspberry-pi-5+hailo-8`,
-`xps13-9350`.
+Every machine directory **must** have a `lscompute.json` golden file.
+The full-pipeline test (`TestGetFromMachineDirs`) asserts that `machine.Get()`
+produces output that exactly matches the golden file for every machine.
+A missing or empty golden file will cause the sub-test to pass trivially but
+provide no regression protection — treat that state as a temporary gap to be
+closed before merging.
 ---
 ## Capturing data from a real machine
 Run all commands below on the target machine, then commit the results.  Replace
@@ -164,16 +164,35 @@ line on neighbouring entries of the same chipset family.
 ## Refreshing an existing machine
 Re-run the capture commands above in the machine's `machine-root/` directory.
 (The PCI sysfs step removes and rebuilds the device tree automatically.)
-If the machine is a golden machine, regenerate its `lscompute.json`:
+Then regenerate the golden file and review the diff before committing:
 ```bash
 go test ./pkg/machine -run TestGetFromMachineDirs/MACHINE -update -v
 ```
 Review the diff before committing to confirm the output changes are expected.
+
 ---
-## Promoting a machine to golden status
+## Keeping golden files up to date
+
+After changing the output format or adding new fields, regenerate **all** golden
+files at once:
+```bash
+go test ./pkg/machine -run TestGetFromMachineDirs -update -v
+```
+To regenerate a single machine's golden file (useful when only one machine's
+raw data changed, or for machine names containing `+` which must be escaped):
+```bash
+go test ./pkg/machine -run TestGetFromMachineDirs/MACHINE -update -v
+# For machine names that contain '+', escape the character in the test filter:
+go test ./pkg/machine -run 'TestGetFromMachineDirs/i7-2600k\+arc-a580' -update -v
+```
+Always review the generated diff before committing — verify friendly names,
+VRAM, compute capability, and any other fields that depend on external data.
+
+---
+## Adding a new machine
 1. Capture all data as described above.
-2. Author `machine-root/usr/share/misc/pci.ids`.
-3. Create an empty golden file so `-update` can write to it, then generate:
+2. Author `machine-root/usr/share/misc/pci.ids` (see section below).
+3. Generate the golden file:
    ```bash
    touch test_data/machines/MACHINE/lscompute.json
    go test ./pkg/machine -run TestGetFromMachineDirs/MACHINE -update -v

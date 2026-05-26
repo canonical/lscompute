@@ -1,0 +1,449 @@
+{
+  "cpus": [
+    {
+      "architecture": "arm64",
+      "implementer-id": "0xC0",
+      "part-number": "0xAC4",
+      "features": [
+        "fp",
+        "asimd",
+        "evtstrm",
+        "aes",
+        "pmull",
+        "sha1",
+        "sha2",
+        "crc32",
+        "atomics",
+        "fphp",
+        "asimdhp",
+        "cpuid",
+        "asimdrdm",
+        "jscvt",
+        "fcma",
+        "lrcpc",
+        "dcpop",
+        "sha3",
+        "sm3",
+        "sm4",
+        "asimddp",
+        "sha512",
+        "asimdfhm",
+        "dit",
+        "uscat",
+        "ilrcpc",
+        "flagm",
+        "ssbs",
+        "sb",
+        "paca",
+        "pacg",
+        "dcpodp",
+        "flagm2",
+        "frint",
+        "i8mm",
+        "bf16",
+        "rng",
+        "bti",
+        "ecv"
+      ]
+    }
+  ],
+  "memory": {
+    "total-ram": 32876765184,
+    "total-swap": 8589930496
+  },
+  "disk": {
+    "/var/lib/snapd/snaps": {
+      "total": 502392942592,
+      "avail": 431927586816
+    }
+  },
+  "devices": [
+    {
+      "bus": "pci",
+      "slot": "0000:00:00.0",
+      "bus-number": "0x0",
+      "device-class": "0x600",
+      "vendor-id": "0x1DEF",
+      "device-id": "0xE208",
+      "subvendor-id": "0x1DEF",
+      "subdevice-id": "0xE100"
+    },
+    {
+      "bus": "pci",
+      "slot": "0000:00:01.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x120"
+    },
+    {
+      "bus": "pci",
+      "slot": "0000:01:00.0",
+      "bus-number": "0x1",
+      "device-class": "0x200",
+      "vendor-id": "0x15B3",
+      "device-id": "0x1019",
+      "subvendor-id": "0x15B3",
+      "subdevice-id": "0x8"
+    },
+    {
+      "bus": "pci",
+      "slot": "0000:01:00.1",
+      "bus-number": "0x1",
+      "device-class": "0x200",
+      "vendor-id": "0x15B3",
+      "device-id": "0x1019",
+      "subvendor-id": "0x15B3",
+      "subdevice-id": "0x8"
+    },
+    {
+      "bus": "pci",
+      "slot": "0001:00:00.0",
+      "bus-number": "0x0",
+      "device-class": "0x600",
+      "vendor-id": "0x1DEF",
+      "device-id": "0xE209",
+      "subvendor-id": "0x1DEF",
+      "subdevice-id": "0xE100"
+    },
+    {
+      "bus": "pci",
+      "slot": "0001:00:01.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x124"
+    },
+    {
+      "bus": "pci",
+      "slot": "0001:00:03.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x125"
+    },
+    {
+      "bus": "pci",
+      "slot": "0001:00:05.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x126"
+    },
+    {
+      "bus": "pci",
+      "slot": "0001:00:07.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x127"
+    },
+    {
+      "bus": "pci",
+      "slot": "0001:01:00.0",
+      "bus-number": "0x1",
+      "device-class": "0x108",
+      "programming-interface": 2,
+      "vendor-id": "0x144D",
+      "device-id": "0xA80A",
+      "subvendor-id": "0x144D",
+      "subdevice-id": "0xA812"
+    },
+    {
+      "bus": "pci",
+      "slot": "0001:02:00.0",
+      "bus-number": "0x2",
+      "device-class": "0x108",
+      "programming-interface": 2,
+      "vendor-id": "0x144D",
+      "device-id": "0xA80A",
+      "subvendor-id": "0x144D",
+      "subdevice-id": "0xA812"
+    },
+    {
+      "bus": "pci",
+      "slot": "0002:00:00.0",
+      "bus-number": "0x0",
+      "device-class": "0x600",
+      "vendor-id": "0x1DEF",
+      "device-id": "0xE20A",
+      "subvendor-id": "0x1DEF",
+      "subdevice-id": "0xE100"
+    },
+    {
+      "bus": "pci",
+      "slot": "0002:00:01.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x128"
+    },
+    {
+      "bus": "pci",
+      "slot": "0002:00:03.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x129"
+    },
+    {
+      "bus": "pci",
+      "slot": "0002:00:05.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x12A"
+    },
+    {
+      "bus": "pci",
+      "slot": "0002:00:07.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x12B"
+    },
+    {
+      "bus": "pci",
+      "slot": "0003:00:00.0",
+      "bus-number": "0x0",
+      "device-class": "0x600",
+      "vendor-id": "0x1DEF",
+      "device-id": "0xE20B",
+      "subvendor-id": "0x1DEF",
+      "subdevice-id": "0xE100"
+    },
+    {
+      "bus": "pci",
+      "slot": "0003:00:01.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x12C"
+    },
+    {
+      "bus": "pci",
+      "slot": "0003:00:03.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x12D"
+    },
+    {
+      "bus": "pci",
+      "slot": "0003:00:05.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x12E"
+    },
+    {
+      "bus": "pci",
+      "slot": "0003:00:07.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x12F"
+    },
+    {
+      "bus": "pci",
+      "slot": "0004:00:00.0",
+      "bus-number": "0x0",
+      "device-class": "0x600",
+      "vendor-id": "0x1DEF",
+      "device-id": "0xE20C",
+      "subvendor-id": "0x1DEF",
+      "subdevice-id": "0xE100"
+    },
+    {
+      "bus": "pci",
+      "slot": "0004:00:01.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x130"
+    },
+    {
+      "bus": "pci",
+      "slot": "0004:00:05.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x131"
+    },
+    {
+      "bus": "pci",
+      "slot": "0004:00:07.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x132"
+    },
+    {
+      "bus": "pci",
+      "slot": "0004:02:00.0",
+      "bus-number": "0x2",
+      "device-class": "0x604",
+      "vendor-id": "0x1A03",
+      "device-id": "0x1150",
+      "subvendor-id": "0x1A03",
+      "subdevice-id": "0x1150"
+    },
+    {
+      "bus": "pci",
+      "slot": "0004:03:00.0",
+      "bus-number": "0x3",
+      "device-class": "0x300",
+      "vendor-id": "0x1A03",
+      "device-id": "0x2000",
+      "subvendor-id": "0x1A03",
+      "subdevice-id": "0x2000"
+    },
+    {
+      "bus": "pci",
+      "slot": "0004:04:00.0",
+      "bus-number": "0x4",
+      "device-class": "0xC03",
+      "programming-interface": 48,
+      "vendor-id": "0x1912",
+      "device-id": "0x14"
+    },
+    {
+      "bus": "pci",
+      "slot": "0005:00:00.0",
+      "bus-number": "0x0",
+      "device-class": "0x600",
+      "vendor-id": "0x1DEF",
+      "device-id": "0xE20D",
+      "subvendor-id": "0x1DEF",
+      "subdevice-id": "0xE100"
+    },
+    {
+      "bus": "pci",
+      "slot": "0005:00:01.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x134"
+    },
+    {
+      "bus": "pci",
+      "slot": "0005:00:03.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x135"
+    },
+    {
+      "bus": "pci",
+      "slot": "0005:00:05.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x136"
+    },
+    {
+      "bus": "pci",
+      "slot": "0005:00:07.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x137"
+    },
+    {
+      "bus": "pci",
+      "slot": "0006:00:00.0",
+      "bus-number": "0x0",
+      "device-class": "0x600",
+      "vendor-id": "0x1DEF",
+      "device-id": "0xE20E",
+      "subvendor-id": "0x1DEF",
+      "subdevice-id": "0xE100"
+    },
+    {
+      "bus": "pci",
+      "slot": "0006:00:01.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x138"
+    },
+    {
+      "bus": "pci",
+      "slot": "0006:00:05.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x139"
+    },
+    {
+      "bus": "pci",
+      "slot": "0006:00:07.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x13A"
+    },
+    {
+      "bus": "pci",
+      "slot": "0006:01:00.0",
+      "bus-number": "0x1",
+      "device-class": "0x200",
+      "vendor-id": "0x15B3",
+      "device-id": "0x101F",
+      "subvendor-id": "0x15B3",
+      "subdevice-id": "0x4"
+    },
+    {
+      "bus": "pci",
+      "slot": "0006:01:00.1",
+      "bus-number": "0x1",
+      "device-class": "0x200",
+      "vendor-id": "0x15B3",
+      "device-id": "0x101F",
+      "subvendor-id": "0x15B3",
+      "subdevice-id": "0x4"
+    },
+    {
+      "bus": "pci",
+      "slot": "0007:00:00.0",
+      "bus-number": "0x0",
+      "device-class": "0x600",
+      "vendor-id": "0x1DEF",
+      "device-id": "0xE20F",
+      "subvendor-id": "0x1DEF",
+      "subdevice-id": "0xE100"
+    },
+    {
+      "bus": "pci",
+      "slot": "0007:00:01.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x13C"
+    },
+    {
+      "bus": "pci",
+      "slot": "0007:00:03.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x13D"
+    },
+    {
+      "bus": "pci",
+      "slot": "0007:00:05.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x13E"
+    },
+    {
+      "bus": "pci",
+      "slot": "0007:00:07.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x1DEF",
+      "device-id": "0x13F"
+    }
+  ]
+}
