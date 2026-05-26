@@ -1,0 +1,35 @@
+# Curated mini pci.ids for xps13-7390 (Dell XPS 13 7390, Comet Lake-U).
+# Contains only the vendor/device/subsystem entries present in this machine's sysfs.
+# Extracted from the upstream pci.ids database.
+# Subsystem vendor 1028 (Dell) subdevice 0962 entries are included where present.
+1028  Dell
+10ec  Realtek Semiconductor Co., Ltd.
+	525a  RTS525A PCI Express Card Reader
+144d  Samsung Electronics Co Ltd
+	a808  NVMe SSD Controller SM981/PM981/PM983
+		144d a801  SSD 970 EVO/PRO
+1a56  Rivet Networks
+8086  Intel Corporation
+	0284  Comet Lake PCH-LP LPC Premium Controller/eSPI Controller
+	02a3  Comet Lake PCH-LP SMBus Host Controller
+	02a4  Comet Lake SPI (flash) Controller
+	02b0  Comet Lake PCI Express Root Port #9
+	02b4  Comet Lake PCI Express Root Port #13
+	02bc  Comet Lake PCI Express Root Port #5
+	02be  Comet Lake PCI Express Root Port #7
+	02c8  Comet Lake PCH-LP cAVS
+	02e0  Comet Lake Management Engine Interface
+	02e8  Serial IO I2C Host Controller
+	02e9  Comet Lake Serial IO I2C Host Controller
+	02ed  Comet Lake PCH-LP USB 3.1 xHCI Host Controller
+	02ef  Comet Lake PCH-LP Shared SRAM
+	02f9  Comet Lake Thermal Subsytem
+	15d2  JHL6540 Thunderbolt 3 NHI (C step) [Alpine Ridge 4C 2016]
+	15d3  JHL6540 Thunderbolt 3 Bridge (C step) [Alpine Ridge 4C 2016]
+	15d4  JHL6540 Thunderbolt 3 USB Controller (C step) [Alpine Ridge 4C 2016]
+	1903  Xeon E3-1200 v5/E3-1500 v5/6th Gen Core Processor Thermal Subsystem
+	1911  Xeon E3-1200 v5/v6 / E3-1500 v5 / 6th/7th/8th Gen Core Processor Gaussian Mixture Model
+	2723  Wi-Fi 6 AX200
+	9b41  CometLake-U GT2 [UHD Graphics]
+	9b61  Comet Lake-U v1 4c Host Bridge/DRAM Controller
+
