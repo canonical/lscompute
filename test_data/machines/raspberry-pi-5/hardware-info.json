@@ -34,22 +34,22 @@
       "avail": 40666140672
     }
   },
-  "pci": [
+  "devices": [
     {
+      "bus": "pci",
       "slot": "0000:00:00.0",
       "bus-number": "0x0",
       "device-class": "0x604",
-      "programming-interface": 0,
       "vendor-id": "0x14E4",
       "device-id": "0x2712",
       "vendor-name": "Broadcom Inc. and subsidiaries",
       "device-name": "BCM2712 PCIe Bridge"
     },
     {
+      "bus": "pci",
       "slot": "0000:01:00.0",
       "bus-number": "0x1",
       "device-class": "0x200",
-      "programming-interface": 0,
       "vendor-id": "0x1DE4",
       "device-id": "0x1",
       "vendor-name": "Raspberry Pi Ltd",

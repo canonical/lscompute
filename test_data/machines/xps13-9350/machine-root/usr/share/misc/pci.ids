@@ -1,0 +1,37 @@
+# Curated mini pci.ids for xps13-9350 (Dell XPS 13 9350, Lunar Lake-M).
+# Contains only the vendor/device/subsystem entries present in this machine's sysfs.
+# Extracted from the upstream pci.ids database; entries not yet upstream are hand-authored
+# from lspci -nn output captured on the live machine.
+1028  Dell
+1c5c  SK hynix
+	1f69  PVC10 NVMe Solid State Drive (DRAM-less)
+		1c5c 1f69  PVC10 NVMe Solid State Drive (DRAM-less)
+8086  Intel Corporation
+	6400  Lunar Lake-M Host Bridge/DRAM Controller
+	641d  Lunar Lake-M Dynamic Tuning Technology
+	643e  Lunar Lake NPU
+	645d  Lunar Lake IPU
+	647d  Lunar Lake-M Crashlog and Telemetry
+	64a0  Lunar Lake [Intel Arc Graphics 130V / 140V]
+	a807  Lunar Lake-M LPC Premium Controller/eSPI Controller
+	a822  Lunar Lake-M SMbus Controller
+	a823  Lunar Lake-M SPI Controller
+	a825  Lunar Lake-M Serial IO UART Controller #0
+	a828  Lunar Lake-M HD Audio Controller
+	a831  Lunar Lake-M Thunderbolt 4 USB Controller
+	a833  Lunar Lake-M Thunderbolt 4 NHI #0
+	a834  Lunar Lake-M Thunderbolt 4 NHI #1
+	a83c  Lunar Lake-M PCI Express Root Port #5
+	a840  BE201 320MHz
+	a845  Lunar Lake-M Integrated Sensor Hub
+	a84e  Lunar Lake-M Thunderbolt 4 PCI Express Root Port #0
+	a860  Lunar Lake-M Thunderbolt 4 PCI Express Root Port #2
+	a862  Lunar Lake-M CSME HECI #3
+	a870  Lunar Lake-M CSME HECI #1
+	a873  Lunar Lake-M CSME HECI #2
+	a876  Lunar Lake-M Bluetooth
+	a878  Lunar Lake-M Serial IO I2C Controller #0
+	a87a  Lunar Lake-M Serial IO I2C Controller #2
+	a87d  Lunar Lake-M USB 3.2 Gen 2x1 xHCI Host Controller
+	a87f  Lunar Lake-M Shared SRAM
+
