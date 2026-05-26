@@ -520,6 +520,116 @@
       "device-name": "PVC10 NVMe Solid State Drive (DRAM-less)",
       "subvendor-name": "SK hynix",
       "subdevice-name": "PVC10 NVMe Solid State Drive (DRAM-less)"
+    },
+    {
+      "bus": "usb",
+      "bus-number": 3,
+      "device-number": 3,
+      "vendor-id": "0x2AC1",
+      "product-id": "0x20C9"
+    },
+    {
+      "bus": "usb",
+      "bus-number": 3,
+      "device-number": 20,
+      "vendor-id": "0xBDA",
+      "product-id": "0x5483",
+      "vendor-name": "Realtek Semiconductor Corp."
+    },
+    {
+      "bus": "usb",
+      "bus-number": 3,
+      "device-number": 24,
+      "vendor-id": "0xBDA",
+      "product-id": "0x5483",
+      "vendor-name": "Realtek Semiconductor Corp."
+    },
+    {
+      "bus": "usb",
+      "bus-number": 3,
+      "device-number": 26,
+      "vendor-id": "0xBDA",
+      "product-id": "0x8153",
+      "vendor-name": "Realtek Semiconductor Corp.",
+      "product-name": "RTL8153 Gigabit Ethernet Adapter"
+    },
+    {
+      "bus": "usb",
+      "bus-number": 3,
+      "device-number": 25,
+      "vendor-id": "0x45E",
+      "product-id": "0x840",
+      "vendor-name": "Microsoft Corp."
+    },
+    {
+      "bus": "usb",
+      "bus-number": 3,
+      "device-number": 21,
+      "vendor-id": "0x46D",
+      "product-id": "0xC548",
+      "vendor-name": "Logitech, Inc.",
+      "product-name": "Logi Bolt Receiver"
+    },
+    {
+      "bus": "usb",
+      "bus-number": 3,
+      "device-number": 22,
+      "vendor-id": "0x46D",
+      "product-id": "0xC52B",
+      "vendor-name": "Logitech, Inc.",
+      "product-name": "Unifying Receiver"
+    },
+    {
+      "bus": "usb",
+      "bus-number": 3,
+      "device-number": 23,
+      "vendor-id": "0xBDA",
+      "product-id": "0x1100",
+      "vendor-name": "Realtek Semiconductor Corp."
+    },
+    {
+      "bus": "usb",
+      "bus-number": 3,
+      "device-number": 8,
+      "vendor-id": "0x27C6",
+      "product-id": "0x633C",
+      "vendor-name": "Shenzhen Goodix Technology Co.,Ltd."
+    },
+    {
+      "bus": "usb",
+      "bus-number": 1,
+      "device-number": 1,
+      "vendor-id": "0x1D6B",
+      "product-id": "0x2",
+      "vendor-name": "Linux Foundation",
+      "product-name": "2.0 root hub"
+    },
+    {
+      "bus": "usb",
+      "bus-number": 2,
+      "device-number": 1,
+      "vendor-id": "0x1D6B",
+      "product-id": "0x3",
+      "vendor-name": "Linux Foundation",
+      "product-name": "3.0 root hub"
+    },
+    {
+      "bus": "usb",
+      "bus-number": 3,
+      "device-number": 1,
+      "vendor-id": "0x1D6B",
+      "product-id": "0x2",
+      "vendor-name": "Linux Foundation",
+      "product-name": "2.0 root hub"
+    },
+    {
+      "bus": "usb",
+      "bus-number": 4,
+      "device-number": 1,
+      "vendor-id": "0x1D6B",
+      "product-id": "0x3",
+      "vendor-name": "Linux Foundation",
+      "product-name": "3.0 root hub"
     }
   ]
 }
