@@ -2,3 +2,6 @@
 *.comp
 squashfs-root
 /lscompute
+
+/work*.yaml
+/.work*.lock
