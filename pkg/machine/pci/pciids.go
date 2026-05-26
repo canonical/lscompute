@@ -171,3 +171,31 @@ func findPciIdsFile(h host.Host) (string, error) {
 	}
 	return "", fmt.Errorf("pci.ids database not found (searched: %s)", strings.Join(pciIdsSearchPaths, ", "))
 }
+
+// lookupFriendlyNames uses the numeric PCI ID fields to look up human-readable
+// names from the pci.ids database and converts them into a FriendlyNames value.
+func lookupFriendlyNames(h host.Host, device Device) (FriendlyNames, error) {
+	entry, err := lookupPciIds(h, device.VendorId, device.DeviceId, device.SubvendorId, device.SubdeviceId)
+	if err != nil {
+		return FriendlyNames{}, fmt.Errorf("pci ids lookup for %04x:%04x: %w", uint64(device.VendorId), uint64(device.DeviceId), err)
+	}
+
+	var names FriendlyNames
+	if entry.VendorName != "" {
+		s := entry.VendorName
+		names.VendorName = &s
+	}
+	if entry.DeviceName != "" {
+		s := entry.DeviceName
+		names.DeviceName = &s
+	}
+	if entry.SubvendorName != "" {
+		s := entry.SubvendorName
+		names.SubvendorName = &s
+	}
+	if entry.SubdeviceName != "" {
+		s := entry.SubdeviceName
+		names.SubdeviceName = &s
+	}
+	return names, nil
+}

@@ -8,20 +8,19 @@ import (
 	"strings"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
-func gpuProperties(h host.Host, pciDevice types.PciDevice) (map[string]string, error) {
+func gpuProperties(h host.Host, slot string) (map[string]string, error) {
 	properties := make(map[string]string)
 
-	vRamVal, err := vRam(h, pciDevice)
+	vRamVal, err := vRam(h, slot)
 	if err != nil {
 		return nil, fmt.Errorf("looking up vram: %v", err)
 	}
 	if vRamVal != nil {
 		properties["vram"] = strconv.FormatUint(*vRamVal, 10)
 	}
-	gfxArch, err := gfxArchitecture(h, pciDevice)
+	gfxArch, err := gfxArchitecture(h, slot)
 	if err != nil {
 		return nil, fmt.Errorf("looking up gfx architecture: %v", err)
 	}
@@ -32,11 +31,11 @@ func gpuProperties(h host.Host, pciDevice types.PciDevice) (map[string]string, e
 	return properties, nil
 }
 
-func vRam(h host.Host, device types.PciDevice) (*uint64, error) {
+func vRam(h host.Host, slot string) (*uint64, error) {
 	/*
 		AMD vram is listed under /sys/bus/pci/devices/${pci_slot}/mem_info_vram_total
 	*/
-	path := filepath.Join("sys/bus/pci/devices", device.Slot, "mem_info_vram_total")
+	path := filepath.Join("sys/bus/pci/devices", slot, "mem_info_vram_total")
 	data, err := fs.ReadFile(h.FS(), path)
 	if err != nil {
 		return nil, err
@@ -49,7 +48,7 @@ func vRam(h host.Host, device types.PciDevice) (*uint64, error) {
 	return &vram, nil
 }
 
-func gfxArchitecture(h host.Host, device types.PciDevice) (string, error) {
+func gfxArchitecture(h host.Host, slot string) (string, error) {
 	nodesDir := "sys/class/kfd/kfd/topology/nodes"
 	files, err := fs.ReadDir(h.FS(), nodesDir)
 	if err != nil {
@@ -72,7 +71,7 @@ func gfxArchitecture(h host.Host, device types.PciDevice) (string, error) {
 					if err != nil {
 						break
 					}
-					if pciSlot != device.Slot {
+					if pciSlot != slot {
 						break
 					}
 					nodeMatchesDevice = true
@@ -90,7 +89,7 @@ func gfxArchitecture(h host.Host, device types.PciDevice) (string, error) {
 
 		}
 	}
-	return "", fmt.Errorf("gfx_target_version not found for device with pci slot %s", device.Slot)
+	return "", fmt.Errorf("gfx_target_version not found for device with pci slot %s", slot)
 }
 
 func getAmdGpuPciSlot(h host.Host, drmRenderMinor string) (string, error) {

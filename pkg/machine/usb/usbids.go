@@ -118,3 +118,22 @@ func findUsbIdsFile(h host.Host) (string, error) {
 	}
 	return "", fmt.Errorf("usb.ids database not found (searched: %s)", strings.Join(usbIdsSearchPaths, ", "))
 }
+
+// lookupFriendlyNames resolves human-readable vendor and product names for a
+// device from the usb.ids database and populates the device's FriendlyNames.
+// Errors are returned so the caller can emit them as warnings.
+func lookupFriendlyNames(h host.Host, device Device) (Device, error) {
+	entry, err := lookupUsbIds(h, device.VendorId, device.ProductId)
+	if err != nil {
+		return device, err
+	}
+	if entry.VendorName != "" {
+		name := entry.VendorName
+		device.VendorName = &name
+	}
+	if entry.ProductName != "" {
+		name := entry.ProductName
+		device.ProductName = &name
+	}
+	return device, nil
+}

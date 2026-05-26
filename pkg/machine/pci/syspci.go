@@ -13,13 +13,13 @@ import (
 
 const pciDevicesDir = "sys/bus/pci/devices" // io/fs path (no leading slash)
 
-func readSysPci(h host.Host) ([]types.PciDevice, []string, error) {
+func readSysPci(h host.Host) ([]Device, []string, error) {
 	entries, err := fs.ReadDir(h.FS(), pciDevicesDir)
 	if err != nil {
 		return nil, nil, fmt.Errorf("reading %s: %w", pciDevicesDir, err)
 	}
 
-	var devices []types.PciDevice
+	var devices []Device
 	var warnings []string
 
 	for _, entry := range entries {
@@ -37,8 +37,8 @@ func readSysPci(h host.Host) ([]types.PciDevice, []string, error) {
 	return devices, warnings, nil
 }
 
-func readSysPciDevice(h host.Host, dir, slot string) (types.PciDevice, error) {
-	var device types.PciDevice
+func readSysPciDevice(h host.Host, dir, slot string) (Device, error) {
+	var device Device
 	device.Slot = slot
 
 	// slot format: "0000:3b:00.0" — index 1 is the bus number in hex

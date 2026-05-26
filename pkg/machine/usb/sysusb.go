@@ -14,7 +14,7 @@ import (
 
 const usbDevicesDir = "sys/bus/usb/devices" // io/fs path (no leading slash)
 
-func readSysUsb(h host.Host) ([]types.UsbDevice, []string, error) {
+func readSysUsb(h host.Host) ([]Device, []string, error) {
 	entries, err := fs.ReadDir(h.FS(), usbDevicesDir)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
@@ -23,7 +23,7 @@ func readSysUsb(h host.Host) ([]types.UsbDevice, []string, error) {
 		return nil, nil, fmt.Errorf("reading %s: %w", usbDevicesDir, err)
 	}
 
-	var devices []types.UsbDevice
+	var devices []Device
 	var warnings []string
 
 	for _, entry := range entries {
@@ -45,8 +45,8 @@ func readSysUsb(h host.Host) ([]types.UsbDevice, []string, error) {
 	return devices, warnings, nil
 }
 
-func readSysUsbDevice(h host.Host, dir string) (types.UsbDevice, error) {
-	var device types.UsbDevice
+func readSysUsbDevice(h host.Host, dir string) (Device, error) {
+	var device Device
 
 	vendorStr, err := readTrimmedFSFile(h, filepath.Join(dir, "idVendor"))
 	if err != nil {
