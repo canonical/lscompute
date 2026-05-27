@@ -43,13 +43,11 @@ parts:
     organize:
       pci.ids: usr/share/misc/pci.ids
 
-  # USB ID database downloaded at build time for friendly device name lookups.
+  # USB ID database for friendly device name lookups.
   usb-ids:
-    plugin: dump
-    source: http://www.linux-usb.org/usb.ids # This site does not support https
-    source-type: file
-    organize:
-      usb.ids: usr/share/misc/usb.ids
+    plugin: nil
+    stage-packages:
+      - usb.ids
 
   # Used for NVIDIA vRAM and CUDA Capability detection.
   # Only the binary is included to avoid staging libraries, which should instead be provided by the host through the opengl interface.
