@@ -4,18 +4,18 @@
 
 Adding support for a new bus (e.g. I2C, MIPI CSI, AMBA) follows a fixed six-step
 recipe. You only touch files inside your new package directory plus **one scanner
-registration in `devices.go`** and **one device-decoder branch in `device_decode.go`**.
+registration in `device/devices.go`** and **one device-decoder branch in `device/device_decode.go`**.
 
 ### Step 1 — Create the bus package directory
 
 ```
-pkg/machine/<busname>/
-    device.go    ← device struct
+pkg/machine/device/<busname>/
+    types.go     ← device struct + BusName()
     scanner.go   ← scanner + options
     <anything>   ← sysfs reader, ID lookup, vendor logic, tests, …
 ```
 
-### Step 2 — Define `device.go`
+### Step 2 — Define `types.go`
 
 ```go
 package <busname>
@@ -44,7 +44,7 @@ Add `Bus<BusName> = "<busname>"` to `pkg/machine/constants/constants.go`.
 package <busname>
 
 import (
-    "github.com/canonical/lscompute/pkg/machine/bus"
+    "github.com/canonical/lscompute/pkg/machine/device/bus"
     "github.com/canonical/lscompute/pkg/machine/constants"
     "github.com/canonical/lscompute/pkg/machine/host"
     "github.com/canonical/lscompute/pkg/machine/types"
@@ -70,9 +70,9 @@ func (s *Scanner) Scan(h host.Host) ([]types.DeviceInfo, []string, error) {
 }
 ```
 
-### Step 4 — Register scanner in `devices.go`
+### Step 4 — Register scanner in `device/devices.go`
 
-Open `pkg/machine/devices.go` and add the new scanner:
+Open `pkg/machine/device/devices.go` and add the new scanner:
 
 ```go
 func Devices(h host.Host, friendlyNames bool) ([]types.DeviceInfo, []string, error) {
@@ -86,9 +86,9 @@ func Devices(h host.Host, friendlyNames bool) ([]types.DeviceInfo, []string, err
 }
 ```
 
-### Step 5 — Register device decoder in `device_decode.go`
+### Step 5 — Register device decoder in `device/device_decode.go`
 
-Open `pkg/machine/device_decode.go` and add one switch branch in
+Open `pkg/machine/device/device_decode.go` and add one switch branch in
 `DecodeDeviceInfo`:
 
 ```go
@@ -116,23 +116,25 @@ The golden-file pipeline test (`TestGetFromMachineDirs`) will pick it up automat
 
 ```
 pkg/machine/
-    bus/scanner.go          ← Scanner interface (shared contract)
-    devices.go              ← scanner registry
-    device_decode.go        ← explicit JSON decode for bus payloads
     machine.go              ← top-level Get()
+    decode.go               ← DecodeMachineInfo() — JSON round-trip for MachineInfo
+    device/
+        bus/scanner.go      ← Scanner interface (shared contract)
+        devices.go          ← scanner registry
+        device_decode.go    ← DecodeDeviceInfo() — explicit JSON decode for bus payloads
+        pci/
+            types.go        ← pci.Device implements BusDevice + BusName()
+            scanner.go      ← pci.Scanner implements bus.Scanner
+            syspci.go       ← internal enumeration logic
+            amd/, intel/, nvidia/  ← vendor-specific additional properties
+        usb/
+            types.go        ← usb.Device implements BusDevice + BusName()
+            scanner.go      ← usb.Scanner implements bus.Scanner
+            sysusb.go       ← internal enumeration logic
+        fastrpc/
+            types.go        ← fastrpc.Device implements BusDevice + BusName()
+            scanner.go      ← fastrpc.Scanner (stub, not yet implemented)
     types/device.go         ← DeviceInfo + BusDevice interface
-    pci/
-        device.go           ← pci.Device implements BusDevice
-        scanner.go          ← pci.Scanner implements bus.Scanner
-        pci.go              ← internal enumeration logic
-        amd/, intel/, nvidia/  ← vendor-specific additional properties
-    usb/
-        device.go           ← usb.Device implements BusDevice
-        scanner.go          ← usb.Scanner implements bus.Scanner
-        usb.go, sysusb.go   ← internal enumeration logic
-    fastrpc/
-        device.go           ← fastrpc.Device implements BusDevice
-        scanner.go          ← fastrpc.Scanner (stub, not yet implemented)
 ```
 
 ### Configuration model
@@ -141,4 +143,3 @@ pkg/machine/
 |---|---|---|
 | Cross-bus (e.g. `FriendlyNames`) | `machine.Devices(..., friendlyNames)` | Passed once and forwarded to buses that support it |
 | Bus-specific tuning | `<busname>.Options`, passed via `NewScanner()` | Only for one bus |
-
