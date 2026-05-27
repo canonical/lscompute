@@ -60,7 +60,7 @@ func TestVRam(t *testing.T) {
 	}
 }
 
-const i5gtxMachineRoot = "../../../../test_data/machines/i5-3570k+arc-a580+gtx1080ti/machine-root"
+const i5gtxMachineRoot = "../../../../../test_data/machines/i5-3570k+arc-a580+gtx1080ti/machine-root"
 const gtxSlot = "0000:01:00.0"
 
 // TestParseVramAmount_KiBAndGiB exercises the KiB and GiB unit conversion paths.

@@ -10,7 +10,7 @@ import (
 )
 
 // xps13MachineRoot is the shared fake-host fixture for the xps13-9350 machine.
-const xps13MachineRoot = "../../../test_data/machines/xps13-9350/machine-root"
+const xps13MachineRoot = "../../../../test_data/machines/xps13-9350/machine-root"
 
 func xps13Host(t *testing.T) host.Host {
 	t.Helper()

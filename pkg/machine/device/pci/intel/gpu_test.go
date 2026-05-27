@@ -8,10 +8,10 @@ import (
 )
 
 var clinfoFiles = []string{
-	"../../../../test_data/clinfo/intel-arc-a580.json",
-	"../../../../test_data/clinfo/intel-arc-a580-inside-snap.json",
-	"../../../../test_data/clinfo/intel-arc-b580.json",
-	"../../../../test_data/clinfo/no-devices.json",
+	"../../../../../test_data/clinfo/intel-arc-a580.json",
+	"../../../../../test_data/clinfo/intel-arc-a580-inside-snap.json",
+	"../../../../../test_data/clinfo/intel-arc-b580.json",
+	"../../../../../test_data/clinfo/no-devices.json",
 }
 
 func TestParseClinfo(t *testing.T) {
@@ -34,7 +34,7 @@ func TestParseClinfo(t *testing.T) {
 	}
 }
 
-const i5MachineRoot = "../../../../test_data/machines/i5-3570k+arc-a580+gtx1080ti/machine-root"
+const i5MachineRoot = "../../../../../test_data/machines/i5-3570k+arc-a580+gtx1080ti/machine-root"
 
 // TestVRam_Intel verifies vRam returns the correct value for a known Intel GPU
 // slot from the clinfo fixture.

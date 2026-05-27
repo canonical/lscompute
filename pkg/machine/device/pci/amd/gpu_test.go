@@ -14,10 +14,10 @@ func TestVRam(t *testing.T) {
 		expected    uint64
 		shouldErr   bool
 	}{
-		{name: "valid vram read hp-zbook", slot: "0000:03:00.0", machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", expected: 8573157376, shouldErr: false},
-		{name: "invalid path hp-zbook", slot: "9999:99:99.9", machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true},
-		{name: "valid vram read lenovo", slot: "0000:c4:00.0", machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", expected: 8589934592, shouldErr: false},
-		{name: "invalid path lenovo", slot: "9999:99:99.9", machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true},
+		{name: "valid vram read hp-zbook", slot: "0000:03:00.0", machineRoot: "../../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", expected: 8573157376, shouldErr: false},
+		{name: "invalid path hp-zbook", slot: "9999:99:99.9", machineRoot: "../../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true},
+		{name: "valid vram read lenovo", slot: "0000:c4:00.0", machineRoot: "../../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", expected: 8589934592, shouldErr: false},
+		{name: "invalid path lenovo", slot: "9999:99:99.9", machineRoot: "../../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -46,14 +46,14 @@ func TestGetAmdGpuPciSlot(t *testing.T) {
 		name, input, machineRoot, expected, errContains string
 		shouldErr                                       bool
 	}{
-		{name: "valid hp-zbook render 129", input: "drm_render_minor 129", machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", expected: "0000:03:00.0"},
-		{name: "invalid format hp-zbook missing value", input: "drm_render_minor", machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true, errContains: "unexpected format for drm_render_minor"},
-		{name: "invalid format hp-zbook too many parts", input: "drm_render_minor 128 extra", machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true, errContains: "unexpected format for drm_render_minor"},
-		{name: "invalid symlink hp-zbook", input: "drm_render_minor 999", machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true},
-		{name: "valid lenovo render 128", input: "drm_render_minor 128", machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", expected: "0000:c4:00.0"},
-		{name: "invalid format lenovo missing value", input: "drm_render_minor", machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true, errContains: "unexpected format for drm_render_minor"},
-		{name: "invalid format lenovo too many parts", input: "drm_render_minor 128 extra", machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true, errContains: "unexpected format for drm_render_minor"},
-		{name: "invalid symlink lenovo", input: "drm_render_minor 999", machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true},
+		{name: "valid hp-zbook render 129", input: "drm_render_minor 129", machineRoot: "../../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", expected: "0000:03:00.0"},
+		{name: "invalid format hp-zbook missing value", input: "drm_render_minor", machineRoot: "../../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true, errContains: "unexpected format for drm_render_minor"},
+		{name: "invalid format hp-zbook too many parts", input: "drm_render_minor 128 extra", machineRoot: "../../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true, errContains: "unexpected format for drm_render_minor"},
+		{name: "invalid symlink hp-zbook", input: "drm_render_minor 999", machineRoot: "../../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true},
+		{name: "valid lenovo render 128", input: "drm_render_minor 128", machineRoot: "../../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", expected: "0000:c4:00.0"},
+		{name: "invalid format lenovo missing value", input: "drm_render_minor", machineRoot: "../../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true, errContains: "unexpected format for drm_render_minor"},
+		{name: "invalid format lenovo too many parts", input: "drm_render_minor 128 extra", machineRoot: "../../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true, errContains: "unexpected format for drm_render_minor"},
+		{name: "invalid symlink lenovo", input: "drm_render_minor 999", machineRoot: "../../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -112,10 +112,10 @@ func TestGpuProperties(t *testing.T) {
 		slot                 string
 		shouldErr, checkVram bool
 	}{
-		{name: "hp-zbook AMD GPU", slot: "0000:03:00.0", machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", checkVram: true},
-		{name: "hp-zbook invalid slot", slot: "9999:99:99.9", machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true},
-		{name: "lenovo AMD GPU", slot: "0000:c4:00.0", machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", checkVram: true},
-		{name: "lenovo invalid slot", slot: "9999:99:99.9", machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true},
+		{name: "hp-zbook AMD GPU", slot: "0000:03:00.0", machineRoot: "../../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", checkVram: true},
+		{name: "hp-zbook invalid slot", slot: "9999:99:99.9", machineRoot: "../../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true},
+		{name: "lenovo AMD GPU", slot: "0000:c4:00.0", machineRoot: "../../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", checkVram: true},
+		{name: "lenovo invalid slot", slot: "9999:99:99.9", machineRoot: "../../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -142,11 +142,11 @@ func TestGfxArchitecture(t *testing.T) {
 		slot                                     string
 		shouldErr                                bool
 	}{
-		{name: "valid hp-zbook", slot: "0000:03:00.0", machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", expected: "gfx1032"},
+		{name: "valid hp-zbook", slot: "0000:03:00.0", machineRoot: "../../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", expected: "gfx1032"},
 		{name: "invalid nodes dir", slot: "0000:03:00.0", machineRoot: "/nonexistent/path/", shouldErr: true},
-		{name: "no match hp-zbook", slot: "9999:99:99.9", machineRoot: "../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true},
-		{name: "valid lenovo", slot: "0000:c4:00.0", machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", expected: "gfx1152"},
-		{name: "no match lenovo", slot: "9999:99:99.9", machineRoot: "../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true},
+		{name: "no match hp-zbook", slot: "9999:99:99.9", machineRoot: "../../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root", shouldErr: true},
+		{name: "valid lenovo", slot: "0000:c4:00.0", machineRoot: "../../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", expected: "gfx1152"},
+		{name: "no match lenovo", slot: "9999:99:99.9", machineRoot: "../../../../../test_data/machines/lenovo-thinkpad-p16s/machine-root", shouldErr: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
