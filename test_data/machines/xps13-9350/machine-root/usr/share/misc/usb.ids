@@ -1,0 +1,15 @@
+#
+# Curated usb.ids for xps13-9350 test fixture.
+# Contains only the vendors and products present in the sysfs fixture.
+#
+045e  Microsoft Corp.
+046d  Logitech, Inc.
+	c52b  Unifying Receiver
+	c548  Logi Bolt Receiver
+0bda  Realtek Semiconductor Corp.
+	8153  RTL8153 Gigabit Ethernet Adapter
+1d6b  Linux Foundation
+	0001  1.1 root hub
+	0002  2.0 root hub
+	0003  3.0 root hub
+27c6  Shenzhen Goodix Technology Co.,Ltd.

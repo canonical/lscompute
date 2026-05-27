@@ -1,0 +1,8 @@
+# Curated mini pci.ids for raspberry-pi-5.
+# Contains only the vendor/device entries present in this machine's sysfs.
+# Extracted from the upstream pci.ids database.
+14e4  Broadcom Inc. and subsidiaries
+	2712  BCM2712 PCIe Bridge
+1de4  Raspberry Pi Ltd
+	0001  RP1 PCIe 2.0 South Bridge
+
