@@ -77,7 +77,14 @@ flags		: sse sse2 avx2
 		t.Run(tc.name, func(t *testing.T) {
 			got, err := parseProcCpuInfoAmd64(tc.input)
 			if err != nil {
+<<<<<<< HEAD
 				t.Fatalf("unexpected error: %v", err)
+=======
+				if os.IsNotExist(err) {
+					t.Skipf("fixture not present yet: %s", procCpuInfoFile)
+				}
+				t.Fatal(err)
+>>>>>>> b091bb4 (tests: skip incomplete migrated fixtures)
 			}
 			if len(got) != tc.wantCount {
 				t.Fatalf("expected %d CPUs, got %d", tc.wantCount, len(got))
@@ -111,6 +118,7 @@ flags		: sse sse2 avx2
 	}
 }
 
+<<<<<<< HEAD
 func TestParseProcCpuInfoArm64(t *testing.T) {
 	tests := []struct {
 		name              string
@@ -134,6 +142,34 @@ func TestParseProcCpuInfoArm64(t *testing.T) {
 			wantRevision:      1,
 			wantFeatures:      []string{"fp", "asimd", "aes"},
 		},
+=======
+func TestParseProcCpuInfoAmd64(t *testing.T) {
+	cpuInfoData, err := os.ReadFile("../../../test_data/machines/xps13-7390/machine-root/proc/cpuinfo")
+	if err != nil {
+		if os.IsNotExist(err) {
+			t.Skip("fixture not present yet: xps13-7390 machine-root/proc/cpuinfo")
+		}
+		t.Fatal(err)
+	}
+
+	cpuInfos, err := parseProcCpuInfoAmd64(string(cpuInfoData))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, cpuInfo := range cpuInfos {
+		log.Printf("%+v", cpuInfo)
+	}
+}
+
+func TestParseProcCpuInfoArm64(t *testing.T) {
+	cpuInfoData, err := os.ReadFile("../../../test_data/machines/raspberry-pi-5/machine-root/proc/cpuinfo")
+	if err != nil {
+		if os.IsNotExist(err) {
+			t.Skip("fixture not present yet: raspberry-pi-5 machine-root/proc/cpuinfo")
+		}
+		t.Fatal(err)
+>>>>>>> b091bb4 (tests: skip incomplete migrated fixtures)
 	}
 
 	for _, tc := range tests {
