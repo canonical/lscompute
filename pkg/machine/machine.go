@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/canonical/lscompute/pkg/machine/cpu"
+	"github.com/canonical/lscompute/pkg/machine/device"
 	"github.com/canonical/lscompute/pkg/machine/disk"
 	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/memory"
@@ -31,7 +32,7 @@ func Get(h host.Host, friendlyNames bool) (*types.MachineInfo, []string, error) 
 	}
 	machineInfo.Disk = diskInfo
 
-	devices, warnings, err := Devices(h, friendlyNames)
+	devices, warnings, err := device.Devices(h, friendlyNames)
 	if err != nil {
 		return nil, nil, fmt.Errorf("getting devices: %w", err)
 	}

@@ -1,4 +1,4 @@
-package machine
+package device
 
 import (
 	"path/filepath"
@@ -9,7 +9,7 @@ import (
 )
 
 func TestDevices_WithFakeHost(t *testing.T) {
-	machineRoot := filepath.Join("..", "..", "test_data", "machines", "xps13-9350", "machine-root")
+	machineRoot := filepath.Join("..", "..", "..", "test_data", "machines", "xps13-9350", "machine-root")
 	h := host.Fake(machineRoot)
 
 	devices, _, err := Devices(h, false)

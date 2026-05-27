@@ -1,14 +1,14 @@
-package machine
+package device
 
 import (
 	"encoding/json"
 	"fmt"
 
 	"github.com/canonical/lscompute/pkg/machine/constants"
-	"github.com/canonical/lscompute/pkg/machine/fastrpc"
-	"github.com/canonical/lscompute/pkg/machine/pci"
+	"github.com/canonical/lscompute/pkg/machine/device/fastrpc"
+	"github.com/canonical/lscompute/pkg/machine/device/pci"
+	"github.com/canonical/lscompute/pkg/machine/device/usb"
 	"github.com/canonical/lscompute/pkg/machine/types"
-	"github.com/canonical/lscompute/pkg/machine/usb"
 )
 
 // DecodeDeviceInfo decodes a flat device JSON object by looking at its "bus" key
@@ -43,35 +43,4 @@ func DecodeDeviceInfo(data []byte) (types.DeviceInfo, error) {
 	default:
 		return types.DeviceInfo{}, fmt.Errorf("unknown device bus: %q", peek.Bus)
 	}
-}
-
-// DecodeMachineInfo decodes machine info JSON and explicitly decodes each device
-// payload using DecodeDeviceInfo.
-func DecodeMachineInfo(data []byte) (*types.MachineInfo, error) {
-	var wire struct {
-		Cpus    []types.CpuInfo           `json:"cpus,omitempty"`
-		Memory  types.MemoryInfo          `json:"memory,omitempty"`
-		Disk    map[string]types.DirStats `json:"disk,omitempty"`
-		Devices []json.RawMessage         `json:"devices,omitempty"`
-	}
-	if err := json.Unmarshal(data, &wire); err != nil {
-		return nil, err
-	}
-
-	decodedDevices := make([]types.DeviceInfo, 0, len(wire.Devices))
-	for _, raw := range wire.Devices {
-		dev, err := DecodeDeviceInfo(raw)
-		if err != nil {
-			return nil, fmt.Errorf("decoding machine device: %w", err)
-		}
-		decodedDevices = append(decodedDevices, dev)
-	}
-
-	info := types.MachineInfo{
-		Cpus:    wire.Cpus,
-		Memory:  wire.Memory,
-		Disk:    wire.Disk,
-		Devices: decodedDevices,
-	}
-	return &info, nil
 }

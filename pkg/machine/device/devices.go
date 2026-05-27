@@ -1,12 +1,12 @@
-package machine
+package device
 
 import (
-	"github.com/canonical/lscompute/pkg/machine/bus"
-	"github.com/canonical/lscompute/pkg/machine/fastrpc"
+	"github.com/canonical/lscompute/pkg/machine/device/bus"
+	"github.com/canonical/lscompute/pkg/machine/device/fastrpc"
+	"github.com/canonical/lscompute/pkg/machine/device/pci"
+	"github.com/canonical/lscompute/pkg/machine/device/usb"
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/pci"
 	"github.com/canonical/lscompute/pkg/machine/types"
-	"github.com/canonical/lscompute/pkg/machine/usb"
 )
 
 // Devices iterates all registered bus scanners and returns the combined device list.

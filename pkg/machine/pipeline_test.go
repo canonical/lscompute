@@ -48,10 +48,13 @@ func TestGetFromMachineDirs(t *testing.T) {
 
 			h := host.Fake(machineRoot)
 
-			// Run the full pipeline with friendly names on. Machines without a
-			// curated machine-root/usr/share/misc/pci.ids will log warnings; that
-			// is intentional and not an assertion.
-			got, warnings, err := Get(h, true)
+			// Only enable friendly names when the machine has a curated pci.ids,
+			// otherwise the PCI lookup warnings are noise and names won't resolve.
+			pciIdsPath := filepath.Join(machineRoot, "usr", "share", "misc", "pci.ids")
+			_, pciIdsErr := os.Stat(pciIdsPath)
+			friendlyNames := pciIdsErr == nil
+
+			got, warnings, err := Get(h, friendlyNames)
 			if err != nil {
 				t.Fatalf("Get() failed: %v", err)
 			}

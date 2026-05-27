@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/canonical/lscompute/pkg/machine/constants"
+	"github.com/canonical/lscompute/pkg/machine/device/pci/amd"
+	"github.com/canonical/lscompute/pkg/machine/device/pci/intel"
+	"github.com/canonical/lscompute/pkg/machine/device/pci/nvidia"
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/pci/amd"
-	"github.com/canonical/lscompute/pkg/machine/pci/intel"
-	"github.com/canonical/lscompute/pkg/machine/pci/nvidia"
 )
 
 // ErrorVendorNotSupported is returned by additionalProperties when no
