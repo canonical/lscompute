@@ -31,8 +31,8 @@ func gpuProperties(pciDevice types.PciDevice) (map[string]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("looking up compute capability: %v", err)
 	}
-	if ccVal != nil {
-		properties["compute-capability"] = *ccVal
+	if ccVal != "" {
+		properties["compute-capability"] = ccVal
 	}
 
 	return properties, nil
@@ -54,12 +54,12 @@ func vRam(device types.PciDevice) (*uint64, error) {
 	return parseVramAmount(output)
 }
 
-func parseVramAmount(smiOutputString *string) (*uint64, error) {
-	if *smiOutputString == "[N/A]" {
+func parseVramAmount(smiOutputString string) (*uint64, error) {
+	if smiOutputString == "[N/A]" {
 		return nil, nil
 	}
 
-	valueStr, unit, hasUnit := strings.Cut(*smiOutputString, " ")
+	valueStr, unit, hasUnit := strings.Cut(smiOutputString, " ")
 	vramValue, err := strconv.ParseUint(valueStr, 10, 64)
 	if err != nil {
 		return nil, fmt.Errorf("parsing nvidia-smi output: %v", err)
@@ -79,17 +79,17 @@ func parseVramAmount(smiOutputString *string) (*uint64, error) {
 	return &vramValue, nil
 }
 
-func computeCapability(device types.PciDevice) (*string, error) {
+func computeCapability(device types.PciDevice) (string, error) {
 	// nvidia-smi --query-gpu=compute_cap --format=csv,noheader
 	output, err := nvidiaSmi("--id="+device.Slot, "--query-gpu=compute_cap", "--format=csv,noheader")
 	if err != nil {
-		return nil, fmt.Errorf("executing nvidia-smi: %v", err)
+		return "", fmt.Errorf("executing nvidia-smi: %v", err)
 	}
 
 	return output, nil
 }
 
-func nvidiaSmi(args ...string) (*string, error) {
+func nvidiaSmi(args ...string) (string, error) {
 	ctx := context.Background()
 	cmdContext, cancel := context.WithTimeout(ctx, nvidiaSmiTimeout)
 	defer cancel()
@@ -108,13 +108,12 @@ func nvidiaSmi(args ...string) (*string, error) {
 	output, err := cmd.Output()
 	if err != nil {
 		if len(output) == 0 {
-			return nil, err
+			return "", err
 		} else {
 			// nvidia-smi writes error messages to stdout
-			return nil, fmt.Errorf("%s: %s", err, bytes.TrimSpace(output))
+			return "", fmt.Errorf("%s: %s", err, bytes.TrimSpace(output))
 		}
 	}
 
-	strOutput := string(bytes.TrimSpace(output))
-	return &strOutput, nil
+	return string(bytes.TrimSpace(output)), nil
 }

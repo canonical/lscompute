@@ -2,9 +2,8 @@ package disk
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
-
-	"github.com/canonical/lscompute/pkg/utils"
 )
 
 var testDirs = []string{
@@ -20,8 +19,8 @@ func TestDirStats(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			t.Log("Total:", utils.FmtBytes(diskStats.Total))
-			t.Log("Avail:", utils.FmtBytes(diskStats.Avail))
+			t.Log("Total:", fmtBytes(diskStats.Total))
+			t.Log("Avail:", fmtBytes(diskStats.Avail))
 		})
 	}
 }
@@ -45,4 +44,18 @@ func TestInfo(t *testing.T) {
 	}
 
 	t.Log(string(jsonData))
+}
+
+// FmtBytes converts bytes to a printable string with unit
+func fmtBytes(bytes uint64) string {
+	if bytes > 1024*1024*1024*1024 {
+		return fmt.Sprintf("%.1fTiB", float64(bytes)/1024/1024/1024/1024)
+	} else if bytes > 1024*1024*1024 {
+		return fmt.Sprintf("%.1fGiB", float64(bytes)/1024/1024/1024)
+	} else if bytes > 1024*1024 {
+		return fmt.Sprintf("%.1fMiB", float64(bytes)/1024/1024)
+	} else if bytes > 1024 {
+		return fmt.Sprintf("%.1fKiB", float64(bytes)/1024)
+	}
+	return fmt.Sprintf("%d", bytes)
 }

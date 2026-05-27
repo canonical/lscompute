@@ -18,7 +18,7 @@ func hostProcCpuInfo() (string, error) {
 	return string(cpuInfoBytes), nil
 }
 
-func parseProcCpuInfo(cpuInfoString string, architecture string) ([]ProcCpuInfo, error) {
+func parseProcCpuInfo(cpuInfoString string, architecture string) ([]procCpuInfo, error) {
 	switch architecture {
 
 	case constants.Amd64:
@@ -41,8 +41,8 @@ func parseProcCpuInfo(cpuInfoString string, architecture string) ([]ProcCpuInfo,
 	}
 }
 
-func parseProcCpuInfoAmd64(cpuInfoString string) ([]ProcCpuInfo, error) {
-	var parsedCpus []ProcCpuInfo
+func parseProcCpuInfoAmd64(cpuInfoString string) ([]procCpuInfo, error) {
+	var parsedCpus []procCpuInfo
 
 	lines := strings.Split(cpuInfoString, "\n")
 	cpuIndex := 0
@@ -58,7 +58,7 @@ func parseProcCpuInfoAmd64(cpuInfoString string) ([]ProcCpuInfo, error) {
 
 		// New cpu block
 		if key == "processor" {
-			newCpu := ProcCpuInfo{}
+			newCpu := procCpuInfo{}
 			newCpu.Architecture = constants.Amd64
 			parsedCpus = append(parsedCpus, newCpu)
 			cpuIndex = len(parsedCpus) - 1
@@ -86,8 +86,8 @@ func parseProcCpuInfoAmd64(cpuInfoString string) ([]ProcCpuInfo, error) {
 	return parsedCpus, nil
 }
 
-func parseProcCpuInfoArm64(cpuInfoString string) ([]ProcCpuInfo, error) {
-	var parsedCpus []ProcCpuInfo
+func parseProcCpuInfoArm64(cpuInfoString string) ([]procCpuInfo, error) {
+	var parsedCpus []procCpuInfo
 
 	lines := strings.Split(cpuInfoString, "\n")
 	cpuIndex := 0
@@ -103,7 +103,7 @@ func parseProcCpuInfoArm64(cpuInfoString string) ([]ProcCpuInfo, error) {
 
 		// New cpu block
 		if key == "processor" {
-			newCpu := ProcCpuInfo{}
+			newCpu := procCpuInfo{}
 			newCpu.Architecture = constants.Arm64
 			parsedCpus = append(parsedCpus, newCpu)
 			cpuIndex = len(parsedCpus) - 1

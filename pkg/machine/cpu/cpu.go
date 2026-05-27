@@ -17,12 +17,12 @@ func Info() ([]types.CpuInfo, error) {
 
 	hostUname, err := hostUnameMachine()
 	if err != nil {
-		return []types.CpuInfo{}, fmt.Errorf("getting host uname: %v", err)
+		return nil, fmt.Errorf("getting host uname: %v", err)
 	}
 
 	cpus, err := InfoFromRawData(hostProcCpu, hostUname)
 	if err != nil {
-		return []types.CpuInfo{}, fmt.Errorf("parsing cpu data: %v", err)
+		return nil, fmt.Errorf("parsing cpu data: %v", err)
 	}
 
 	return cpus, nil
@@ -30,13 +30,16 @@ func Info() ([]types.CpuInfo, error) {
 
 func InfoFromRawData(procCpuInfoData string, uname string) ([]types.CpuInfo, error) {
 	architecture, err := debianArchitecture(uname)
+	if err != nil {
+		return nil, fmt.Errorf("translating architecture: %v", err)
+	}
 
-	machineProcCpuInfo, err := parseProcCpuInfo(procCpuInfoData, architecture)
+	machineprocCpuInfo, err := parseProcCpuInfo(procCpuInfoData, architecture)
 	if err != nil {
 		return nil, fmt.Errorf("parsing cpuinfo: %v", err)
 	}
 
-	cpus, err := uniqueCpuInfo(machineProcCpuInfo)
+	cpus, err := uniqueCpuInfo(machineprocCpuInfo)
 	if err != nil {
 		return nil, fmt.Errorf("filtering cpu info: %v", err)
 	}
@@ -44,7 +47,7 @@ func InfoFromRawData(procCpuInfoData string, uname string) ([]types.CpuInfo, err
 	return cpus, nil
 }
 
-func uniqueCpuInfo(procCpus []ProcCpuInfo) ([]types.CpuInfo, error) {
+func uniqueCpuInfo(procCpus []procCpuInfo) ([]types.CpuInfo, error) {
 	// Set processor index to 0 to only check other fields for uniqueness
 	for i := range procCpus {
 		procCpus[i].Processor = 0
@@ -59,11 +62,11 @@ func uniqueCpuInfo(procCpus []ProcCpuInfo) ([]types.CpuInfo, error) {
 	return cpuInfos, nil
 }
 
-func isDuplicate(a ProcCpuInfo, b ProcCpuInfo) bool {
+func isDuplicate(a procCpuInfo, b procCpuInfo) bool {
 	return reflect.DeepEqual(a, b)
 }
 
-func cpuInfoFromProc(procCpus []ProcCpuInfo) ([]types.CpuInfo, error) {
+func cpuInfoFromProc(procCpus []procCpuInfo) ([]types.CpuInfo, error) {
 	var cpuInfos []types.CpuInfo
 	for _, procCpu := range procCpus {
 		var cpuInfo types.CpuInfo

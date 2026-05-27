@@ -38,10 +38,9 @@ func debianArchitecture(unameArch string) (string, error) {
 		"x86_64":  constants.Amd64,
 	}
 
-	if debArch, ok := lookupTable[unameArch]; !ok {
+	debArch, ok := lookupTable[unameArch]
+	if !ok {
 		return "", fmt.Errorf("unsupported architecture: %s", unameArch)
-	} else {
-		return debArch, nil
 	}
-
+	return debArch, nil
 }
