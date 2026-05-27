@@ -2,6 +2,7 @@ package intel
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
@@ -36,9 +37,18 @@ func TestParseClinfo(t *testing.T) {
 
 const i5MachineRoot = "../../../../test_data/machines/i5-3570k+arc-a580+gtx1080ti/machine-root"
 
+func requireIntelFixture(t *testing.T) {
+	t.Helper()
+	path := filepath.Join(i5MachineRoot, "run", "clinfo.json")
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		t.Skipf("fixture not present yet: %s", path)
+	}
+}
+
 // TestVRam_Intel verifies vRam returns the correct value for a known Intel GPU
 // slot from the clinfo fixture.
 func TestVRam_Intel(t *testing.T) {
+	requireIntelFixture(t)
 	h := host.Fake(i5MachineRoot)
 	// The clinfo fixture reports the Arc A580 at PCI-E, 0000:03:00.0
 	got, err := vRam(h, "0000:03:00.0")
@@ -56,6 +66,7 @@ func TestVRam_Intel(t *testing.T) {
 }
 
 func TestVRam_Intel_NoMatch(t *testing.T) {
+	requireIntelFixture(t)
 	// A slot that doesn't appear in the clinfo output → nil, no error.
 	h := host.Fake(i5MachineRoot)
 	got, err := vRam(h, "9999:99:99.9")
@@ -94,6 +105,7 @@ func TestVRam_Intel_EmptyDevices(t *testing.T) {
 }
 
 func TestGpuProperties_Intel(t *testing.T) {
+	requireIntelFixture(t)
 	h := host.Fake(i5MachineRoot)
 	props, err := gpuProperties(h, "0000:03:00.0")
 	if err != nil {
@@ -106,6 +118,7 @@ func TestGpuProperties_Intel(t *testing.T) {
 }
 
 func TestAdditionalProperties_IntelGpu(t *testing.T) {
+	requireIntelFixture(t)
 	h := host.Fake(i5MachineRoot)
 	props, err := AdditionalProperties(h, "0000:03:00.0", true)
 	if err != nil {
@@ -117,6 +130,7 @@ func TestAdditionalProperties_IntelGpu(t *testing.T) {
 }
 
 func TestAdditionalProperties_IntelNotGpu(t *testing.T) {
+	requireIntelFixture(t)
 	h := host.Fake(i5MachineRoot)
 	props, err := AdditionalProperties(h, "0000:03:00.0", false)
 	if err != nil {

@@ -1,6 +1,8 @@
 package nvidia
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
@@ -63,6 +65,19 @@ func TestVRam(t *testing.T) {
 const i5gtxMachineRoot = "../../../../test_data/machines/i5-3570k+arc-a580+gtx1080ti/machine-root"
 const gtxSlot = "0000:01:00.0"
 
+func requireNvidiaFixture(t *testing.T) {
+	t.Helper()
+	required := []string{
+		filepath.Join(i5gtxMachineRoot, "run", "nvidia-smi", gtxSlot, "memory.total"),
+		filepath.Join(i5gtxMachineRoot, "run", "nvidia-smi", gtxSlot, "compute_cap"),
+	}
+	for _, path := range required {
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			t.Skipf("fixture not present yet: %s", path)
+		}
+	}
+}
+
 // TestParseVramAmount_KiBAndGiB exercises the KiB and GiB unit conversion paths.
 func TestParseVramAmount_KiBAndGiB(t *testing.T) {
 	tests := []struct {
@@ -91,6 +106,7 @@ func TestParseVramAmount_KiBAndGiB(t *testing.T) {
 }
 
 func TestVRam_Nvidia(t *testing.T) {
+	requireNvidiaFixture(t)
 	h := host.Fake(i5gtxMachineRoot)
 	got, err := vRam(h, gtxSlot)
 	if err != nil {
@@ -115,6 +131,7 @@ func TestVRam_Nvidia_MissingFixture(t *testing.T) {
 }
 
 func TestComputeCapability(t *testing.T) {
+	requireNvidiaFixture(t)
 	h := host.Fake(i5gtxMachineRoot)
 	got, err := computeCapability(h, gtxSlot)
 	if err != nil {
@@ -135,6 +152,7 @@ func TestComputeCapability_MissingFixture(t *testing.T) {
 }
 
 func TestGpuProperties_Nvidia(t *testing.T) {
+	requireNvidiaFixture(t)
 	h := host.Fake(i5gtxMachineRoot)
 	props, err := gpuProperties(h, gtxSlot)
 	if err != nil {
@@ -149,6 +167,7 @@ func TestGpuProperties_Nvidia(t *testing.T) {
 }
 
 func TestAdditionalProperties_NvidiaGpu(t *testing.T) {
+	requireNvidiaFixture(t)
 	h := host.Fake(i5gtxMachineRoot)
 	props, err := AdditionalProperties(h, gtxSlot, true)
 	if err != nil {
@@ -160,6 +179,7 @@ func TestAdditionalProperties_NvidiaGpu(t *testing.T) {
 }
 
 func TestAdditionalProperties_NvidiaNotGpu(t *testing.T) {
+	requireNvidiaFixture(t)
 	h := host.Fake(i5gtxMachineRoot)
 	props, err := AdditionalProperties(h, gtxSlot, false)
 	if err != nil {

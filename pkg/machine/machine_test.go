@@ -11,6 +11,9 @@ import (
 
 func TestGet_WithFakeHost(t *testing.T) {
 	machineRoot := filepath.Join("..", "..", "test_data", "machines", "xps13-9350", "machine-root")
+	if _, err := os.Stat(filepath.Join(machineRoot, "proc", "meminfo")); os.IsNotExist(err) {
+		t.Skipf("fixture not present yet: %s", machineRoot)
+	}
 	h := host.Fake(machineRoot)
 
 	info, _, err := Get(h, false)

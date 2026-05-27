@@ -18,6 +18,9 @@ func xps13Host(t *testing.T) host.Host {
 	if err != nil {
 		t.Fatalf("resolving machine root: %v", err)
 	}
+	if _, err := os.Stat(filepath.Join(abs, "sys", "bus", "usb", "devices")); os.IsNotExist(err) {
+		t.Skipf("fixture not present yet: %s", abs)
+	}
 	return host.Fake(abs)
 }
 

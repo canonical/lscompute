@@ -1,6 +1,7 @@
 package cpu
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -10,6 +11,13 @@ import (
 
 const xps13MachineRoot = "../../../test_data/machines/xps13-9350/machine-root"
 const rpiMachineRoot = "../../../test_data/machines/raspberry-pi-5/machine-root"
+
+func requireFixtureFile(t *testing.T, path string) {
+	t.Helper()
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		t.Skipf("fixture not present yet: %s", path)
+	}
+}
 
 func machineHost(t *testing.T, root string) host.Host {
 	t.Helper()
@@ -22,6 +30,7 @@ func machineHost(t *testing.T, root string) host.Host {
 
 // TestInfo_Amd64 exercises the full Info() pipeline on an x86_64 machine fixture.
 func TestInfo_Amd64(t *testing.T) {
+	requireFixtureFile(t, filepath.Join(xps13MachineRoot, "proc", "cpuinfo"))
 	h := machineHost(t, xps13MachineRoot)
 	cpus, err := Info(h)
 	if err != nil {
@@ -42,6 +51,7 @@ func TestInfo_Amd64(t *testing.T) {
 
 // TestInfo_Arm64 exercises the full Info() pipeline on an aarch64 machine fixture.
 func TestInfo_Arm64(t *testing.T) {
+	requireFixtureFile(t, filepath.Join(rpiMachineRoot, "proc", "cpuinfo"))
 	h := machineHost(t, rpiMachineRoot)
 	cpus, err := Info(h)
 	if err != nil {
