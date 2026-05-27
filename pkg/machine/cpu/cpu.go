@@ -1,7 +1,6 @@
 package cpu
 
 import (
-	"errors"
 	"fmt"
 	"io/fs"
 	"reflect"
@@ -34,18 +33,13 @@ func Info(h host.Host) ([]types.CpuInfo, error) {
 
 // machineArch returns the kernel machine architecture string (e.g. "x86_64").
 // It reads proc/sys/kernel/arch via the host FS (available on Linux 6.1+).
-// On older kernels the file does not exist; for the real host the architecture.go
-// fallback uses uname(2). For a fake host the file must be present.
+// If reading that file fails for any reason, it falls back to uname(2).
 func machineArch(h host.Host) (string, error) {
 	data, err := fs.ReadFile(h.FS(), "proc/sys/kernel/arch")
 	if err == nil {
 		return strings.TrimSpace(string(data)), nil
 	}
-	if !errors.Is(err, fs.ErrNotExist) {
-		return "", fmt.Errorf("reading proc/sys/kernel/arch: %w", err)
-	}
-	// File not present — fall back to uname(2). This only works on a real host;
-	// fake hosts must always provide the file.
+	// Any read error (missing or unreadable file) falls back to uname(2).
 	return hostMachineArchFallback()
 }
 
@@ -55,15 +49,15 @@ func infoFromRawData(procCpuInfoData string, uname string) ([]types.CpuInfo, err
 		return nil, fmt.Errorf("translating architecture: %w", err)
 	}
 
-	machineprocCpuInfo, err := parseProcCpuInfo(procCpuInfoData, architecture)
+	machineProcCpuInfo, err := parseProcCpuInfo(procCpuInfoData, architecture)
 	if err != nil {
 		return nil, fmt.Errorf("parsing cpuinfo: %w", err)
 	}
-	if len(machineprocCpuInfo) == 0 {
+	if len(machineProcCpuInfo) == 0 {
 		return nil, fmt.Errorf("parsing cpuinfo: no cpu entries found")
 	}
 
-	cpus, err := uniqueCpuInfo(machineprocCpuInfo)
+	cpus, err := uniqueCpuInfo(machineProcCpuInfo)
 	if err != nil {
 		return nil, fmt.Errorf("filtering cpu info: %w", err)
 	}
