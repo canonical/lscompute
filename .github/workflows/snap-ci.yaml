@@ -62,6 +62,7 @@ jobs:
           # Build components argument list
           component_args=()
           echo "Snap components:"
+          shopt -s nullglob
           for comp_file in *.comp; do
               comp_size=$(du -h "$comp_file" | cut -f1)
 
@@ -77,6 +78,7 @@ jobs:
 
               component_args+=(--component "$comp_name=$comp_file")
           done
+          shopt -u nullglob
 
           echo -e "\nUploading snap..."
           set -x
