@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/canonical/lscompute/pkg/machine/constants"
+	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
@@ -28,8 +28,8 @@ func TestScannerScan_NoFriendlyNames(t *testing.T) {
 	}
 
 	for _, di := range result {
-		if di.Bus != constants.BusUsb {
-			t.Errorf("DeviceInfo.Bus = %q, want %q", di.Bus, constants.BusUsb)
+		if di.Bus != bus.BusUsb {
+			t.Errorf("DeviceInfo.Bus = %q, want %q", di.Bus, bus.BusUsb)
 		}
 		dev, ok := di.Payload.(*Device)
 		if !ok {
@@ -163,16 +163,16 @@ func TestScannerScan_WithFriendlyNames(t *testing.T) {
 // TestScannerBusName verifies that the Scanner reports the canonical USB bus name.
 func TestScannerBusName(t *testing.T) {
 	s := NewScanner(Options{})
-	if got := s.BusName(); got != constants.BusUsb {
-		t.Errorf("BusName() = %q, want %q", got, constants.BusUsb)
+	if got := s.BusName(); got != bus.BusUsb {
+		t.Errorf("BusName() = %q, want %q", got, bus.BusUsb)
 	}
 }
 
 // TestDeviceBusName verifies that Device.BusName returns the USB bus constant.
 func TestDeviceBusName(t *testing.T) {
 	d := &Device{}
-	if got := d.BusName(); got != constants.BusUsb {
-		t.Errorf("Device.BusName() = %q, want %q", got, constants.BusUsb)
+	if got := d.BusName(); got != bus.BusUsb {
+		t.Errorf("Device.BusName() = %q, want %q", got, bus.BusUsb)
 	}
 }
 
@@ -238,8 +238,8 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 
 	// DeviceInfo.Bus must still be set correctly.
 	for _, di := range result {
-		if di.Bus != constants.BusUsb {
-			t.Errorf("DeviceInfo.Bus = %q, want %q", di.Bus, constants.BusUsb)
+		if di.Bus != bus.BusUsb {
+			t.Errorf("DeviceInfo.Bus = %q, want %q", di.Bus, bus.BusUsb)
 		}
 	}
 }
@@ -260,7 +260,7 @@ func TestScannerScan_EmptyHost(t *testing.T) {
 	}
 }
 
-// Ensure the DeviceInfo payloads from Scan implement types.BusDevice.
+// Ensure the DeviceInfo payloads from Scan implement bus.BusDevice.
 func TestScannerScan_PayloadImplementsBusDevice(t *testing.T) {
 	h := xps13Host(t)
 	s := NewScanner(Options{})
@@ -269,11 +269,11 @@ func TestScannerScan_PayloadImplementsBusDevice(t *testing.T) {
 		t.Fatalf("Scan() error: %v", err)
 	}
 	for _, di := range result {
-		bd, ok := di.Payload.(types.BusDevice)
+		bd, ok := di.Payload.(bus.BusDevice)
 		if !ok {
-			t.Errorf("Payload %T does not implement types.BusDevice", di.Payload)
-		} else if got := bd.BusName(); got != constants.BusUsb {
-			t.Errorf("BusDevice.BusName() = %q, want %q", got, constants.BusUsb)
+			t.Errorf("Payload %T does not implement bus.BusDevice", di.Payload)
+		} else if got := bd.BusName(); got != bus.BusUsb {
+			t.Errorf("BusDevice.BusName() = %q, want %q", got, bus.BusUsb)
 		}
 	}
 }

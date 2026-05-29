@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/device/pci"
 	"github.com/canonical/lscompute/pkg/machine/device/usb"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 func TestDecodeMachineInfo(t *testing.T) {
@@ -42,7 +42,7 @@ func TestDecodeMachineInfo(t *testing.T) {
 
 func TestDecodeMachineInfo_InvalidDevice(t *testing.T) {
 	info := MachineInfo{
-		Devices: []types.DeviceInfo{{Bus: "unknown", Payload: &usb.Device{BusNumber: 1}}},
+		Devices: []bus.DeviceInfo{{Bus: "unknown", Payload: &usb.Device{BusNumber: 1}}},
 	}
 	data, err := json.Marshal(info)
 	if err != nil {
