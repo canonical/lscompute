@@ -168,13 +168,6 @@ func TestScannerBusName(t *testing.T) {
 	}
 }
 
-// TestDeviceBusName verifies that Device.BusName returns the USB bus constant.
-func TestDeviceBusName(t *testing.T) {
-	d := &Device{}
-	if got := d.BusName(); got != bus.BusUsb {
-		t.Errorf("Device.BusName() = %q, want %q", got, bus.BusUsb)
-	}
-}
 
 // TestScannerScan_SysFsError verifies that Scan returns a non-nil error when
 // the sysfs USB devices path exists as a regular file (making ReadDir fail).

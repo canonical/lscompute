@@ -6,7 +6,7 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
-func TestVRam(t *testing.T) {
+func TestParseVramAmount(t *testing.T) {
 	expected := uint64(4096 * 1024 * 1024)
 	tests := []struct {
 		name      string
