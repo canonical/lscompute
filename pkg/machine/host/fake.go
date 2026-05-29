@@ -90,23 +90,23 @@ func parseNvidiaSmiArgs(args []string) (slot, query string, err error) {
 // The JSON keys carry a leading "/" (human-readable absolute paths);
 // fakeHost prepends "/" to the API path before looking up, matching
 // what realHost does when building the unix.Statfs argument.
-func (h *fakeHost) StatFs(path string) (DirStats, error) {
+func (h *fakeHost) StatFs(path string) (dirStats, error) {
 	filePath := filepath.Join(h.root, "run", "disk-stats.json")
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		return DirStats{}, fmt.Errorf("fake StatFs: reading %s: %w", filePath, err)
+		return dirStats{}, fmt.Errorf("fake StatFs: reading %s: %w", filePath, err)
 	}
 
-	var stats map[string]DirStats
+	var stats map[string]dirStats
 	if err := json.Unmarshal(data, &stats); err != nil {
-		return DirStats{}, fmt.Errorf("fake StatFs: parsing %s: %w", filePath, err)
+		return dirStats{}, fmt.Errorf("fake StatFs: parsing %s: %w", filePath, err)
 	}
 
 	// JSON keys have leading "/" for readability; prepend "/" to match.
 	key := "/" + path
 	entry, ok := stats[key]
 	if !ok {
-		return DirStats{}, fmt.Errorf("fake StatFs: no entry for %q in %s", key, filePath)
+		return dirStats{}, fmt.Errorf("fake StatFs: no entry for %q in %s", key, filePath)
 	}
 	return entry, nil
 }

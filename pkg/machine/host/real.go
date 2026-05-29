@@ -39,12 +39,12 @@ func (realHost) RunCommand(ctx context.Context, name string, env []string, args 
 	return cmd.Output()
 }
 
-func (realHost) StatFs(path string) (DirStats, error) {
+func (realHost) StatFs(path string) (dirStats, error) {
 	var st unix.Statfs_t
 	if err := unix.Statfs(filepath.Join("/", path), &st); err != nil {
-		return DirStats{}, fmt.Errorf("statfs %s: %w", path, err)
+		return dirStats{}, fmt.Errorf("statfs %s: %w", path, err)
 	}
-	return DirStats{
+	return dirStats{
 		Total: st.Blocks * uint64(st.Bsize),
 		Avail: st.Bavail * uint64(st.Bsize),
 	}, nil
