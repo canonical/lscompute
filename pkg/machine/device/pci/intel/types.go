@@ -1,4 +1,4 @@
-package types
+package intel
 
 type Clinfo struct {
 	Devices []struct {

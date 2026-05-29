@@ -1,4 +1,4 @@
-package types
+package bus
 
 import (
 	"encoding/json"

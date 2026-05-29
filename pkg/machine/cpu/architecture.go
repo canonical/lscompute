@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/canonical/lscompute/pkg/machine/constants"
 	"golang.org/x/sys/unix"
 )
 
@@ -28,16 +27,16 @@ func debianArchitecture(unameArch string) (string, error) {
 
 	lookupTable := map[string]string{
 		// uname:  debian
-		"aarch64": constants.Arm64,
-		"armv7l":  constants.Armhf,
-		"armv8l":  constants.Arm64,
-		"i686":    constants.I386,
-		"ppc":     constants.Powerpc,
-		"ppc64":   constants.Ppc64,
-		"ppc64le": constants.Ppc64el,
-		"riscv64": constants.Riscv64,
-		"s390x":   constants.S390x,
-		"x86_64":  constants.Amd64,
+		"aarch64": Arm64,
+		"armv7l":  Armhf,
+		"armv8l":  Arm64,
+		"i686":    I386,
+		"ppc":     Powerpc,
+		"ppc64":   Ppc64,
+		"ppc64le": Ppc64el,
+		"riscv64": Riscv64,
+		"s390x":   S390x,
+		"x86_64":  Amd64,
 	}
 
 	debArch, ok := lookupTable[unameArch]

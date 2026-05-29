@@ -3,9 +3,8 @@ package pci
 import (
 	"fmt"
 
-	"github.com/canonical/lscompute/pkg/machine/constants"
+	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 // Options holds PCI-specific scanner configuration.
@@ -25,10 +24,10 @@ func NewScanner(opts Options) *Scanner {
 }
 
 // BusName returns the canonical PCI bus name.
-func (s *Scanner) BusName() string { return constants.BusPci }
+func (s *Scanner) BusName() string { return bus.BusPci }
 
 // Scan discovers all PCI devices on the host and returns them as DeviceInfo values.
-func (s *Scanner) Scan(h host.Host) ([]types.DeviceInfo, []string, error) {
+func (s *Scanner) Scan(h host.Host) ([]bus.DeviceInfo, []string, error) {
 	devices, warnings, err := readSysPci(h)
 	if err != nil {
 		return nil, nil, fmt.Errorf("reading sysfs pci devices: %w", err)
@@ -48,10 +47,10 @@ func (s *Scanner) Scan(h host.Host) ([]types.DeviceInfo, []string, error) {
 	devices, additionalPropWarnings := addAdditionalProperties(h, devices)
 	warnings = append(warnings, additionalPropWarnings...)
 
-	result := make([]types.DeviceInfo, len(devices))
+	result := make([]bus.DeviceInfo, len(devices))
 	for i := range devices {
 		d := devices[i]
-		result[i] = types.DeviceInfo{Bus: constants.BusPci, Payload: &d}
+		result[i] = bus.DeviceInfo{Bus: bus.BusPci, Payload: &d}
 	}
 	return result, warnings, nil
 }

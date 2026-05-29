@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/canonical/lscompute/pkg/machine/constants"
 	"github.com/canonical/lscompute/pkg/machine/device/pci/amd"
 	"github.com/canonical/lscompute/pkg/machine/device/pci/intel"
 	"github.com/canonical/lscompute/pkg/machine/device/pci/nvidia"
@@ -38,19 +37,19 @@ func addAdditionalProperties(h host.Host, devices []Device) ([]Device, []string)
 // device's vendor ID. Add a new case here when a new vendor is supported.
 func additionalProperties(h host.Host, device Device) (map[string]string, error) {
 	switch device.VendorId {
-	case constants.PciVendorAmd:
+	case PciVendorAmd:
 		props, err := amd.AdditionalProperties(h, device.Slot, device.IsGpu())
 		if err != nil {
 			return nil, fmt.Errorf("AMD: %w", err)
 		}
 		return props, nil
-	case constants.PciVendorNvidia:
+	case PciVendorNvidia:
 		props, err := nvidia.AdditionalProperties(h, device.Slot, device.IsGpu())
 		if err != nil {
 			return nil, fmt.Errorf("NVIDIA: %w", err)
 		}
 		return props, nil
-	case constants.PciVendorIntel:
+	case PciVendorIntel:
 		props, err := intel.AdditionalProperties(h, device.Slot, device.IsGpu())
 		if err != nil {
 			return nil, fmt.Errorf("Intel: %w", err)

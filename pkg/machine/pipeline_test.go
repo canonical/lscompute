@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 var update = flag.Bool("update", false, "rewrite golden files instead of asserting")
@@ -77,7 +76,7 @@ func TestGetFromMachineDirs(t *testing.T) {
 	}
 }
 
-func writeGolden(t *testing.T, path string, info *types.MachineInfo) {
+func writeGolden(t *testing.T, path string, info *MachineInfo) {
 	t.Helper()
 	data, err := json.MarshalIndent(info, "", "  ")
 	if err != nil {
@@ -89,7 +88,7 @@ func writeGolden(t *testing.T, path string, info *types.MachineInfo) {
 	t.Logf("updated golden: %s", path)
 }
 
-func assertEqualToGolden(t *testing.T, path string, got *types.MachineInfo) {
+func assertEqualToGolden(t *testing.T, path string, got *MachineInfo) {
 	t.Helper()
 	goldenData, err := os.ReadFile(path)
 	if err != nil {

@@ -4,21 +4,19 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-
-	"github.com/canonical/lscompute/pkg/machine/constants"
 )
 
 func parseProcCpuInfo(cpuInfoString string, architecture string) ([]procCpuInfo, error) {
 	switch architecture {
 
-	case constants.Amd64:
+	case Amd64:
 		cpuInfo, err := parseProcCpuInfoAmd64(cpuInfoString)
 		if err != nil {
 			return nil, fmt.Errorf("amd64: %w", err)
 		}
 		return cpuInfo, nil
 
-	case constants.Arm64:
+	case Arm64:
 		cpuInfo, err := parseProcCpuInfoArm64(cpuInfoString)
 		if err != nil {
 			return nil, fmt.Errorf("arm64: %w", err)
@@ -52,7 +50,7 @@ func parseProcCpuInfoAmd64(cpuInfoString string) ([]procCpuInfo, error) {
 		// New cpu block
 		if key == "processor" {
 			newCpu := procCpuInfo{}
-			newCpu.Architecture = constants.Amd64
+			newCpu.Architecture = Amd64
 			parsedCpus = append(parsedCpus, newCpu)
 			cpuIndex = len(parsedCpus) - 1
 		}
@@ -104,7 +102,7 @@ func parseProcCpuInfoArm64(cpuInfoString string) ([]procCpuInfo, error) {
 		// New cpu block
 		if key == "processor" {
 			newCpu := procCpuInfo{}
-			newCpu.Architecture = constants.Arm64
+			newCpu.Architecture = Arm64
 			parsedCpus = append(parsedCpus, newCpu)
 			cpuIndex = len(parsedCpus) - 1
 		}
@@ -156,7 +154,7 @@ func parseProcCpuInfoArm64(cpuInfoString string) ([]procCpuInfo, error) {
 			//if err != nil {
 			//	return nil, err
 			//}
-			parsedCpus[cpuIndex].Architecture = constants.Arm64
+			parsedCpus[cpuIndex].Architecture = Arm64
 
 		// "CPU variant\t: 0x%x\n"
 		case "CPU variant":

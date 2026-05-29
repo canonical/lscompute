@@ -10,7 +10,6 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/canonical/lscompute/pkg/machine/types"
 	"golang.org/x/sys/unix"
 )
 
@@ -40,12 +39,12 @@ func (realHost) RunCommand(ctx context.Context, name string, env []string, args 
 	return cmd.Output()
 }
 
-func (realHost) StatFs(path string) (types.DirStats, error) {
+func (realHost) StatFs(path string) (DirStats, error) {
 	var st unix.Statfs_t
 	if err := unix.Statfs(filepath.Join("/", path), &st); err != nil {
-		return types.DirStats{}, fmt.Errorf("statfs %s: %w", path, err)
+		return DirStats{}, fmt.Errorf("statfs %s: %w", path, err)
 	}
-	return types.DirStats{
+	return DirStats{
 		Total: st.Blocks * uint64(st.Bsize),
 		Avail: st.Bavail * uint64(st.Bsize),
 	}, nil

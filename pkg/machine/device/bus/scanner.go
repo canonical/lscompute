@@ -2,7 +2,6 @@ package bus
 
 import (
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 // Scanner is the single contract a new bus package must satisfy.
@@ -15,5 +14,5 @@ type Scanner interface {
 	// Scan returns all computation-relevant devices found on this bus.
 	// Warnings are non-fatal diagnostics. A hard error means the bus
 	// could not be enumerated.
-	Scan(h host.Host) ([]types.DeviceInfo, []string, error)
+	Scan(h host.Host) ([]DeviceInfo, []string, error)
 }

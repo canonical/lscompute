@@ -41,7 +41,7 @@ func TestDecodeMachineInfo(t *testing.T) {
 }
 
 func TestDecodeMachineInfo_InvalidDevice(t *testing.T) {
-	info := types.MachineInfo{
+	info := MachineInfo{
 		Devices: []types.DeviceInfo{{Bus: "unknown", Payload: &usb.Device{BusNumber: 1}}},
 	}
 	data, err := json.Marshal(info)

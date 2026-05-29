@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 const clInfoTimeout = 10 * time.Second
@@ -63,8 +62,8 @@ func vRam(h host.Host, slot string) (*uint64, error) {
 	return vramValue, nil
 }
 
-func parseClinfoJson(clinfoJson []byte) (types.Clinfo, error) {
-	clinfo := types.Clinfo{}
+func parseClinfoJson(clinfoJson []byte) (Clinfo, error) {
+	clinfo := Clinfo{}
 	err := json.Unmarshal(clinfoJson, &clinfo)
 	return clinfo, err
 }

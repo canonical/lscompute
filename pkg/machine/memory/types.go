@@ -1,4 +1,4 @@
-package types
+package memory
 
 type MemoryInfo struct {
 	TotalRam  uint64 `json:"total-ram" yaml:"total-ram"`

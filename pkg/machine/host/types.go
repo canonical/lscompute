@@ -1,4 +1,4 @@
-package types
+package host
 
 type DirStats struct {
 	Total uint64 `json:"total" yaml:"total"`

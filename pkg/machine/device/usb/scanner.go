@@ -3,9 +3,8 @@ package usb
 import (
 	"fmt"
 
-	"github.com/canonical/lscompute/pkg/machine/constants"
+	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 // Options holds USB-specific scanner configuration.
@@ -25,10 +24,10 @@ func NewScanner(opts Options) *Scanner {
 }
 
 // BusName returns the canonical USB bus name.
-func (s *Scanner) BusName() string { return constants.BusUsb }
+func (s *Scanner) BusName() string { return bus.BusUsb }
 
 // Scan discovers all USB devices on the host and returns them as DeviceInfo values.
-func (s *Scanner) Scan(h host.Host) ([]types.DeviceInfo, []string, error) {
+func (s *Scanner) Scan(h host.Host) ([]bus.DeviceInfo, []string, error) {
 	devices, warnings, err := readSysUsb(h)
 	if err != nil {
 		return nil, nil, fmt.Errorf("reading sysfs usb devices: %w", err)
@@ -45,10 +44,10 @@ func (s *Scanner) Scan(h host.Host) ([]types.DeviceInfo, []string, error) {
 		}
 	}
 
-	result := make([]types.DeviceInfo, len(devices))
+	result := make([]bus.DeviceInfo, len(devices))
 	for i := range devices {
 		d := devices[i]
-		result[i] = types.DeviceInfo{Bus: constants.BusUsb, Payload: &d}
+		result[i] = bus.DeviceInfo{Bus: bus.BusUsb, Payload: &d}
 	}
 	return result, warnings, nil
 }

@@ -1,9 +1,8 @@
 package fastrpc
 
 import (
-	"github.com/canonical/lscompute/pkg/machine/constants"
+	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 // Options holds FastRPC-specific scanner configuration.
@@ -22,10 +21,10 @@ func NewScanner(opts Options) *Scanner {
 }
 
 // BusName returns the canonical FastRPC bus name.
-func (s *Scanner) BusName() string { return constants.BusFastRpc }
+func (s *Scanner) BusName() string { return bus.BusFastRpc }
 
 // Scan discovers all FastRPC devices on the host. Not yet implemented.
-func (s *Scanner) Scan(h host.Host) ([]types.DeviceInfo, []string, error) {
+func (s *Scanner) Scan(h host.Host) ([]bus.DeviceInfo, []string, error) {
 	// TODO: implement FastRPC device enumeration via /sys/bus/platform or /dev/fastrpc*
 	return nil, nil, nil
 }

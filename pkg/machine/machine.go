@@ -8,11 +8,10 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/disk"
 	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/memory"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
-func Get(h host.Host, friendlyNames bool) (*types.MachineInfo, []string, error) {
-	var machineInfo types.MachineInfo
+func Get(h host.Host, friendlyNames bool) (*MachineInfo, []string, error) {
+	var machineInfo MachineInfo
 
 	memoryInfo, err := memory.Info(h)
 	if err != nil {
