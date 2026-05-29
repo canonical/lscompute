@@ -12,5 +12,5 @@ type Device struct {
 	AdditionalProperties map[string]string `json:"additional-properties,omitempty"`
 }
 
-// BusName satisfies the types.BusDevice interface.
+// BusName satisfies the bus.BusDevice interface.
 func (d *Device) BusName() string { return bus.BusFastRpc }
