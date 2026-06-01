@@ -20,8 +20,6 @@ type Device struct {
 	AdditionalProperties map[string]string `json:"additional-properties,omitempty"`
 }
 
-// BusName satisfies the bus.BusDevice interface.
-func (d *Device) BusName() string { return BusName }
 
 // IsGpu reports whether the device is a GPU or display controller by PCI class.
 // Covers legacy VGA (0x0001) and the full display-controller class (0x03xx).

@@ -6,12 +6,6 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
-func TestDeviceBusName(t *testing.T) {
-	d := &Device{}
-	if got := d.BusName(); got != BusName {
-		t.Errorf("Device.BusName() = %q, want %q", got, BusName)
-	}
-}
 
 func TestIsGpu(t *testing.T) {
 	cases := []struct {

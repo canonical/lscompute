@@ -25,9 +25,6 @@ func NewScanner(opts Options) *Scanner {
 	return &Scanner{opts: opts}
 }
 
-// BusName returns the canonical USB bus name.
-func (s *Scanner) BusName() string { return BusName }
-
 // Scan discovers all USB devices on the host and returns them as DeviceInfo values.
 func (s *Scanner) Scan(h host.Host) ([]bus.DeviceInfo, []string, error) {
 	devices, warnings, err := readSysUsb(h)

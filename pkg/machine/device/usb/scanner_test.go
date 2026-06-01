@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
@@ -160,14 +159,6 @@ func TestScannerScan_WithFriendlyNames(t *testing.T) {
 	}
 }
 
-// TestScannerBusName verifies that the Scanner reports the canonical USB bus name.
-func TestScannerBusName(t *testing.T) {
-	s := NewScanner(Options{})
-	if got := s.BusName(); got != BusName {
-		t.Errorf("BusName() = %q, want %q", got, BusName)
-	}
-}
-
 // TestScannerScan_SysFsError verifies that Scan returns a non-nil error when
 // the sysfs USB devices path exists as a regular file (making ReadDir fail).
 func TestScannerScan_SysFsError(t *testing.T) {
@@ -252,20 +243,3 @@ func TestScannerScan_EmptyHost(t *testing.T) {
 	}
 }
 
-// Ensure the DeviceInfo payloads from Scan implement bus.BusDevice.
-func TestScannerScan_PayloadImplementsBusDevice(t *testing.T) {
-	h := xps13Host(t)
-	s := NewScanner(Options{})
-	result, _, err := s.Scan(h)
-	if err != nil {
-		t.Fatalf("Scan() error: %v", err)
-	}
-	for _, di := range result {
-		bd, ok := di.Payload.(bus.BusDevice)
-		if !ok {
-			t.Errorf("Payload %T does not implement bus.BusDevice", di.Payload)
-		} else if got := bd.BusName(); got != BusName {
-			t.Errorf("BusDevice.BusName() = %q, want %q", got, BusName)
-		}
-	}
-}

@@ -5,16 +5,10 @@ import (
 	"fmt"
 )
 
-// BusDevice is implemented by every bus-specific device struct.
-// Each bus package defines its own concrete type in its own directory.
-type BusDevice interface {
-	BusName() string // returns the canonical bus constant, e.g. "pci"
-}
-
 // DeviceInfo wraps a bus-specific device payload with its bus name.
 type DeviceInfo struct {
-	Bus     string    `json:"bus"`
-	Payload BusDevice `json:"-"`
+	Bus     string `json:"bus"`
+	Payload any    `json:"-"`
 }
 
 // MarshalJSON serialises DeviceInfo as a single flat JSON object merging

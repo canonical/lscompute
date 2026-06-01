@@ -8,13 +8,6 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
-func TestScannerBusName(t *testing.T) {
-	s := NewScanner(Options{})
-	if got := s.BusName(); got != BusName {
-		t.Errorf("BusName() = %q, want %q", got, BusName)
-	}
-}
-
 func TestScannerScan_EmptyHost(t *testing.T) {
 	// Create an empty devices directory — scan must return 0 devices without error.
 	root := t.TempDir()
@@ -116,18 +109,3 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 	}
 }
 
-func TestScannerScan_PayloadImplementsBusDevice(t *testing.T) {
-	root := t.TempDir()
-	writePciDevice(t, root, "0000:00:02.0", "0x8086", "0x1234", "0x030000", "0x8086", "0x0001")
-
-	s := NewScanner(Options{})
-	result, _, err := s.Scan(host.Fake(root))
-	if err != nil {
-		t.Fatalf("Scan() error: %v", err)
-	}
-	for _, di := range result {
-		if di.Payload.BusName() != BusName {
-			t.Errorf("Payload.BusName() = %q, want %q", di.Payload.BusName(), BusName)
-		}
-	}
-}

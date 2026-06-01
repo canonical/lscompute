@@ -22,9 +22,6 @@ func NewScanner(opts Options) *Scanner {
 	return &Scanner{opts: opts}
 }
 
-// BusName returns the canonical FastRPC bus name.
-func (s *Scanner) BusName() string { return BusName }
-
 // Scan discovers all FastRPC devices on the host. Not yet implemented.
 func (s *Scanner) Scan(h host.Host) ([]bus.DeviceInfo, []string, error) {
 	// TODO: implement FastRPC device enumeration via /sys/bus/platform or /dev/fastrpc*

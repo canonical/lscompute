@@ -16,7 +16,6 @@ type stubUsbDevice struct {
 	ProductName  string `json:"product-name,omitempty"`
 }
 
-func (d *stubUsbDevice) BusName() string { return "usb" }
 
 type stubPciDevice struct {
 	Slot        string `json:"slot"`
@@ -25,7 +24,6 @@ type stubPciDevice struct {
 	DeviceClass int    `json:"device-class"`
 }
 
-func (d *stubPciDevice) BusName() string { return "pci" }
 
 // TestDeviceMarshalJSON verifies that a USB device does not leak PCI fields
 // and that a PCI device does not leak USB fields when marshalled to JSON.
