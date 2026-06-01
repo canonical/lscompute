@@ -4,7 +4,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/canonical/lscompute/pkg/machine/device/bus"
+	"github.com/canonical/lscompute/pkg/machine/device/fastrpc"
+	"github.com/canonical/lscompute/pkg/machine/device/pci"
+	"github.com/canonical/lscompute/pkg/machine/device/usb"
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
@@ -22,9 +24,9 @@ func TestDevices_WithFakeHost(t *testing.T) {
 	}
 
 	validBuses := map[string]bool{
-		bus.BusPci:     true,
-		bus.BusUsb:     true,
-		bus.BusFastRpc: true,
+		pci.BusName:     true,
+		usb.BusName:     true,
+		fastrpc.BusName: true,
 	}
 	for _, dev := range devices {
 		if !validBuses[dev.Bus] {

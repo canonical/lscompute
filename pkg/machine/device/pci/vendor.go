@@ -37,19 +37,19 @@ func addAdditionalProperties(h host.Host, devices []Device) ([]Device, []string)
 // device's vendor ID. Add a new case here when a new vendor is supported.
 func additionalProperties(h host.Host, device Device) (map[string]string, error) {
 	switch device.VendorId {
-	case PciVendorAmd:
+	case vendorAmd:
 		props, err := amd.AdditionalProperties(h, device.Slot, device.IsGpu())
 		if err != nil {
 			return nil, fmt.Errorf("AMD: %w", err)
 		}
 		return props, nil
-	case PciVendorNvidia:
+	case vendorNvidia:
 		props, err := nvidia.AdditionalProperties(h, device.Slot, device.IsGpu())
 		if err != nil {
 			return nil, fmt.Errorf("NVIDIA: %w", err)
 		}
 		return props, nil
-	case PciVendorIntel:
+	case vendorIntel:
 		props, err := intel.AdditionalProperties(h, device.Slot, device.IsGpu())
 		if err != nil {
 			return nil, fmt.Errorf("Intel: %w", err)

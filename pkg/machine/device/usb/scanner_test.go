@@ -28,8 +28,8 @@ func TestScannerScan_NoFriendlyNames(t *testing.T) {
 	}
 
 	for _, di := range result {
-		if di.Bus != bus.BusUsb {
-			t.Errorf("DeviceInfo.Bus = %q, want %q", di.Bus, bus.BusUsb)
+		if di.Bus != BusName {
+			t.Errorf("DeviceInfo.Bus = %q, want %q", di.Bus, BusName)
 		}
 		dev, ok := di.Payload.(*Device)
 		if !ok {
@@ -163,11 +163,10 @@ func TestScannerScan_WithFriendlyNames(t *testing.T) {
 // TestScannerBusName verifies that the Scanner reports the canonical USB bus name.
 func TestScannerBusName(t *testing.T) {
 	s := NewScanner(Options{})
-	if got := s.BusName(); got != bus.BusUsb {
-		t.Errorf("BusName() = %q, want %q", got, bus.BusUsb)
+	if got := s.BusName(); got != BusName {
+		t.Errorf("BusName() = %q, want %q", got, BusName)
 	}
 }
-
 
 // TestScannerScan_SysFsError verifies that Scan returns a non-nil error when
 // the sysfs USB devices path exists as a regular file (making ReadDir fail).
@@ -231,8 +230,8 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 
 	// DeviceInfo.Bus must still be set correctly.
 	for _, di := range result {
-		if di.Bus != bus.BusUsb {
-			t.Errorf("DeviceInfo.Bus = %q, want %q", di.Bus, bus.BusUsb)
+		if di.Bus != BusName {
+			t.Errorf("DeviceInfo.Bus = %q, want %q", di.Bus, BusName)
 		}
 	}
 }
@@ -265,8 +264,8 @@ func TestScannerScan_PayloadImplementsBusDevice(t *testing.T) {
 		bd, ok := di.Payload.(bus.BusDevice)
 		if !ok {
 			t.Errorf("Payload %T does not implement bus.BusDevice", di.Payload)
-		} else if got := bd.BusName(); got != bus.BusUsb {
-			t.Errorf("BusDevice.BusName() = %q, want %q", got, bus.BusUsb)
+		} else if got := bd.BusName(); got != BusName {
+			t.Errorf("BusDevice.BusName() = %q, want %q", got, BusName)
 		}
 	}
 }

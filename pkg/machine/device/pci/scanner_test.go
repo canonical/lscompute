@@ -5,14 +5,13 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
 func TestScannerBusName(t *testing.T) {
 	s := NewScanner(Options{})
-	if got := s.BusName(); got != bus.BusPci {
-		t.Errorf("BusName() = %q, want %q", got, bus.BusPci)
+	if got := s.BusName(); got != BusName {
+		t.Errorf("BusName() = %q, want %q", got, BusName)
 	}
 }
 
@@ -73,8 +72,8 @@ func TestScannerScan_NoFriendlyNames(t *testing.T) {
 		t.Errorf("expected 2 devices, got %d", len(result))
 	}
 	for _, di := range result {
-		if di.Bus != bus.BusPci {
-			t.Errorf("DeviceInfo.Bus = %q, want %q", di.Bus, bus.BusPci)
+		if di.Bus != BusName {
+			t.Errorf("DeviceInfo.Bus = %q, want %q", di.Bus, BusName)
 		}
 		dev, ok := di.Payload.(*Device)
 		if !ok {
@@ -127,8 +126,8 @@ func TestScannerScan_PayloadImplementsBusDevice(t *testing.T) {
 		t.Fatalf("Scan() error: %v", err)
 	}
 	for _, di := range result {
-		if di.Payload.BusName() != bus.BusPci {
-			t.Errorf("Payload.BusName() = %q, want %q", di.Payload.BusName(), bus.BusPci)
+		if di.Payload.BusName() != BusName {
+			t.Errorf("Payload.BusName() = %q, want %q", di.Payload.BusName(), BusName)
 		}
 	}
 }

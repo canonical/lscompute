@@ -1,7 +1,6 @@
 package usb
 
 import (
-	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
@@ -18,7 +17,7 @@ type Device struct {
 }
 
 // BusName satisfies the bus.BusDevice interface.
-func (d *Device) BusName() string { return bus.BusUsb }
+func (d *Device) BusName() string { return BusName }
 
 // FriendlyNames holds human-readable names resolved from the usb.ids database.
 type FriendlyNames struct {

@@ -7,6 +7,8 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
+const BusName = "usb"
+
 // Options holds USB-specific scanner configuration.
 type Options struct {
 	FriendlyNames bool
@@ -24,7 +26,7 @@ func NewScanner(opts Options) *Scanner {
 }
 
 // BusName returns the canonical USB bus name.
-func (s *Scanner) BusName() string { return bus.BusUsb }
+func (s *Scanner) BusName() string { return BusName }
 
 // Scan discovers all USB devices on the host and returns them as DeviceInfo values.
 func (s *Scanner) Scan(h host.Host) ([]bus.DeviceInfo, []string, error) {
@@ -47,7 +49,7 @@ func (s *Scanner) Scan(h host.Host) ([]bus.DeviceInfo, []string, error) {
 	result := make([]bus.DeviceInfo, len(devices))
 	for i := range devices {
 		d := devices[i]
-		result[i] = bus.DeviceInfo{Bus: bus.BusUsb, Payload: &d}
+		result[i] = bus.DeviceInfo{Bus: BusName, Payload: &d}
 	}
 	return result, warnings, nil
 }

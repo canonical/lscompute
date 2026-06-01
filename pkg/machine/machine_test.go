@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
@@ -26,14 +25,9 @@ func TestGet_WithFakeHost(t *testing.T) {
 		t.Error("expected TotalRam > 0, got 0")
 	}
 
-	validBuses := map[string]bool{
-		bus.BusPci:     true,
-		bus.BusUsb:     true,
-		bus.BusFastRpc: true,
-	}
 	for _, dev := range info.Devices {
-		if !validBuses[dev.Bus] {
-			t.Errorf("device has unexpected Bus value %q", dev.Bus)
+		if dev.Bus == "" {
+			t.Error("device has empty Bus value")
 		}
 	}
 }

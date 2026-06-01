@@ -3,7 +3,6 @@ package device
 import (
 	"testing"
 
-	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/device/pci"
 	"github.com/canonical/lscompute/pkg/machine/device/usb"
 )
@@ -15,8 +14,8 @@ func TestDecodeDeviceInfo(t *testing.T) {
 		if err != nil {
 			t.Fatalf("DecodeDeviceInfo() error: %v", err)
 		}
-		if dev.Bus != bus.BusPci {
-			t.Fatalf("Bus = %q, want %q", dev.Bus, bus.BusPci)
+		if dev.Bus != pci.BusName {
+			t.Fatalf("Bus = %q, want %q", dev.Bus, pci.BusName)
 		}
 		if _, ok := dev.Payload.(*pci.Device); !ok {
 			t.Fatalf("Payload type = %T, want *pci.Device", dev.Payload)
@@ -29,8 +28,8 @@ func TestDecodeDeviceInfo(t *testing.T) {
 		if err != nil {
 			t.Fatalf("DecodeDeviceInfo() error: %v", err)
 		}
-		if dev.Bus != bus.BusUsb {
-			t.Fatalf("Bus = %q, want %q", dev.Bus, bus.BusUsb)
+		if dev.Bus != usb.BusName {
+			t.Fatalf("Bus = %q, want %q", dev.Bus, usb.BusName)
 		}
 		if _, ok := dev.Payload.(*usb.Device); !ok {
 			t.Fatalf("Payload type = %T, want *usb.Device", dev.Payload)

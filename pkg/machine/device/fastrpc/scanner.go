@@ -5,6 +5,8 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
+const BusName = "fastrpc"
+
 // Options holds FastRPC-specific scanner configuration.
 type Options struct {
 	// Future: Domains []int, etc.
@@ -21,7 +23,7 @@ func NewScanner(opts Options) *Scanner {
 }
 
 // BusName returns the canonical FastRPC bus name.
-func (s *Scanner) BusName() string { return bus.BusFastRpc }
+func (s *Scanner) BusName() string { return BusName }
 
 // Scan discovers all FastRPC devices on the host. Not yet implemented.
 func (s *Scanner) Scan(h host.Host) ([]bus.DeviceInfo, []string, error) {

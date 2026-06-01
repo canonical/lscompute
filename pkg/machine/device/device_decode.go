@@ -21,24 +21,24 @@ func DecodeDeviceInfo(data []byte) (bus.DeviceInfo, error) {
 	}
 
 	switch peek.Bus {
-	case bus.BusPci:
+	case pci.BusName:
 		var dev pci.Device
 		if err := json.Unmarshal(data, &dev); err != nil {
 			return bus.DeviceInfo{}, fmt.Errorf("decoding pci device: %w", err)
 		}
-		return bus.DeviceInfo{Bus: bus.BusPci, Payload: &dev}, nil
-	case bus.BusUsb:
+		return bus.DeviceInfo{Bus: pci.BusName, Payload: &dev}, nil
+	case usb.BusName:
 		var dev usb.Device
 		if err := json.Unmarshal(data, &dev); err != nil {
 			return bus.DeviceInfo{}, fmt.Errorf("decoding usb device: %w", err)
 		}
-		return bus.DeviceInfo{Bus: bus.BusUsb, Payload: &dev}, nil
-	case bus.BusFastRpc:
+		return bus.DeviceInfo{Bus: usb.BusName, Payload: &dev}, nil
+	case fastrpc.BusName:
 		var dev fastrpc.Device
 		if err := json.Unmarshal(data, &dev); err != nil {
 			return bus.DeviceInfo{}, fmt.Errorf("decoding fastrpc device: %w", err)
 		}
-		return bus.DeviceInfo{Bus: bus.BusFastRpc, Payload: &dev}, nil
+		return bus.DeviceInfo{Bus: fastrpc.BusName, Payload: &dev}, nil
 	default:
 		return bus.DeviceInfo{}, fmt.Errorf("unknown device bus: %q", peek.Bus)
 	}

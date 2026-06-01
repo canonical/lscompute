@@ -1,7 +1,6 @@
 package pci
 
 import (
-	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
@@ -22,7 +21,7 @@ type Device struct {
 }
 
 // BusName satisfies the bus.BusDevice interface.
-func (d *Device) BusName() string { return bus.BusPci }
+func (d *Device) BusName() string { return BusName }
 
 // IsGpu reports whether the device is a GPU or display controller by PCI class.
 // Covers legacy VGA (0x0001) and the full display-controller class (0x03xx).
