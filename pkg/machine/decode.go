@@ -15,10 +15,10 @@ import (
 // payload using device.DecodeDeviceInfo.
 func DecodeMachineInfo(data []byte) (*MachineInfo, error) {
 	var wire struct {
-		Cpus    []cpu.CpuInfo            `json:"cpus,omitempty"`
-		Memory  memory.MemoryInfo        `json:"memory,omitempty"`
-		Disk    map[string]disk.DirStats `json:"disk,omitempty"`
-		Devices []json.RawMessage        `json:"devices,omitempty"`
+		Cpus    []cpu.CpuInfo           `json:"cpus,omitempty"`
+		Memory  memory.MemoryInfo       `json:"memory,omitempty"`
+		Disk    map[string]disk.DirInfo `json:"disk,omitempty"`
+		Devices []json.RawMessage       `json:"devices,omitempty"`
 	}
 	if err := json.Unmarshal(data, &wire); err != nil {
 		return nil, err

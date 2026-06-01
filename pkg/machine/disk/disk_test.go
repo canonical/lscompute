@@ -26,9 +26,9 @@ func TestDiskInfo(t *testing.T) {
 		t.Fatalf("Info() error: %v", err)
 	}
 
-	stats, ok := result[SnapStoragePath]
+	stats, ok := result[snapStoragePath]
 	if !ok {
-		t.Fatalf("expected key %q in result, got keys: %v", SnapStoragePath, keysOf(result))
+		t.Fatalf("expected key %q in result, got keys: %v", snapStoragePath, keysOf(result))
 	}
 	if stats.Total != 107374182400 {
 		t.Errorf("Total = %d, want 107374182400", stats.Total)

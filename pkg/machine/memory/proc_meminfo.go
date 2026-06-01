@@ -7,7 +7,7 @@ import (
 )
 
 func parseProcMemInfo(memInfoString string) (MemoryInfo, error) {
-	var memInfo = MemoryInfo{}
+	var memInfo MemoryInfo
 	foundMemTotal := false
 
 	lines := strings.Split(memInfoString, "\n")
