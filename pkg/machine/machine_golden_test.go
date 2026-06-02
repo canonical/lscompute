@@ -95,7 +95,7 @@ func assertEqualToGolden(t *testing.T, path string, got *MachineInfo) {
 		t.Fatalf("reading golden %s: %v", path, err)
 	}
 
-	want, err := DecodeMachineInfo(goldenData)
+	want, err := Decode(goldenData)
 	if err != nil {
 		t.Fatalf("parsing golden %s: %v", path, err)
 	}

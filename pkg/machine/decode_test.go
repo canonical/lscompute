@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/device/pci"
 	"github.com/canonical/lscompute/pkg/machine/device/usb"
 )
@@ -32,23 +31,26 @@ func TestDecodeMachineInfo(t *testing.T) {
 	if len(info.Devices) != 2 {
 		t.Fatalf("len(Devices) = %d, want 2", len(info.Devices))
 	}
-	if _, ok := info.Devices[0].Payload.(*usb.Device); !ok {
-		t.Fatalf("Devices[0] payload type = %T, want *usb.Device", info.Devices[0].Payload)
+	if _, ok := info.Devices[0].(*usb.Device); !ok {
+		t.Fatalf("Devices[0] type = %T, want *usb.Device", info.Devices[0])
 	}
-	if _, ok := info.Devices[1].Payload.(*pci.Device); !ok {
-		t.Fatalf("Devices[1] payload type = %T, want *pci.Device", info.Devices[1].Payload)
+	if _, ok := info.Devices[1].(*pci.Device); !ok {
+		t.Fatalf("Devices[1] type = %T, want *pci.Device", info.Devices[1])
 	}
 }
 
 func TestDecodeMachineInfo_InvalidDevice(t *testing.T) {
-	info := MachineInfo{
-		Devices: []bus.DeviceInfo{{Bus: "unknown", Payload: &usb.Device{BusNumber: 1}}},
-	}
-	data, err := json.Marshal(info)
-	if err != nil {
-		t.Fatalf("json.Marshal() error: %v", err)
-	}
+	// Build JSON directly with an unknown bus — DecodeMachineInfo must return an error.
+	data := []byte(`{"devices":[{"bus":"unknown","vendor-id":1}]}`)
 	if _, err := DecodeMachineInfo(data); err == nil {
 		t.Fatal("expected error for unknown bus, got nil")
 	}
 }
+
+func TestDecodeMachineInfo_MalformedJSON(t *testing.T) {
+	_, err := DecodeMachineInfo([]byte(`not valid json`))
+	if err == nil {
+		t.Fatal("expected error for malformed JSON, got nil")
+	}
+}
+

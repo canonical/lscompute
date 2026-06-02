@@ -1,6 +1,7 @@
 package machine
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -26,7 +27,17 @@ func TestGet_WithFakeHost(t *testing.T) {
 	}
 
 	for _, dev := range info.Devices {
-		if dev.Bus == "" {
+		b, err := json.Marshal(dev)
+		if err != nil {
+			t.Fatalf("json.Marshal(device) failed: %v", err)
+		}
+		var peek struct {
+			Bus string `json:"bus"`
+		}
+		if err := json.Unmarshal(b, &peek); err != nil {
+			t.Fatalf("json.Unmarshal(device) failed: %v", err)
+		}
+		if peek.Bus == "" {
 			t.Error("device has empty Bus value")
 		}
 	}

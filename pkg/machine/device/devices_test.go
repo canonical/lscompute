@@ -1,6 +1,7 @@
 package device
 
 import (
+	"encoding/json"
 	"path/filepath"
 	"testing"
 
@@ -29,8 +30,18 @@ func TestDevices_WithFakeHost(t *testing.T) {
 		fastrpc.BusName: true,
 	}
 	for _, dev := range devices {
-		if !validBuses[dev.Bus] {
-			t.Errorf("device has unexpected Bus value %q", dev.Bus)
+		b, err := json.Marshal(dev)
+		if err != nil {
+			t.Fatalf("json.Marshal(device) failed: %v", err)
+		}
+		var peek struct {
+			Bus string `json:"bus"`
+		}
+		if err := json.Unmarshal(b, &peek); err != nil {
+			t.Fatalf("json.Unmarshal(device) failed: %v", err)
+		}
+		if !validBuses[peek.Bus] {
+			t.Errorf("device has unexpected Bus value %q", peek.Bus)
 		}
 	}
 }

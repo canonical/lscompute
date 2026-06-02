@@ -11,9 +11,9 @@ import (
 
 func TestScannerScan_NoFriendlyNames(t *testing.T) {
 	h := xps13Host(t)
-	s := NewScanner(Options{FriendlyNames: false})
+	s := NewBus(h, Options{FriendlyNames: false})
 
-	result, warnings, err := s.Scan(h)
+	result, warnings, err := s.Devices()
 	if err != nil {
 		t.Fatalf("Scan() error: %v", err)
 	}
@@ -27,12 +27,12 @@ func TestScannerScan_NoFriendlyNames(t *testing.T) {
 	}
 
 	for _, di := range result {
-		if di.Bus != BusName {
-			t.Errorf("DeviceInfo.Bus = %q, want %q", di.Bus, BusName)
-		}
-		dev, ok := di.Payload.(*Device)
+		dev, ok := di.(Device)
 		if !ok {
-			t.Fatalf("Payload is not *Device: %T", di.Payload)
+			t.Fatalf("item is not Device: %T", di)
+		}
+		if dev.Bus != BusName {
+			t.Errorf("Device.Bus = %q, want %q", dev.Bus, BusName)
 		}
 		// No friendly names requested — names must be absent.
 		if dev.VendorName != nil {
@@ -48,9 +48,9 @@ func TestScannerScan_NoFriendlyNames(t *testing.T) {
 
 func TestScannerScan_WithFriendlyNames(t *testing.T) {
 	h := xps13Host(t)
-	s := NewScanner(Options{FriendlyNames: true})
+	s := NewBus(h, Options{FriendlyNames: true})
 
-	result, warnings, err := s.Scan(h)
+	result, warnings, err := s.Devices()
 	if err != nil {
 		t.Fatalf("Scan() error: %v", err)
 	}
@@ -65,11 +65,11 @@ func TestScannerScan_WithFriendlyNames(t *testing.T) {
 
 	// Build a lookup map for targeted assertions.
 	type key struct{ vendorId, productId types.HexInt }
-	byIds := map[key]*Device{}
+	byIds := map[key]Device{}
 	for i := range result {
-		dev, ok := result[i].Payload.(*Device)
+		dev, ok := result[i].(Device)
 		if !ok {
-			t.Fatalf("Payload is not *Device: %T", result[i].Payload)
+			t.Fatalf("item is not Device: %T", result[i])
 		}
 		byIds[key{dev.VendorId, dev.ProductId}] = dev
 	}
@@ -172,8 +172,8 @@ func TestScannerScan_SysFsError(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	s := NewScanner(Options{})
-	_, _, err := s.Scan(host.Fake(root))
+	s := NewBus(host.Fake(root), Options{})
+	_, _, err := s.Devices()
 	if err == nil {
 		t.Fatal("expected Scan to return an error when devices path is a file, got nil")
 	}
@@ -189,8 +189,8 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 	makeUsbDeviceDir(t, root, "usb1", "1d6b", "0002", "1", "1")
 	makeUsbDeviceDir(t, root, "usb2", "1d6b", "0003", "2", "1")
 
-	s := NewScanner(Options{FriendlyNames: true})
-	result, warnings, err := s.Scan(host.Fake(root))
+	s := NewBus(host.Fake(root), Options{FriendlyNames: true})
+	result, warnings, err := s.Devices()
 	if err != nil {
 		t.Fatalf("Scan() returned unexpected error: %v", err)
 	}
@@ -207,9 +207,9 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 
 	// Devices must still have no friendly names (lookup failed).
 	for _, di := range result {
-		dev, ok := di.Payload.(*Device)
+		dev, ok := di.(Device)
 		if !ok {
-			t.Fatalf("Payload is not *Device: %T", di.Payload)
+			t.Fatalf("item is not Device: %T", di)
 		}
 		if dev.VendorName != nil {
 			t.Errorf("expected nil VendorName on lookup failure, got %q", *dev.VendorName)
@@ -219,10 +219,14 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 		}
 	}
 
-	// DeviceInfo.Bus must still be set correctly.
+	// Device.Bus must still be set correctly.
 	for _, di := range result {
-		if di.Bus != BusName {
-			t.Errorf("DeviceInfo.Bus = %q, want %q", di.Bus, BusName)
+		dev, ok := di.(Device)
+		if !ok {
+			t.Fatalf("item is not Device: %T", di)
+		}
+		if dev.Bus != BusName {
+			t.Errorf("Device.Bus = %q, want %q", dev.Bus, BusName)
 		}
 	}
 }
@@ -230,8 +234,8 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 // TestScannerScan_EmptyHost verifies that Scan on a host with no USB devices
 // dir returns an empty slice without error.
 func TestScannerScan_EmptyHost(t *testing.T) {
-	s := NewScanner(Options{})
-	result, warnings, err := s.Scan(host.Fake(t.TempDir()))
+	s := NewBus(host.Fake(t.TempDir()), Options{})
+	result, warnings, err := s.Devices()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -241,5 +245,31 @@ func TestScannerScan_EmptyHost(t *testing.T) {
 	if len(result) != 0 {
 		t.Errorf("expected 0 results, got %d", len(result))
 	}
+}
+
+func TestDecode(t *testing.T) {
+	t.Run("valid JSON round-trip", func(t *testing.T) {
+		raw := `{"bus":"usb","bus-number":1,"device-number":2,"vendor-id":"0x1d6b","product-id":"0x0002"}`
+		dev, err := Decode([]byte(raw))
+		if err != nil {
+			t.Fatalf("Decode() unexpected error: %v", err)
+		}
+		if dev.Bus != "usb" {
+			t.Errorf("Bus = %q, want %q", dev.Bus, "usb")
+		}
+		if dev.BusNumber != 1 {
+			t.Errorf("BusNumber = %d, want 1", dev.BusNumber)
+		}
+		if dev.VendorId != types.HexInt(0x1d6b) {
+			t.Errorf("VendorId = 0x%x, want 0x1d6b", uint64(dev.VendorId))
+		}
+	})
+
+	t.Run("invalid JSON returns error", func(t *testing.T) {
+		_, err := Decode([]byte(`{not valid json`))
+		if err == nil {
+			t.Fatal("Decode() expected error for invalid JSON, got nil")
+		}
+	})
 }
 
