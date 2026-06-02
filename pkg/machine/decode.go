@@ -6,14 +6,13 @@ import (
 
 	"github.com/canonical/lscompute/pkg/machine/cpu"
 	"github.com/canonical/lscompute/pkg/machine/device"
-	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/disk"
 	"github.com/canonical/lscompute/pkg/machine/memory"
 )
 
-// DecodeMachineInfo decodes machine info JSON and explicitly decodes each device
-// payload using device.DecodeDeviceInfo.
-func DecodeMachineInfo(data []byte) (*MachineInfo, error) {
+// Decode decodes machine info JSON and explicitly decodes each device
+// payload using device.Decode.
+func Decode(data []byte) (*MachineInfo, error) {
 	var wire struct {
 		Cpus    []cpu.CpuInfo           `json:"cpus,omitempty"`
 		Memory  memory.MemoryInfo       `json:"memory,omitempty"`
@@ -24,9 +23,9 @@ func DecodeMachineInfo(data []byte) (*MachineInfo, error) {
 		return nil, err
 	}
 
-	decodedDevices := make([]bus.DeviceInfo, 0, len(wire.Devices))
+	decodedDevices := make([]any, 0, len(wire.Devices))
 	for _, raw := range wire.Devices {
-		dev, err := device.DecodeDeviceInfo(raw)
+		dev, err := device.Decode(raw)
 		if err != nil {
 			return nil, fmt.Errorf("decoding machine device: %w", err)
 		}

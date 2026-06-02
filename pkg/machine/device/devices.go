@@ -8,20 +8,19 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
-// Devices iterates all registered bus scanners and returns the combined device list.
-// To add a new bus: add its NewScanner() to the scanners slice below and update
-// DecodeDeviceInfo in device_decode.go.
-func Devices(h host.Host, friendlyNames bool) ([]bus.DeviceInfo, []string, error) {
-	scanners := []bus.Scanner{
-		pci.NewScanner(pci.Options{FriendlyNames: friendlyNames}),
-		usb.NewScanner(usb.Options{FriendlyNames: friendlyNames}),
-		fastrpc.NewScanner(fastrpc.Options{}),
+// Devices iterates all registered buses and returns the combined device list.
+// To add a new bus: add its NewBus() to the buses slice below and update Decode in decode.go.
+func Devices(h host.Host, friendlyNames bool) ([]any, []string, error) {
+	buses := []bus.Bus{
+		pci.NewBus(h, pci.Options{FriendlyNames: friendlyNames}),
+		usb.NewBus(h, usb.Options{FriendlyNames: friendlyNames}),
+		fastrpc.NewBus(h, fastrpc.Options{}),
 	}
 
-	var devices []bus.DeviceInfo
+	var devices []any
 	var warnings []string
-	for _, s := range scanners {
-		devs, warns, err := s.Scan(h)
+	for _, currentBus := range buses {
+		devs, warns, err := currentBus.Devices()
 		if err != nil {
 			return nil, warnings, err
 		}
