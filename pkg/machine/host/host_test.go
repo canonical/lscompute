@@ -127,6 +127,16 @@ func TestFakeHostRunCommandUnknown(t *testing.T) {
 	}
 }
 
+// TestFakeHostRunCommandNvidiaMissingQuery verifies that nvidia-smi without
+// --query-gpu= returns an error from parseNvidiaSmiArgs.
+func TestFakeHostRunCommandNvidiaMissingQuery(t *testing.T) {
+	h := host.Fake(t.TempDir())
+	_, err := h.RunCommand(context.Background(), "nvidia-smi", nil, "--id=0000:01:00.0")
+	if err == nil {
+		t.Fatal("expected error for missing --query-gpu= flag, got nil")
+	}
+}
+
 // TestFakeHostStatFs verifies that StatFs reads from run/disk-stats.json.
 func TestFakeHostStatFs(t *testing.T) {
 	dir := t.TempDir()
@@ -169,3 +179,22 @@ func TestFakeHostStatFsMissingKey(t *testing.T) {
 		t.Fatal("expected error for missing key, got nil")
 	}
 }
+
+// TestFakeHostStatFsMalformedJSON verifies that StatFs returns an error when
+// disk-stats.json contains invalid JSON.
+func TestFakeHostStatFsMalformedJSON(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(dir, "run"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "run", "disk-stats.json"), []byte(`not json`), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	h := host.Fake(dir)
+	_, err := h.StatFs("var/lib/snapd/snaps")
+	if err == nil {
+		t.Fatal("expected error for malformed JSON, got nil")
+	}
+}
+

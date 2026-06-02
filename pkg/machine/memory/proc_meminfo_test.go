@@ -132,3 +132,17 @@ func TestParseProcMemInfo_MemTotalRequired(t *testing.T) {
 	}
 }
 
+func TestParseProcMemInfo_InvalidMemTotal(t *testing.T) {
+	_, err := parseProcMemInfo("MemTotal: notanumber kB\n")
+	if err == nil {
+		t.Fatal("expected error for invalid MemTotal value, got nil")
+	}
+}
+
+func TestParseProcMemInfo_InvalidSwapTotal(t *testing.T) {
+	_, err := parseProcMemInfo("MemTotal: 1024 kB\nSwapTotal: notanumber kB\n")
+	if err == nil {
+		t.Fatal("expected error for invalid SwapTotal value, got nil")
+	}
+}
+

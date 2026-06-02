@@ -126,3 +126,35 @@ func TestAdditionalProperties_IntelNotGpu(t *testing.T) {
 		t.Errorf("expected nil properties for non-GPU, got %v", props)
 	}
 }
+
+// TestGpuProperties_Intel_Error verifies that gpuProperties propagates errors from vRam.
+func TestGpuProperties_Intel_Error(t *testing.T) {
+	// Empty host: no clinfo.json → vRam errors → gpuProperties errors.
+	h := host.Fake(t.TempDir())
+	_, err := gpuProperties(h, "0000:03:00.0")
+	if err == nil {
+		t.Fatal("expected error for missing clinfo fixture, got nil")
+	}
+}
+
+// TestGpuProperties_Intel_NoMatch verifies that an unrecognised slot returns no vram property without error.
+func TestGpuProperties_Intel_NoMatch(t *testing.T) {
+	h := host.Fake(i5MachineRoot)
+	props, err := gpuProperties(h, "9999:99:99.9")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if _, ok := props["vram"]; ok {
+		t.Error("expected no 'vram' key for unmatched slot, but key is present")
+	}
+}
+
+// TestAdditionalProperties_Intel_GpuError verifies that an error from gpuProperties is propagated.
+func TestAdditionalProperties_Intel_GpuError(t *testing.T) {
+	h := host.Fake(t.TempDir())
+	_, err := AdditionalProperties(h, "0000:03:00.0", true)
+	if err == nil {
+		t.Fatal("expected error when gpuProperties fails, got nil")
+	}
+}
+
