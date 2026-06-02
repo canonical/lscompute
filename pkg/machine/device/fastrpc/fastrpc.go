@@ -16,8 +16,8 @@ type Device struct {
 	AdditionalProperties map[string]string `json:"additional-properties,omitempty"`
 }
 
-// FastRpc implements bus.Bus for the FastRPC bus.
-type FastRpc struct {
+// fastRpc implements bus.Bus for the FastRPC bus.
+type fastRpc struct {
 	host host.Host
 	opts Options
 }
@@ -28,12 +28,12 @@ type Options struct {
 }
 
 // NewBus returns a FastRPC bus configured with the given options.
-func NewBus(host host.Host, opts Options) *FastRpc {
-	return &FastRpc{host: host, opts: opts}
+func NewBus(host host.Host, opts Options) *fastRpc {
+	return &fastRpc{host: host, opts: opts}
 }
 
 // Devices discovers all FastRPC devices on the host. Not yet implemented.
-func (s *FastRpc) Devices() ([]any, []string, error) {
+func (bus *fastRpc) Devices() ([]any, []string, error) {
 	// TODO: implement FastRPC device enumeration via /sys/bus/platform or /dev/fastrpc*
 
 	// TODO: Copy result into an array of type any, and set the bus field to BusName

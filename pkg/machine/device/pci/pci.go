@@ -48,8 +48,8 @@ func (d Device) IsGpu() bool {
 	return d.DeviceClass == 0x0001 || d.DeviceClass&0xFF00 == 0x0300
 }
 
-// Pci implements bus.Bus for the PCI bus.
-type Pci struct {
+// pci implements bus.Bus for the PCI bus.
+type pci struct {
 	host host.Host
 	opts Options
 }
@@ -59,21 +59,21 @@ type Options struct {
 	FriendlyNames bool
 }
 
-// NewBus returns a Pci bus configured with the given options.
-func NewBus(targetHost host.Host, opts Options) *Pci {
-	return &Pci{host: targetHost, opts: opts}
+// NewBus returns a pci bus configured with the given options.
+func NewBus(targetHost host.Host, opts Options) *pci {
+	return &pci{host: targetHost, opts: opts}
 }
 
 // Devices discovers all devices on the bus and returns them as a slice of any, along with any warnings and a hard error if the bus could not be enumerated.
-func (s *Pci) Devices() ([]any, []string, error) {
-	devices, warnings, err := readSysPci(s.host)
+func (bus *pci) Devices() ([]any, []string, error) {
+	devices, warnings, err := readSysPci(bus.host)
 	if err != nil {
 		return nil, nil, fmt.Errorf("reading sysfs pci devices: %w", err)
 	}
 
-	if s.opts.FriendlyNames {
+	if bus.opts.FriendlyNames {
 		for i, device := range devices {
-			names, err := lookupFriendlyNames(s.host, device)
+			names, err := lookupFriendlyNames(bus.host, device)
 			if err != nil {
 				warnings = append(warnings, fmt.Sprintf("unable to get friendly name for pci device: %s", err))
 			} else {
@@ -82,7 +82,7 @@ func (s *Pci) Devices() ([]any, []string, error) {
 		}
 	}
 
-	devices, additionalPropWarnings := addAdditionalProperties(s.host, devices)
+	devices, additionalPropWarnings := addAdditionalProperties(bus.host, devices)
 	warnings = append(warnings, additionalPropWarnings...)
 
 	var result []any

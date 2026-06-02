@@ -31,7 +31,7 @@ import (
 
 const BusName = "<busname>"
 
-// Device represents a single <BusName> device detected on the system.
+// Device represents a single <busType> device detected on the system.
 type Device struct {
     Bus string `json:"bus"`
 
@@ -41,23 +41,23 @@ type Device struct {
     AdditionalProperties map[string]string `json:"additional-properties,omitempty"`
 }
 
-// Options holds <BusName>-specific bus configuration.
+// Options holds <busType>-specific bus configuration.
 type Options struct{}
 
-// <BusName> implements bus.Bus for the <BusName> bus.
-type <BusName> struct {
+// <busType> implements bus.Bus for the <busType> bus.
+type <busType> struct {
     host host.Host
     opts Options
 }
 
-// NewBus returns a <BusName> bus configured with the given options.
-func NewBus(h host.Host, opts Options) *<BusName> {
-    return &<BusName>{host: h, opts: opts}
+// NewBus returns a <busType> bus configured with the given options.
+func NewBus(h host.Host, opts Options) *<busType> {
+    return &<busType>{host: h, opts: opts}
 }
 
 // Devices discovers all devices on the bus and returns them as a slice of any,
 // along with non-fatal warnings and a hard error if the bus could not be enumerated.
-func (s *<BusName>) Devices() ([]any, []string, error) {
+func (bus *<busType>) Devices() ([]any, []string, error) {
     // TODO: enumerate devices, e.g. via sysfs or ioctl
     // For each discovered device, set the Bus field before appending:
     //   device.Bus = BusName

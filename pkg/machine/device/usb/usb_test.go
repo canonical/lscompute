@@ -11,9 +11,9 @@ import (
 
 func TestScannerScan_NoFriendlyNames(t *testing.T) {
 	h := xps13Host(t)
-	s := NewBus(h, Options{FriendlyNames: false})
+	bus := NewBus(h, Options{FriendlyNames: false})
 
-	result, warnings, err := s.Devices()
+	result, warnings, err := bus.Devices()
 	if err != nil {
 		t.Fatalf("Scan() error: %v", err)
 	}
@@ -48,9 +48,9 @@ func TestScannerScan_NoFriendlyNames(t *testing.T) {
 
 func TestScannerScan_WithFriendlyNames(t *testing.T) {
 	h := xps13Host(t)
-	s := NewBus(h, Options{FriendlyNames: true})
+	bus := NewBus(h, Options{FriendlyNames: true})
 
-	result, warnings, err := s.Devices()
+	result, warnings, err := bus.Devices()
 	if err != nil {
 		t.Fatalf("Scan() error: %v", err)
 	}
@@ -172,8 +172,8 @@ func TestScannerScan_SysFsError(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	s := NewBus(host.Fake(root), Options{})
-	_, _, err := s.Devices()
+	bus := NewBus(host.Fake(root), Options{})
+	_, _, err := bus.Devices()
 	if err == nil {
 		t.Fatal("expected Scan to return an error when devices path is a file, got nil")
 	}
@@ -189,8 +189,8 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 	makeUsbDeviceDir(t, root, "usb1", "1d6b", "0002", "1", "1")
 	makeUsbDeviceDir(t, root, "usb2", "1d6b", "0003", "2", "1")
 
-	s := NewBus(host.Fake(root), Options{FriendlyNames: true})
-	result, warnings, err := s.Devices()
+	bus := NewBus(host.Fake(root), Options{FriendlyNames: true})
+	result, warnings, err := bus.Devices()
 	if err != nil {
 		t.Fatalf("Scan() returned unexpected error: %v", err)
 	}
@@ -234,8 +234,8 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 // TestScannerScan_EmptyHost verifies that Scan on a host with no USB devices
 // dir returns an empty slice without error.
 func TestScannerScan_EmptyHost(t *testing.T) {
-	s := NewBus(host.Fake(t.TempDir()), Options{})
-	result, warnings, err := s.Devices()
+	bus := NewBus(host.Fake(t.TempDir()), Options{})
+	result, warnings, err := bus.Devices()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -272,4 +272,3 @@ func TestDecode(t *testing.T) {
 		}
 	})
 }
-

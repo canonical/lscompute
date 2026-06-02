@@ -17,8 +17,8 @@ func TestScannerScan_EmptyHost(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	s := NewBus(host.Fake(root), Options{})
-	result, warnings, err := s.Devices()
+	bus := NewBus(host.Fake(root), Options{})
+	result, warnings, err := bus.Devices()
 	if err != nil {
 		t.Fatalf("Scan() unexpected error: %v", err)
 	}
@@ -41,8 +41,8 @@ func TestScannerScan_SysFsError(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	s := NewBus(host.Fake(root), Options{})
-	_, _, err := s.Devices()
+	bus := NewBus(host.Fake(root), Options{})
+	_, _, err := bus.Devices()
 	if err == nil {
 		t.Fatal("expected Scan to return an error when devices path is a file, got nil")
 	}
@@ -53,8 +53,8 @@ func TestScannerScan_NoFriendlyNames(t *testing.T) {
 	writePciDevice(t, root, "0000:00:02.0", "0x8086", "0x1234", "0x030000", "", "")
 	writePciDevice(t, root, "0000:01:00.0", "0x10de", "0x2204", "0x030200", "", "")
 
-	s := NewBus(host.Fake(root), Options{FriendlyNames: false})
-	result, warnings, err := s.Devices()
+	bus := NewBus(host.Fake(root), Options{FriendlyNames: false})
+	result, warnings, err := bus.Devices()
 	if err != nil {
 		t.Fatalf("Scan() error: %v", err)
 	}
@@ -85,8 +85,8 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 	writePciDevice(t, root, "0000:00:02.0", "0x8086", "0x1234", "0x030000", "", "")
 	writePciDevice(t, root, "0000:01:00.0", "0x10de", "0x2204", "0x030200", "", "")
 
-	s := NewBus(host.Fake(root), Options{FriendlyNames: true})
-	result, warnings, err := s.Devices()
+	bus := NewBus(host.Fake(root), Options{FriendlyNames: true})
+	result, warnings, err := bus.Devices()
 	if err != nil {
 		t.Fatalf("Scan() unexpected error: %v", err)
 	}
@@ -124,8 +124,8 @@ func TestScannerScan_FriendlyNamesSuccess(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	s := NewBus(host.Fake(root), Options{FriendlyNames: true})
-	result, _, err := s.Devices()
+	bus := NewBus(host.Fake(root), Options{FriendlyNames: true})
+	result, _, err := bus.Devices()
 	if err != nil {
 		t.Fatalf("Devices() unexpected error: %v", err)
 	}
@@ -203,4 +203,3 @@ func TestDecode(t *testing.T) {
 		}
 	})
 }
-

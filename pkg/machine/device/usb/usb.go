@@ -30,8 +30,8 @@ type FriendlyNames struct {
 	ProductName *string `json:"product-name,omitempty"`
 }
 
-// Usb implements bus.Bus for the USB bus.
-type Usb struct {
+// usb implements bus.Bus for the USB bus.
+type usb struct {
 	host host.Host
 	opts Options
 }
@@ -42,20 +42,20 @@ type Options struct {
 }
 
 // NewBus returns a USB bus configured with the given options.
-func NewBus(host host.Host, opts Options) *Usb {
-	return &Usb{host: host, opts: opts}
+func NewBus(host host.Host, opts Options) *usb {
+	return &usb{host: host, opts: opts}
 }
 
 // Devices discovers all USB devices on the host and returns them as DeviceInfo values.
-func (s *Usb) Devices() ([]any, []string, error) {
-	devices, warnings, err := readSysUsb(s.host)
+func (bus *usb) Devices() ([]any, []string, error) {
+	devices, warnings, err := readSysUsb(bus.host)
 	if err != nil {
 		return nil, nil, fmt.Errorf("reading sysfs usb devices: %w", err)
 	}
 
-	if s.opts.FriendlyNames {
+	if bus.opts.FriendlyNames {
 		for i, device := range devices {
-			updated, err := lookupFriendlyNames(s.host, device)
+			updated, err := lookupFriendlyNames(bus.host, device)
 			if err != nil {
 				warnings = append(warnings, fmt.Sprintf("usb ids lookup for %04x:%04x: %v", uint64(device.VendorId), uint64(device.ProductId), err))
 				continue
