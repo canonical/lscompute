@@ -24,7 +24,7 @@ func TestDecodeMachineInfo(t *testing.T) {
 		t.Fatalf("json.Marshal() error: %v", err)
 	}
 
-	info, err := DecodeMachineInfo(data)
+	info, err := Decode(data)
 	if err != nil {
 		t.Fatalf("DecodeMachineInfo() error: %v", err)
 	}
@@ -42,15 +42,14 @@ func TestDecodeMachineInfo(t *testing.T) {
 func TestDecodeMachineInfo_InvalidDevice(t *testing.T) {
 	// Build JSON directly with an unknown bus — DecodeMachineInfo must return an error.
 	data := []byte(`{"devices":[{"bus":"unknown","vendor-id":1}]}`)
-	if _, err := DecodeMachineInfo(data); err == nil {
+	if _, err := Decode(data); err == nil {
 		t.Fatal("expected error for unknown bus, got nil")
 	}
 }
 
 func TestDecodeMachineInfo_MalformedJSON(t *testing.T) {
-	_, err := DecodeMachineInfo([]byte(`not valid json`))
+	_, err := Decode([]byte(`not valid json`))
 	if err == nil {
 		t.Fatal("expected error for malformed JSON, got nil")
 	}
 }
-
