@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
@@ -42,7 +43,7 @@ type Options struct {
 }
 
 // NewBus returns a USB bus configured with the given options.
-func NewBus(host host.Host, opts Options) *usb {
+func NewBus(host host.Host, opts Options) bus.Bus {
 	return &usb{host: host, opts: opts}
 }
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
@@ -60,7 +61,7 @@ type Options struct {
 }
 
 // NewBus returns a pci bus configured with the given options.
-func NewBus(targetHost host.Host, opts Options) *pci {
+func NewBus(targetHost host.Host, opts Options) bus.Bus {
 	return &pci{host: targetHost, opts: opts}
 }
 

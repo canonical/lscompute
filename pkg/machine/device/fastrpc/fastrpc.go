@@ -3,6 +3,7 @@ package fastrpc
 import (
 	"encoding/json"
 
+	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
@@ -28,7 +29,7 @@ type Options struct {
 }
 
 // NewBus returns a FastRPC bus configured with the given options.
-func NewBus(host host.Host, opts Options) *fastRpc {
+func NewBus(host host.Host, opts Options) bus.Bus {
 	return &fastRpc{host: host, opts: opts}
 }
 

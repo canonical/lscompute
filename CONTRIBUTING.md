@@ -26,6 +26,7 @@ import (
     "encoding/json"
     "fmt"
 
+    "github.com/canonical/lscompute/pkg/machine/device/bus"
     "github.com/canonical/lscompute/pkg/machine/host"
 )
 
@@ -51,7 +52,7 @@ type <busType> struct {
 }
 
 // NewBus returns a <busType> bus configured with the given options.
-func NewBus(h host.Host, opts Options) *<busType> {
+func NewBus(h host.Host, opts Options) bus.Bus {
     return &<busType>{host: h, opts: opts}
 }
 
