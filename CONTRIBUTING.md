@@ -2,144 +2,93 @@
 
 ## How to add a new hardware bus
 
-Adding support for a new bus (e.g. I2C, MIPI CSI, AMBA) follows a fixed six-step
-recipe. You only touch files inside your new package directory plus **one scanner
-registration in `device/devices.go`** and **one device-decoder branch in `device/device_decode.go`**.
+Adding support for a new bus (e.g. I2C, MIPI CSI, AMBA) follows a fixed recipe.
+You only touch files inside your new package directory plus **one bus registration
+in `device/devices.go`** and **one decoder branch in `device/decode.go`**.
 
 ### Step 1 — Create the bus package directory
 
 ```
 pkg/machine/device/<busname>/
-    types.go     ← device struct + BusName()
-    scanner.go   ← scanner + options
-    <anything>   ← sysfs reader, ID lookup, vendor logic, tests, …
+    <busname>.go    ← BusName constant, Device struct, Options, NewBus(), Devices(), Decode()
+    <anything>      ← sysfs reader, ID lookup, vendor logic, tests, …
 ```
 
-### Step 2 — Define `types.go`
+The simplest bus implementation lives entirely in a single `<busname>.go` file.
+Add extra files (e.g. `sys<busname>.go`, `vendor.go`) when the implementation grows.
+
+### Step 2 — Implement `<busname>.go`
 
 ```go
 package <busname>
 
 import (
-    "github.com/canonical/lscompute/pkg/machine/constants"
+    "encoding/json"
+    "fmt"
+
+    "github.com/canonical/lscompute/pkg/machine/host"
 )
+
+const BusName = "<busname>"
 
 // Device represents a single <BusName> device detected on the system.
 type Device struct {
-    // TODO: add bus-specific fields
+    Bus string `json:"bus"`
+
+    // TODO: add bus-specific fields here
 
     // Optional: vendor-specific key-value pairs
     AdditionalProperties map[string]string `json:"additional-properties,omitempty"`
 }
 
-// BusName satisfies the types.BusDevice interface.
-func (d *Device) BusName() string { return constants.Bus<BusName> }
-```
+// Options holds <BusName>-specific bus configuration.
+type Options struct{}
 
-Add `Bus<BusName> = "<busname>"` to `pkg/machine/constants/constants.go`.
-
-### Step 3 — Define `scanner.go`
-
-```go
-package <busname>
-
-import (
-    "github.com/canonical/lscompute/pkg/machine/device/bus"
-    "github.com/canonical/lscompute/pkg/machine/constants"
-    "github.com/canonical/lscompute/pkg/machine/host"
-    "github.com/canonical/lscompute/pkg/machine/types"
-)
-
-// Options holds <BusName>-specific scanner configuration.
-type Options struct {
-    // Add bus-specific tuning fields here. These are set at construction time
-    // via NewScanner().
+// <BusName> implements bus.Bus for the <BusName> bus.
+type <BusName> struct {
+    host host.Host
+    opts Options
 }
 
-// Scanner implements bus.Scanner for the <BusName> bus.
-type Scanner struct{ opts Options }
+// NewBus returns a <BusName> bus configured with the given options.
+func NewBus(h host.Host, opts Options) *<BusName> {
+    return &<BusName>{host: h, opts: opts}
+}
 
-func NewScanner(opts Options) *Scanner { return &Scanner{opts: opts} }
-
-func (s *Scanner) BusName() string { return constants.Bus<BusName> }
-
-func (s *Scanner) Scan(h host.Host) ([]types.DeviceInfo, []string, error) {
+// Devices discovers all devices on the bus and returns them as a slice of any,
+// along with non-fatal warnings and a hard error if the bus could not be enumerated.
+func (s *<BusName>) Devices() ([]any, []string, error) {
     // TODO: enumerate devices, e.g. via sysfs or ioctl
-    var devices []types.DeviceInfo
-    return devices, nil, nil
+    // For each discovered device, set the Bus field before appending:
+    //   device.Bus = BusName
+    return nil, nil, nil
+}
+
+// Decode unmarshals a raw JSON object into a *Device.
+func Decode(data []byte) (*Device, error) {
+    var device Device
+    if err := json.Unmarshal(data, &device); err != nil {
+        return nil, fmt.Errorf("decoding <busname> device: %w", err)
+    }
+    return &device, nil
 }
 ```
 
-### Step 4 — Register scanner in `device/devices.go`
+### Step 3 — Register the bus in `device/devices.go`
 
-Open `pkg/machine/device/devices.go` and add the new scanner:
-
-```go
-func Devices(h host.Host, friendlyNames bool) ([]types.DeviceInfo, []string, error) {
-    scanners := []bus.Scanner{
-        pci.NewScanner(pci.Options{FriendlyNames: friendlyNames}),
-        usb.NewScanner(usb.Options{FriendlyNames: friendlyNames}),
-        fastrpc.NewScanner(fastrpc.Options{}),
-        <busname>.NewScanner(<busname>.Options{}),  // ← add this
-    }
-    // ...
-}
-```
-
-### Step 5 — Register device decoder in `device/device_decode.go`
-
-Open `pkg/machine/device/device_decode.go` and add one switch branch in
-`DecodeDeviceInfo`:
+Add your bus to the `buses` slice in `pkg/machine/device/devices.go`:
 
 ```go
-case constants.Bus<BusName>:
-    var dev <busname>.Device
-    if err := json.Unmarshal(data, &dev); err != nil {
-        return types.DeviceInfo{}, fmt.Errorf("decoding <busname> device: %w", err)
-    }
-    return types.DeviceInfo{Bus: constants.Bus<BusName>, Payload: &dev}, nil
+<busname>.NewBus(h, <busname>.Options{}),
 ```
 
-### Step 6 — Add test fixtures (recommended)
+### Step 4 — Register the decoder in `device/decode.go`
 
-Place pre-captured sysfs or command output under:
+Add one `case` to the `switch` in `pkg/machine/device/decode.go`:
 
-```
-test_data/machines/<machine-name>/machine-root/sys/bus/<busname>/
-```
-
-The golden-file pipeline test (`TestGetFromMachineDirs`) will pick it up automatically.
-
----
-
-## Architecture overview
-
-```
-pkg/machine/
-    machine.go              ← top-level Get()
-    decode.go               ← DecodeMachineInfo() — JSON round-trip for MachineInfo
-    device/
-        bus/scanner.go      ← Scanner interface (shared contract)
-        devices.go          ← scanner registry
-        device_decode.go    ← DecodeDeviceInfo() — explicit JSON decode for bus payloads
-        pci/
-            types.go        ← pci.Device implements BusDevice + BusName()
-            scanner.go      ← pci.Scanner implements bus.Scanner
-            syspci.go       ← internal enumeration logic
-            amd/, intel/, nvidia/  ← vendor-specific additional properties
-        usb/
-            types.go        ← usb.Device implements BusDevice + BusName()
-            scanner.go      ← usb.Scanner implements bus.Scanner
-            sysusb.go       ← internal enumeration logic
-        fastrpc/
-            types.go        ← fastrpc.Device implements BusDevice + BusName()
-            scanner.go      ← fastrpc.Scanner (stub, not yet implemented)
-    types/device.go         ← DeviceInfo + BusDevice interface
+```go
+case <busname>.BusName:
+    return <busname>.Decode(data)
 ```
 
-### Configuration model
-
-| Scope | Where | When |
-|---|---|---|
-| Cross-bus (e.g. `FriendlyNames`) | `machine.Devices(..., friendlyNames)` | Passed once and forwarded to buses that support it |
-| Bus-specific tuning | `<busname>.Options`, passed via `NewScanner()` | Only for one bus |
+Also import `"github.com/canonical/lscompute/pkg/machine/device/<busname>"` in both files.
