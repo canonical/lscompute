@@ -4,7 +4,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/canonical/lscompute/pkg/machine/constants"
 	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
@@ -25,7 +24,7 @@ func TestAdditionalProperties_UnknownVendor(t *testing.T) {
 func TestAdditionalProperties_NvidiaNotGpu(t *testing.T) {
 	h := host.Fake(t.TempDir())
 	dev := Device{
-		VendorId:    types.HexInt(constants.PciVendorNvidia),
+		VendorId:    types.HexInt(vendorNvidia),
 		DeviceClass: types.HexInt(0x0200), // network — not a GPU
 	}
 	props, err := additionalProperties(h, dev)
@@ -42,7 +41,7 @@ func TestAdditionalProperties_NvidiaNotGpu(t *testing.T) {
 func TestAdditionalProperties_IntelNotGpu(t *testing.T) {
 	h := host.Fake(t.TempDir())
 	dev := Device{
-		VendorId:    types.HexInt(constants.PciVendorIntel),
+		VendorId:    types.HexInt(vendorIntel),
 		DeviceClass: types.HexInt(0x0c03), // USB host — not a GPU
 	}
 	props, err := additionalProperties(h, dev)
@@ -59,7 +58,7 @@ func TestAdditionalProperties_IntelNotGpu(t *testing.T) {
 func TestAdditionalProperties_AmdNotGpu(t *testing.T) {
 	h := host.Fake(t.TempDir())
 	dev := Device{
-		VendorId:    types.HexInt(constants.PciVendorAmd),
+		VendorId:    types.HexInt(vendorAmd),
 		DeviceClass: types.HexInt(0x0200), // network — not a GPU
 	}
 	props, err := additionalProperties(h, dev)
@@ -93,7 +92,7 @@ func TestAddAdditionalProperties_GpuError(t *testing.T) {
 	h := host.Fake(t.TempDir())
 	devices := []Device{
 		{
-			VendorId:    types.HexInt(constants.PciVendorNvidia),
+			VendorId:    types.HexInt(vendorNvidia),
 			DeviceClass: types.HexInt(0x0300), // GPU
 			Slot:        "0000:01:00.0",
 		},

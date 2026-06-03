@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
-func parseProcMemInfo(memInfoString string) (types.MemoryInfo, error) {
-	var memInfo = types.MemoryInfo{}
+func parseProcMemInfo(memInfoString string) (MemoryInfo, error) {
+	var memInfo MemoryInfo
 	foundMemTotal := false
 
 	lines := strings.Split(memInfoString, "\n")

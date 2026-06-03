@@ -3,8 +3,6 @@ package cpu
 import (
 	"strings"
 	"testing"
-
-	"github.com/canonical/lscompute/pkg/machine/constants"
 )
 
 // Minimal two-core amd64 /proc/cpuinfo fixture.
@@ -104,8 +102,8 @@ flags		: sse sse2 avx2
 					t.Errorf("expected flag %q in Flags %v", flag, first.Flags)
 				}
 			}
-			if first.Architecture != constants.Amd64 {
-				t.Errorf("Architecture: got %q, want %q", first.Architecture, constants.Amd64)
+			if first.Architecture != Amd64 {
+				t.Errorf("Architecture: got %q, want %q", first.Architecture, Amd64)
 			}
 		})
 	}
@@ -173,8 +171,8 @@ func TestParseProcCpuInfoArm64(t *testing.T) {
 					t.Errorf("expected feature %q in Features %v", feat, first.Features)
 				}
 			}
-			if first.Architecture != constants.Arm64 {
-				t.Errorf("Architecture: got %q, want %q", first.Architecture, constants.Arm64)
+			if first.Architecture != Arm64 {
+				t.Errorf("Architecture: got %q, want %q", first.Architecture, Arm64)
 			}
 		})
 	}
@@ -182,27 +180,27 @@ func TestParseProcCpuInfoArm64(t *testing.T) {
 
 func TestParseProcCpuInfo_Dispatch(t *testing.T) {
 	t.Run("routes amd64", func(t *testing.T) {
-		got, err := parseProcCpuInfo(amd64CpuInfoFixture, constants.Amd64)
+		got, err := parseProcCpuInfo(amd64CpuInfoFixture, Amd64)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		if len(got) == 0 {
 			t.Fatal("expected CPUs, got none")
 		}
-		if got[0].Architecture != constants.Amd64 {
+		if got[0].Architecture != Amd64 {
 			t.Errorf("expected amd64 architecture, got %q", got[0].Architecture)
 		}
 	})
 
 	t.Run("routes arm64", func(t *testing.T) {
-		got, err := parseProcCpuInfo(arm64CpuInfoFixture, constants.Arm64)
+		got, err := parseProcCpuInfo(arm64CpuInfoFixture, Arm64)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		if len(got) == 0 {
 			t.Fatal("expected CPUs, got none")
 		}
-		if got[0].Architecture != constants.Arm64 {
+		if got[0].Architecture != Arm64 {
 			t.Errorf("expected arm64 architecture, got %q", got[0].Architecture)
 		}
 	})

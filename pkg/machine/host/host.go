@@ -7,8 +7,6 @@ package host
 import (
 	"context"
 	"io/fs"
-
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 // Host is the seam between production and tests. Real() returns an implementation
@@ -50,7 +48,7 @@ type Host interface {
 	// values from <root>/run/disk-stats.json, whose keys *do* have a leading "/"
 	// (so the fixture reads like absolute paths on a real host); Fake() prepends
 	// "/" to the API path before looking up.
-	StatFs(path string) (types.DirStats, error)
+	StatFs(path string) (dirStats, error)
 }
 
 // Real returns a Host that talks to the live system.

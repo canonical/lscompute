@@ -178,6 +178,56 @@ func TestReadSysPciDevice(t *testing.T) {
 			t.Fatal("expected error for malformed slot, got nil")
 		}
 	})
+
+	t.Run("missing vendor file returns error", func(t *testing.T) {
+		dir := t.TempDir()
+		slot := "0000:00:02.0"
+		// Create slot dir but write no files at all.
+		slotDir := filepath.Join(dir, "sys", "bus", "pci", "devices", slot)
+		if err := os.MkdirAll(slotDir, 0755); err != nil {
+			t.Fatal(err)
+		}
+		h := host.Fake(dir)
+		_, err := readSysPciDevice(h, filepath.Join("sys", "bus", "pci", "devices", slot), slot)
+		if err == nil {
+			t.Fatal("expected error for missing vendor file, got nil")
+		}
+	})
+
+	t.Run("missing device file returns error", func(t *testing.T) {
+		dir := t.TempDir()
+		slot := "0000:00:02.0"
+		writePciDevice(t, dir, slot, "0x8086", "", "0x030000", "", "") // no device file
+		// Remove the device file that writePciDevice wrote (it wrote an empty string which is invalid hex).
+		// Instead just write vendor only.
+		slotDir := filepath.Join(dir, "sys", "bus", "pci", "devices", slot)
+		if err := os.Remove(filepath.Join(slotDir, "device")); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Remove(filepath.Join(slotDir, "class")); err != nil {
+			t.Fatal(err)
+		}
+		h := host.Fake(dir)
+		_, err := readSysPciDevice(h, filepath.Join("sys", "bus", "pci", "devices", slot), slot)
+		if err == nil {
+			t.Fatal("expected error for missing device file, got nil")
+		}
+	})
+
+	t.Run("missing class file returns error", func(t *testing.T) {
+		dir := t.TempDir()
+		slot := "0000:00:02.0"
+		writePciDevice(t, dir, slot, "0x8086", "0x1234", "0x030000", "", "")
+		slotDir := filepath.Join(dir, "sys", "bus", "pci", "devices", slot)
+		if err := os.Remove(filepath.Join(slotDir, "class")); err != nil {
+			t.Fatal(err)
+		}
+		h := host.Fake(dir)
+		_, err := readSysPciDevice(h, filepath.Join("sys", "bus", "pci", "devices", slot), slot)
+		if err == nil {
+			t.Fatal("expected error for missing class file, got nil")
+		}
+	})
 }
 
 func TestReadSysPci(t *testing.T) {

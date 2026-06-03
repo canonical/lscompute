@@ -8,11 +8,17 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/disk"
 	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/memory"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
-func Get(h host.Host, friendlyNames bool) (*types.MachineInfo, []string, error) {
-	var machineInfo types.MachineInfo
+type MachineInfo struct {
+	Cpus    []cpu.CpuInfo           `json:"cpus,omitempty" yaml:"cpus,omitempty"`
+	Memory  memory.MemoryInfo       `json:"memory,omitempty" yaml:"memory,omitempty"`
+	Disk    map[string]disk.DirInfo `json:"disk,omitempty" yaml:"disk,omitempty"`
+	Devices []any                   `json:"devices,omitempty" yaml:"devices,omitempty"`
+}
+
+func Get(h host.Host, friendlyNames bool) (*MachineInfo, []string, error) {
+	var machineInfo MachineInfo
 
 	memoryInfo, err := memory.Info(h)
 	if err != nil {

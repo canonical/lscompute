@@ -1,6 +1,8 @@
 package amd
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
@@ -165,5 +167,57 @@ func TestGfxArchitecture(t *testing.T) {
 				t.Fatalf("expected %q, got %q", tt.expected, got)
 			}
 		})
+	}
+}
+
+// TestVRam_InvalidContent verifies that non-numeric file content returns a parse error.
+func TestVRam_InvalidContent(t *testing.T) {
+	dir := t.TempDir()
+	slot := "0000:03:00.0"
+	slotDir := filepath.Join(dir, "sys", "bus", "pci", "devices", slot)
+	if err := os.MkdirAll(slotDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(slotDir, "mem_info_vram_total"), []byte("not-a-number\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	h := host.Fake(dir)
+	_, err := vRam(h, slot)
+	if err == nil {
+		t.Fatal("expected error for non-numeric vram content, got nil")
+	}
+}
+
+// TestAdditionalProperties_AmdGpu verifies the public entry point succeeds for a known GPU.
+func TestAdditionalProperties_AmdGpu(t *testing.T) {
+	h := host.Fake("../../../../../test_data/machines/hp-zbook-i712850HX+RadeonPROW6600M/machine-root")
+	props, err := AdditionalProperties(h, "0000:03:00.0", true)
+	if err != nil {
+		t.Fatalf("AdditionalProperties(isGpu=true) unexpected error: %v", err)
+	}
+	if props == nil {
+		t.Fatal("expected non-nil properties for GPU")
+	}
+}
+
+// TestAdditionalProperties_AmdNotGpu verifies that a non-GPU device returns nil properties without error.
+func TestAdditionalProperties_AmdNotGpu(t *testing.T) {
+	h := host.Fake(t.TempDir())
+	props, err := AdditionalProperties(h, "0000:03:00.0", false)
+	if err != nil {
+		t.Fatalf("AdditionalProperties(isGpu=false) unexpected error: %v", err)
+	}
+	if props != nil {
+		t.Errorf("expected nil properties for non-GPU device, got %v", props)
+	}
+}
+
+// TestAdditionalProperties_AmdGpu_Error verifies that a GPU lookup failure is propagated as an error.
+func TestAdditionalProperties_AmdGpu_Error(t *testing.T) {
+	// Empty host has no AMD sysfs fixtures → gpuProperties → vRam fails.
+	h := host.Fake(t.TempDir())
+	_, err := AdditionalProperties(h, "0000:03:00.0", true)
+	if err == nil {
+		t.Fatal("expected error when GPU property lookup fails, got nil")
 	}
 }

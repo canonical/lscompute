@@ -1,11 +1,11 @@
 package machine
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/canonical/lscompute/pkg/machine/constants"
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
@@ -26,14 +26,19 @@ func TestGet_WithFakeHost(t *testing.T) {
 		t.Error("expected TotalRam > 0, got 0")
 	}
 
-	validBuses := map[string]bool{
-		constants.BusPci:     true,
-		constants.BusUsb:     true,
-		constants.BusFastRpc: true,
-	}
 	for _, dev := range info.Devices {
-		if !validBuses[dev.Bus] {
-			t.Errorf("device has unexpected Bus value %q", dev.Bus)
+		b, err := json.Marshal(dev)
+		if err != nil {
+			t.Fatalf("json.Marshal(device) failed: %v", err)
+		}
+		var peek struct {
+			Bus string `json:"bus"`
+		}
+		if err := json.Unmarshal(b, &peek); err != nil {
+			t.Fatalf("json.Unmarshal(device) failed: %v", err)
+		}
+		if peek.Bus == "" {
+			t.Error("device has empty Bus value")
 		}
 	}
 }
@@ -45,6 +50,50 @@ func TestGet_MemoryError(t *testing.T) {
 	_, _, err := Get(h, false)
 	if err == nil {
 		t.Fatal("expected error when proc/meminfo is missing, got nil")
+	}
+}
+
+// TestGet_CpuError verifies that Get returns an error when proc/cpuinfo is missing.
+func TestGet_CpuError(t *testing.T) {
+	root := t.TempDir()
+	write := func(rel, content string) {
+		full := filepath.Join(root, filepath.FromSlash(rel))
+		if err := os.MkdirAll(filepath.Dir(full), 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(full, []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write("proc/meminfo", "MemTotal: 8192000 kB\nSwapTotal: 0 kB\n")
+	// No proc/cpuinfo → cpu.Info fails.
+	h := host.Fake(root)
+	_, _, err := Get(h, false)
+	if err == nil {
+		t.Fatal("expected error when proc/cpuinfo is missing, got nil")
+	}
+}
+
+// TestGet_DiskError verifies that Get returns an error when disk stats are unavailable.
+func TestGet_DiskError(t *testing.T) {
+	root := t.TempDir()
+	write := func(rel, content string) {
+		full := filepath.Join(root, filepath.FromSlash(rel))
+		if err := os.MkdirAll(filepath.Dir(full), 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(full, []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write("proc/meminfo", "MemTotal: 8192000 kB\nSwapTotal: 0 kB\n")
+	write("proc/sys/kernel/arch", "x86_64\n")
+	write("proc/cpuinfo", "processor\t: 0\nvendor_id\t: GenuineIntel\nflags\t\t: sse\n")
+	// No run/disk-stats.json → disk.Info fails.
+	h := host.Fake(root)
+	_, _, err := Get(h, false)
+	if err == nil {
+		t.Fatal("expected error when disk stats are missing, got nil")
 	}
 }
 

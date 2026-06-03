@@ -1,12 +1,14 @@
 package nvidia
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
-func TestVRam(t *testing.T) {
+func TestParseVramAmount(t *testing.T) {
 	expected := uint64(4096 * 1024 * 1024)
 	tests := []struct {
 		name      string
@@ -169,3 +171,50 @@ func TestAdditionalProperties_NvidiaNotGpu(t *testing.T) {
 		t.Errorf("expected nil properties for non-GPU, got %v", props)
 	}
 }
+
+// TestGpuProperties_Nvidia_VRamError verifies that a vRam failure is propagated.
+func TestGpuProperties_Nvidia_VRamError(t *testing.T) {
+	// Empty host: no nvidia-smi fixture → vRam errors → gpuProperties errors.
+	h := host.Fake(t.TempDir())
+	_, err := gpuProperties(h, "0000:01:00.0")
+	if err == nil {
+		t.Fatal("expected error for missing nvidia-smi fixture, got nil")
+	}
+}
+
+// TestGpuProperties_Nvidia_NilVram verifies that a [N/A] vram response produces no "vram" property.
+func TestGpuProperties_Nvidia_NilVram(t *testing.T) {
+	dir := t.TempDir()
+	slot := "0000:00:00.0"
+	smiDir := filepath.Join(dir, "run", "nvidia-smi", slot)
+	if err := os.MkdirAll(smiDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(smiDir, "memory.total"), []byte("[N/A]\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(smiDir, "compute_cap"), []byte("6.1\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	h := host.Fake(dir)
+	props, err := gpuProperties(h, slot)
+	if err != nil {
+		t.Fatalf("gpuProperties() unexpected error: %v", err)
+	}
+	if _, ok := props["vram"]; ok {
+		t.Error("expected no 'vram' key when vram is [N/A], but key is present")
+	}
+	if v, ok := props["compute-capability"]; !ok || v != "6.1" {
+		t.Errorf("expected compute-capability=6.1, got %q (ok=%v)", v, ok)
+	}
+}
+
+// TestAdditionalProperties_Nvidia_GpuError verifies that an error from gpuProperties is propagated.
+func TestAdditionalProperties_Nvidia_GpuError(t *testing.T) {
+	h := host.Fake(t.TempDir())
+	_, err := AdditionalProperties(h, "0000:01:00.0", true)
+	if err == nil {
+		t.Fatal("expected error when gpuProperties fails, got nil")
+	}
+}
+

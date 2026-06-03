@@ -7,12 +7,11 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/canonical/lscompute/pkg/machine/constants"
 	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
-func Info(h host.Host) ([]types.CpuInfo, error) {
+func Info(h host.Host) ([]CpuInfo, error) {
 	procCpuData, err := fs.ReadFile(h.FS(), "proc/cpuinfo")
 	if err != nil {
 		return nil, fmt.Errorf("reading proc/cpuinfo: %w", err)
@@ -43,7 +42,7 @@ func machineArch(h host.Host) (string, error) {
 	return hostMachineArchFallback()
 }
 
-func infoFromRawData(procCpuInfoData string, uname string) ([]types.CpuInfo, error) {
+func infoFromRawData(procCpuInfoData string, uname string) ([]CpuInfo, error) {
 	architecture, err := debianArchitecture(uname)
 	if err != nil {
 		return nil, fmt.Errorf("translating architecture: %w", err)
@@ -68,7 +67,7 @@ func infoFromRawData(procCpuInfoData string, uname string) ([]types.CpuInfo, err
 	return cpus, nil
 }
 
-func uniqueCpuInfo(procCpus []procCpuInfo) ([]types.CpuInfo, error) {
+func uniqueCpuInfo(procCpus []procCpuInfo) ([]CpuInfo, error) {
 	// Set processor index to 0 to only check other fields for uniqueness
 	for i := range procCpus {
 		procCpus[i].Processor = 0
@@ -87,15 +86,15 @@ func isDuplicate(a procCpuInfo, b procCpuInfo) bool {
 	return reflect.DeepEqual(a, b)
 }
 
-func cpuInfoFromProc(procCpus []procCpuInfo) ([]types.CpuInfo, error) {
-	var cpuInfos []types.CpuInfo
+func cpuInfoFromProc(procCpus []procCpuInfo) ([]CpuInfo, error) {
+	var cpuInfos []CpuInfo
 	for _, procCpu := range procCpus {
-		var cpuInfo types.CpuInfo
-		if procCpu.Architecture == constants.Amd64 {
+		var cpuInfo CpuInfo
+		if procCpu.Architecture == Amd64 {
 			cpuInfo.Architecture = procCpu.Architecture
 			cpuInfo.ManufacturerId = procCpu.ManufacturerId
 			cpuInfo.Flags = procCpu.Flags
-		} else if procCpu.Architecture == constants.Arm64 {
+		} else if procCpu.Architecture == Arm64 {
 			cpuInfo.Architecture = procCpu.Architecture
 			cpuInfo.ImplementerId = types.HexInt(procCpu.ImplementerId)
 			cpuInfo.PartNumber = types.HexInt(procCpu.PartNumber)

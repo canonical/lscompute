@@ -4,7 +4,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/canonical/lscompute/pkg/machine/constants"
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
@@ -31,8 +30,8 @@ func TestInfo_Amd64(t *testing.T) {
 		t.Fatal("expected at least one CPU, got none")
 	}
 	for _, c := range cpus {
-		if c.Architecture != constants.Amd64 {
-			t.Errorf("Architecture = %q, want %q", c.Architecture, constants.Amd64)
+		if c.Architecture != Amd64 {
+			t.Errorf("Architecture = %q, want %q", c.Architecture, Amd64)
 		}
 		if c.ManufacturerId == "" {
 			t.Errorf("ManufacturerId is empty for amd64 CPU")
@@ -51,8 +50,8 @@ func TestInfo_Arm64(t *testing.T) {
 		t.Fatal("expected at least one CPU, got none")
 	}
 	for _, c := range cpus {
-		if c.Architecture != constants.Arm64 {
-			t.Errorf("Architecture = %q, want %q", c.Architecture, constants.Arm64)
+		if c.Architecture != Arm64 {
+			t.Errorf("Architecture = %q, want %q", c.Architecture, Arm64)
 		}
 	}
 }
@@ -84,8 +83,8 @@ func TestInfoFromRawData_Amd64(t *testing.T) {
 	if len(cpus) == 0 {
 		t.Fatal("expected at least one CPU")
 	}
-	if cpus[0].Architecture != constants.Amd64 {
-		t.Errorf("Architecture = %q, want %q", cpus[0].Architecture, constants.Amd64)
+	if cpus[0].Architecture != Amd64 {
+		t.Errorf("Architecture = %q, want %q", cpus[0].Architecture, Amd64)
 	}
 }
 
@@ -98,8 +97,8 @@ func TestInfoFromRawData_Arm64(t *testing.T) {
 	if len(cpus) == 0 {
 		t.Fatal("expected at least one CPU")
 	}
-	if cpus[0].Architecture != constants.Arm64 {
-		t.Errorf("Architecture = %q, want %q", cpus[0].Architecture, constants.Arm64)
+	if cpus[0].Architecture != Arm64 {
+		t.Errorf("Architecture = %q, want %q", cpus[0].Architecture, Arm64)
 	}
 }
 
@@ -116,7 +115,7 @@ func TestInfoFromRawData_EmptyCpuInfo(t *testing.T) {
 func TestUniqueCpuInfo_Deduplication(t *testing.T) {
 	// Two identical cores (same flags/vendor) — should be collapsed to one.
 	core := procCpuInfo{
-		Architecture:   constants.Amd64,
+		Architecture:   Amd64,
 		ManufacturerId: "GenuineIntel",
 		Flags:          []string{"sse", "sse2"},
 	}
@@ -131,8 +130,8 @@ func TestUniqueCpuInfo_Deduplication(t *testing.T) {
 
 // TestUniqueCpuInfo_DifferentKeepsAll verifies that distinct CPUs are all kept.
 func TestUniqueCpuInfo_DifferentKeepsAll(t *testing.T) {
-	a := procCpuInfo{Architecture: constants.Amd64, ManufacturerId: "GenuineIntel", Flags: []string{"sse"}}
-	b := procCpuInfo{Architecture: constants.Amd64, ManufacturerId: "AuthenticAMD", Flags: []string{"sse"}}
+	a := procCpuInfo{Architecture: Amd64, ManufacturerId: "GenuineIntel", Flags: []string{"sse"}}
+	b := procCpuInfo{Architecture: Amd64, ManufacturerId: "AuthenticAMD", Flags: []string{"sse"}}
 	result, err := uniqueCpuInfo([]procCpuInfo{a, b})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -144,9 +143,9 @@ func TestUniqueCpuInfo_DifferentKeepsAll(t *testing.T) {
 
 // TestIsDuplicate verifies the deep-equality check used by uniqueCpuInfo.
 func TestIsDuplicate(t *testing.T) {
-	a := procCpuInfo{Architecture: constants.Amd64, ManufacturerId: "GenuineIntel"}
-	b := procCpuInfo{Architecture: constants.Amd64, ManufacturerId: "GenuineIntel"}
-	c := procCpuInfo{Architecture: constants.Amd64, ManufacturerId: "AuthenticAMD"}
+	a := procCpuInfo{Architecture: Amd64, ManufacturerId: "GenuineIntel"}
+	b := procCpuInfo{Architecture: Amd64, ManufacturerId: "GenuineIntel"}
+	c := procCpuInfo{Architecture: Amd64, ManufacturerId: "AuthenticAMD"}
 
 	if !isDuplicate(a, b) {
 		t.Error("isDuplicate(a, b): expected true for identical structs")
@@ -167,7 +166,7 @@ func TestCpuInfoFromProc_UnsupportedArch(t *testing.T) {
 // TestCpuInfoFromProc_Amd64 spot-checks the amd64 field mapping.
 func TestCpuInfoFromProc_Amd64(t *testing.T) {
 	pci := procCpuInfo{
-		Architecture:   constants.Amd64,
+		Architecture:   Amd64,
 		ManufacturerId: "GenuineIntel",
 		Flags:          []string{"sse", "avx"},
 	}
@@ -189,7 +188,7 @@ func TestCpuInfoFromProc_Amd64(t *testing.T) {
 // TestCpuInfoFromProc_Arm64 spot-checks the arm64 field mapping.
 func TestCpuInfoFromProc_Arm64(t *testing.T) {
 	pci := procCpuInfo{
-		Architecture:  constants.Arm64,
+		Architecture:  Arm64,
 		ImplementerId: 0x41,
 		PartNumber:    0xd0b,
 		Features:      []string{"fp", "asimd"},
@@ -201,8 +200,8 @@ func TestCpuInfoFromProc_Arm64(t *testing.T) {
 	if len(result) != 1 {
 		t.Fatalf("expected 1 result, got %d", len(result))
 	}
-	if result[0].Architecture != constants.Arm64 {
-		t.Errorf("Architecture = %q, want %q", result[0].Architecture, constants.Arm64)
+	if result[0].Architecture != Arm64 {
+		t.Errorf("Architecture = %q, want %q", result[0].Architecture, Arm64)
 	}
 	if int(result[0].ImplementerId) != 0x41 {
 		t.Errorf("ImplementerId = %#x, want 0x41", int(result[0].ImplementerId))

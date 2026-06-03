@@ -1,10 +1,13 @@
 package device
 
 import (
+	"encoding/json"
 	"path/filepath"
 	"testing"
 
-	"github.com/canonical/lscompute/pkg/machine/constants"
+	"github.com/canonical/lscompute/pkg/machine/device/fastrpc"
+	"github.com/canonical/lscompute/pkg/machine/device/pci"
+	"github.com/canonical/lscompute/pkg/machine/device/usb"
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
@@ -22,13 +25,23 @@ func TestDevices_WithFakeHost(t *testing.T) {
 	}
 
 	validBuses := map[string]bool{
-		constants.BusPci:     true,
-		constants.BusUsb:     true,
-		constants.BusFastRpc: true,
+		pci.BusName:     true,
+		usb.BusName:     true,
+		fastrpc.BusName: true,
 	}
 	for _, dev := range devices {
-		if !validBuses[dev.Bus] {
-			t.Errorf("device has unexpected Bus value %q", dev.Bus)
+		b, err := json.Marshal(dev)
+		if err != nil {
+			t.Fatalf("json.Marshal(device) failed: %v", err)
+		}
+		var peek struct {
+			Bus string `json:"bus"`
+		}
+		if err := json.Unmarshal(b, &peek); err != nil {
+			t.Fatalf("json.Unmarshal(device) failed: %v", err)
+		}
+		if !validBuses[peek.Bus] {
+			t.Errorf("device has unexpected Bus value %q", peek.Bus)
 		}
 	}
 }
