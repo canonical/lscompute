@@ -33,8 +33,8 @@ type Device struct {
 	Bus string `json:"bus"`
 
 	Domain FastRPCDomain `json:"domain"`
-	Index  int            `json:"index"`
-	Secure bool           `json:"secure"`
+	Index  int           `json:"index"`
+	Secure bool          `json:"secure"`
 
 	// Vendor specific device key-value pairs
 	AdditionalProperties map[string]string `json:"additional-properties,omitempty"`
@@ -128,8 +128,5 @@ func parseFastRPCDeviceName(name string) (Device, bool) {
 		Domain: domain,
 		Index:  index,
 		Secure: secure,
-		AdditionalProperties: map[string]string{
-			"VendorName": "Qualcomm",
-		},
 	}, true
 }
