@@ -13,6 +13,9 @@ type CpuInfo struct {
 	ImplementerId types.HexInt `json:"implementer-id,omitempty" yaml:"implementer-id,omitempty"`
 	PartNumber    types.HexInt `json:"part-number,omitempty" yaml:"part-number,omitempty"`
 	Features      []string     `json:"features,omitempty" yaml:"features,omitempty"`
+
+	// riscv64
+	Isa           []string `json:"isa,omitempty" yaml:"isa,omitempty"`
 }
 
 // procCpuInfo contains general information about a system CPU found in /proc/cpuinfo.
@@ -35,4 +38,6 @@ type procCpuInfo struct {
 	PartNumber uint64 // 0x%03x
 	Revision   uint64 // %d
 
+	// riscv64
+	Isa           []string // underscore separated strings
 }
