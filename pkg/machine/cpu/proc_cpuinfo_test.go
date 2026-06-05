@@ -37,6 +37,24 @@ CPU part	: 0xd0b
 CPU revision	: 1
 `
 
+// Minimal two-core riscv64 /proc/cpuinfo fixture (SiFive P550 Premier style).
+const riscv64CpuInfoFixture = `processor	: 0
+hart		: 3
+isa		: rv64imafdch_zicsr_zifencei_zba_zbb_sscofpmf
+mmu		: sv48
+mvendorid	: 0x489
+marchid		: 0x8000000000000008
+mimpid		: 0x6220425
+
+processor	: 1
+hart		: 0
+isa		: rv64imafdch_zicsr_zifencei_zba_zbb_sscofpmf
+mmu		: sv48
+mvendorid	: 0x489
+marchid		: 0x8000000000000008
+mimpid		: 0x6220425
+`
+
 func TestParseProcCpuInfoAmd64(t *testing.T) {
 	tests := []struct {
 		name          string
@@ -205,8 +223,21 @@ func TestParseProcCpuInfo_Dispatch(t *testing.T) {
 		}
 	})
 
+	t.Run("routes riscv64", func(t *testing.T) {
+		got, err := parseProcCpuInfo(riscv64CpuInfoFixture, Riscv64)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if len(got) == 0 {
+			t.Fatal("expected CPUs, got none")
+		}
+		if got[0].Architecture != Riscv64 {
+			t.Errorf("expected riscv64 architecture, got %q", got[0].Architecture)
+		}
+	})
+
 	t.Run("unknown architecture returns error", func(t *testing.T) {
-		_, err := parseProcCpuInfo("processor\t: 0\n", "riscv64")
+		_, err := parseProcCpuInfo("processor\t: 0\n", "s390x")
 		if err == nil {
 			t.Fatal("expected error for unsupported architecture, got nil")
 		}
