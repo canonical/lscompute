@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/canonical/lscompute/pkg/machine/device/apusys"
 	"github.com/canonical/lscompute/pkg/machine/device/fastrpc"
 	"github.com/canonical/lscompute/pkg/machine/device/pci"
 	"github.com/canonical/lscompute/pkg/machine/device/usb"
@@ -28,6 +29,7 @@ func TestDevices_WithFakeHost(t *testing.T) {
 		pci.BusName:     true,
 		usb.BusName:     true,
 		fastrpc.BusName: true,
+		apusys.BusName:  true,
 	}
 	for _, dev := range devices {
 		b, err := json.Marshal(dev)
