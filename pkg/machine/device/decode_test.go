@@ -40,7 +40,7 @@ func TestDecodeDeviceInfo(t *testing.T) {
 	})
 
 	t.Run("decodes apusys device", func(t *testing.T) {
-		data := []byte(`{"bus":"apusys","type":"mdla","soc-id":"jep106:0426:8195","chip-model":"MT8195 / MT8395","product-family":"Kompanio 1200 / Genio 1200","npu-architecture":"4.0 TOPS (Dual-core APU)"}`)
+		data := []byte(`{"bus":"apusys","type":"mdla","soc-id":"jep106:0426:8195", "soc-info":{"chip-model":"MT8195 / MT8395","product-family":"Kompanio 1200 / Genio 1200","npu-architecture":"4.0 TOPS (Dual-core APU)"}}`)
 		dev, err := Decode(data)
 		if err != nil {
 			t.Fatalf("Decode() error: %v", err)

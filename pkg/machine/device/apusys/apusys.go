@@ -30,9 +30,9 @@ type Device struct {
 }
 
 type SocInfo struct {
-	ChipModel       string
-	ProductFamily   string
-	NPUArchitecture string
+	ChipModel       string `json:"chip-model,omitempty"`
+	ProductFamily   string `json:"product-family,omitempty"`
+	NPUArchitecture string `json:"npu-architecture,omitempty"`
 }
 
 var socIDInfo = map[string]SocInfo{
