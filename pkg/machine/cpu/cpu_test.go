@@ -9,7 +9,7 @@ import (
 
 const xps13MachineRoot = "../../../test_data/machines/xps13-9350/machine-root"
 const rpiMachineRoot = "../../../test_data/machines/raspberry-pi-5/machine-root"
-
+const p550MachineRoot = "../../../test_data/machines/sifive-p550-premier/machine-root"
 func machineHost(t *testing.T, root string) host.Host {
 	t.Helper()
 	abs, err := filepath.Abs(root)
@@ -52,6 +52,23 @@ func TestInfo_Arm64(t *testing.T) {
 	for _, c := range cpus {
 		if c.Architecture != Arm64 {
 			t.Errorf("Architecture = %q, want %q", c.Architecture, Arm64)
+		}
+	}
+}
+
+// TestInfo_Riscv64 exercises the full Info() pipeline on an riscv64 machine fixture.
+func TestInfo_Riscv64(t *testing.T) {
+	h := machineHost(t, p550MachineRoot)
+	cpus, err := Info(h)
+	if err != nil {
+		t.Fatalf("Info() error: %v", err)
+	}
+	if len(cpus) == 0 {
+		t.Fatal("expected at least one CPU, got none")
+	}
+	for _, c := range cpus {
+		if c.Architecture != Riscv64 {
+			t.Errorf("Architecture = %q, want %q", c.Architecture, Riscv64)
 		}
 	}
 }
@@ -99,6 +116,20 @@ func TestInfoFromRawData_Arm64(t *testing.T) {
 	}
 	if cpus[0].Architecture != Arm64 {
 		t.Errorf("Architecture = %q, want %q", cpus[0].Architecture, Arm64)
+	}
+}
+
+// TestInfoFromRawData_Riscv64 verifies infoFromRawData parses riscv64 data correctly.
+func TestInfoFromRawData_Riscv64(t *testing.T) {
+	cpus, err := infoFromRawData(riscv64CpuInfoFixture, "riscv64")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(cpus) == 0 {
+		t.Fatal("expected at least one CPU")
+	}
+	if cpus[0].Architecture != Riscv64 {
+		t.Errorf("Architecture = %q, want %q", cpus[0].Architecture, Riscv64)
 	}
 }
 
@@ -205,5 +236,22 @@ func TestCpuInfoFromProc_Arm64(t *testing.T) {
 	}
 	if int(result[0].ImplementerId) != 0x41 {
 		t.Errorf("ImplementerId = %#x, want 0x41", int(result[0].ImplementerId))
+	}
+}
+
+// TestCpuInfoFromProc_Riscv64 spot-checks the riscv64 field mapping.
+func TestCpuInfoFromProc_Riscv64(t *testing.T) {
+	pci := procCpuInfo{
+		Architecture:  Riscv64,
+	}
+	result, err := cpuInfoFromProc([]procCpuInfo{pci})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(result) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(result))
+	}
+	if result[0].Architecture != Riscv64 {
+		t.Errorf("Architecture = %q, want %q", result[0].Architecture, Riscv64)
 	}
 }
