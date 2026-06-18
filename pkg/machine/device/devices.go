@@ -1,6 +1,7 @@
 package device
 
 import (
+	"github.com/canonical/lscompute/pkg/machine/device/apusys"
 	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/device/fastrpc"
 	"github.com/canonical/lscompute/pkg/machine/device/pci"
@@ -15,6 +16,7 @@ func Devices(h host.Host, friendlyNames bool) ([]any, []string, error) {
 		pci.NewBus(h, pci.Options{FriendlyNames: friendlyNames}),
 		usb.NewBus(h, usb.Options{FriendlyNames: friendlyNames}),
 		fastrpc.NewBus(h, fastrpc.Options{}),
+		apusys.NewBus(h, apusys.Options{}),
 	}
 
 	var devices []any

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/canonical/lscompute/pkg/machine/device/apusys"
 	"github.com/canonical/lscompute/pkg/machine/device/fastrpc"
 	"github.com/canonical/lscompute/pkg/machine/device/pci"
 	"github.com/canonical/lscompute/pkg/machine/device/usb"
@@ -26,6 +27,8 @@ func Decode(data []byte) (any, error) {
 		return usb.Decode(data)
 	case fastrpc.BusName:
 		return fastrpc.Decode(data)
+	case apusys.BusName:
+		return apusys.Decode(data)
 	default:
 		return nil, fmt.Errorf("unknown device bus: %q", peek.Bus)
 	}
