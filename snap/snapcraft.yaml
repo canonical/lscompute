@@ -54,14 +54,23 @@ parts:
   nvidia-smi:
     plugin: nil
     build-packages:
-      - nvidia-utils-580
+      - to amd64:
+        - nvidia-utils-580
+      - to arm64:
+        - nvidia-utils-580
     override-build: |
       mkdir -p $CRAFT_PART_INSTALL/usr/bin
-      cp /usr/bin/nvidia-smi $CRAFT_PART_INSTALL/usr/bin/
       
-      license_dir=$CRAFT_PART_INSTALL/usr/share/doc/nvidia-utils-580/
-      mkdir -p $license_dir
-      cp /usr/share/doc/nvidia-utils-580/copyright $license_dir/
+      if [ "$CRAFT_ARCH_BUILD_FOR" == "amd64" ] || [ "$CRAFT_ARCH_BUILD_FOR" == "arm64" ]; then
+        cp /usr/bin/nvidia-smi $CRAFT_PART_INSTALL/usr/bin/
+        
+        license_dir=$CRAFT_PART_INSTALL/usr/share/doc/nvidia-utils-580/
+        mkdir -p $license_dir
+        cp /usr/share/doc/nvidia-utils-580/copyright $license_dir/
+      else
+        echo -e "#!/bin/sh\necho nvidia drivers are not available on $CRAFT_ARCH_BUILD_FOR\nexit 1" > $CRAFT_PART_INSTALL/usr/bin/nvidia-smi
+        chmod a+rx $CRAFT_PART_INSTALL/usr/bin/nvidia-smi
+      fi
 
   # OpenCL ICD and libigdgmm are required for Intel GPU vRAM lookup with clinfo
   intel-opencl-icd:

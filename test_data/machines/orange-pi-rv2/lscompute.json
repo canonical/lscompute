@@ -1,0 +1,83 @@
+{
+  "cpus": [
+    {
+      "architecture": "riscv64",
+      "isa": [
+        "rv64imafdcv",
+        "zicbom",
+        "zicboz",
+        "zicntr",
+        "zicond",
+        "zicsr",
+        "zifencei",
+        "zihintpause",
+        "zihpm",
+        "zfh",
+        "zfhmin",
+        "zca",
+        "zcd",
+        "zba",
+        "zbb",
+        "zbc",
+        "zbs",
+        "zkt",
+        "zve32f",
+        "zve32x",
+        "zve64d",
+        "zve64f",
+        "zve64x",
+        "zvfh",
+        "zvfhmin",
+        "zvkt",
+        "sscofpmf",
+        "sstc",
+        "svinval",
+        "svnapot",
+        "svpbmt"
+      ]
+    }
+  ],
+  "memory": {
+    "total-ram": 8323276800,
+    "total-swap": 0
+  },
+  "disk": {
+    "/var/lib/snapd/snaps": {
+      "total": 62270910464,
+      "avail": 48009973760
+    }
+  },
+  "devices": [
+    {
+      "bus": "pci",
+      "slot": "0001:00:00.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x201F",
+      "device-id": "0x1",
+      "subvendor-id": "0x0",
+      "subdevice-id": "0x0"
+    },
+    {
+      "bus": "pci",
+      "slot": "0001:01:00.0",
+      "bus-number": "0x1",
+      "device-class": "0x108",
+      "programming-interface": 2,
+      "vendor-id": "0x15B7",
+      "device-id": "0x5041",
+      "subvendor-id": "0x15B7",
+      "subdevice-id": "0x5041"
+    },
+    {
+      "bus": "pci",
+      "slot": "0002:00:00.0",
+      "bus-number": "0x0",
+      "device-class": "0x604",
+      "vendor-id": "0x201F",
+      "device-id": "0x1",
+      "subvendor-id": "0x0",
+      "subdevice-id": "0x0"
+    }
+  ]
+}
