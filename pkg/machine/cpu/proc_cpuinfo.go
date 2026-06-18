@@ -26,7 +26,7 @@ func parseProcCpuInfo(cpuInfoString string, architecture string) ([]procCpuInfo,
 	case Riscv64:
 		cpuInfo, err := parseProcCpuInfoRiscv64(cpuInfoString)
 		if err != nil {
-			return nil, fmt.Errorf("riscv64: %v", err)
+			return nil, fmt.Errorf("riscv64: %w", err)
 		}
 		return cpuInfo, nil
 
