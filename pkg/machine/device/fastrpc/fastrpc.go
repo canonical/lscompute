@@ -83,12 +83,12 @@ func (bus *fastRpc) Devices() ([]any, []string, error) {
 	return result, nil, nil
 }
 
-func Decode(bytes []byte) (*Device, error) {
+func Decode(bytes []byte) (Device, error) {
 	var device Device
 	if err := json.Unmarshal(bytes, &device); err != nil {
-		return nil, err
+		return Device{}, err
 	}
-	return &device, nil
+	return device, nil
 }
 
 func parseFastRPCDeviceName(name string) (Device, bool) {

@@ -31,11 +31,11 @@ func TestDecodeMachineInfo(t *testing.T) {
 	if len(info.Devices) != 2 {
 		t.Fatalf("len(Devices) = %d, want 2", len(info.Devices))
 	}
-	if _, ok := info.Devices[0].(*usb.Device); !ok {
-		t.Fatalf("Devices[0] type = %T, want *usb.Device", info.Devices[0])
+	if _, ok := info.Devices[0].(usb.Device); !ok {
+		t.Fatalf("Devices[0] type = %T, want usb.Device", info.Devices[0])
 	}
-	if _, ok := info.Devices[1].(*pci.Device); !ok {
-		t.Fatalf("Devices[1] type = %T, want *pci.Device", info.Devices[1])
+	if _, ok := info.Devices[1].(pci.Device); !ok {
+		t.Fatalf("Devices[1] type = %T, want pci.Device", info.Devices[1])
 	}
 }
 
