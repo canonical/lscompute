@@ -30,14 +30,14 @@ const (
 
 // Device represents a single FastRPC device detected on the system.
 type Device struct {
-	Bus string `json:"bus"`
+	Bus string `json:"bus" yaml:"bus"`
 
-	Domain FastRPCDomain `json:"domain"`
-	Index  int           `json:"index"`
-	Secure bool          `json:"secure"`
+	Domain FastRPCDomain `json:"domain" yaml:"domain"`
+	Index  int           `json:"index" yaml:"index"`
+	Secure bool          `json:"secure" yaml:"secure"`
 
 	// Vendor specific device key-value pairs
-	AdditionalProperties map[string]string `json:"additional-properties,omitempty"`
+	AdditionalProperties map[string]string `json:"additional-properties,omitempty" yaml:"additional-properties,omitempty"`
 }
 
 // fastRpc implements bus.Bus for the FastRPC bus.
