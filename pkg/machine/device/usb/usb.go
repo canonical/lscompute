@@ -85,11 +85,11 @@ func DecodeJSON(bytes []byte) (Device, error) {
 }
 
 // DecodeYAML decodes a YAML node into a USB Device.
-func DecodeYAML(value *yaml.Node) (*Device, error) {
+func DecodeYAML(value *yaml.Node) (Device, error) {
 	var device Device
 	if err := value.Decode(&device); err != nil {
-		return nil, err
+		return Device{}, err
 	}
-	return &device, nil
+	return device, nil
 }
 

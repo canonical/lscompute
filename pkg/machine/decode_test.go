@@ -95,12 +95,12 @@ devices:
 	if len(info.Devices) != 2 {
 		t.Fatalf("len(Devices) = %d, want 2", len(info.Devices))
 	}
-	if _, ok := info.Devices[0].(*usb.Device); !ok {
-		t.Fatalf("Devices[0] type = %T, want *usb.Device", info.Devices[0])
+	if _, ok := info.Devices[0].(usb.Device); !ok {
+		t.Fatalf("Devices[0] type = %T, want usb.Device", info.Devices[0])
 	}
-	pciDev, ok := info.Devices[1].(*pci.Device)
+	pciDev, ok := info.Devices[1].(pci.Device)
 	if !ok {
-		t.Fatalf("Devices[1] type = %T, want *pci.Device", info.Devices[1])
+		t.Fatalf("Devices[1] type = %T, want pci.Device", info.Devices[1])
 	}
 	if int(pciDev.VendorId) != 0x8086 {
 		t.Fatalf("pci VendorId = 0x%x, want 0x8086", int(pciDev.VendorId))
