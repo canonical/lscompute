@@ -19,28 +19,28 @@ const (
 
 // Device represents a single PCI device detected on the system.
 type Device struct {
-	Bus string `json:"bus"`
+	Bus string `json:"bus" yaml:"bus"`
 
-	Slot                 string        `json:"slot"`
-	BusNumber            types.HexInt  `json:"bus-number"`
-	DeviceClass          types.HexInt  `json:"device-class"`
-	ProgrammingInterface *uint8        `json:"programming-interface,omitempty"`
-	VendorId             types.HexInt  `json:"vendor-id"`
-	DeviceId             types.HexInt  `json:"device-id"`
-	SubvendorId          *types.HexInt `json:"subvendor-id,omitempty"`
-	SubdeviceId          *types.HexInt `json:"subdevice-id,omitempty"`
-	FriendlyNames        `json:",inline"`
+	Slot                 string        `json:"slot" yaml:"slot"`
+	BusNumber            types.HexInt  `json:"bus-number" yaml:"bus-number"`
+	DeviceClass          types.HexInt  `json:"device-class" yaml:"device-class"`
+	ProgrammingInterface *uint8        `json:"programming-interface,omitempty" yaml:"programming-interface,omitempty"`
+	VendorId             types.HexInt  `json:"vendor-id" yaml:"vendor-id"`
+	DeviceId             types.HexInt  `json:"device-id" yaml:"device-id"`
+	SubvendorId          *types.HexInt `json:"subvendor-id,omitempty" yaml:"subvendor-id,omitempty"`
+	SubdeviceId          *types.HexInt `json:"subdevice-id,omitempty" yaml:"subdevice-id,omitempty"`
+	FriendlyNames        `json:",inline" yaml:",inline"`
 
 	// Vendor specific device key-value pairs
-	AdditionalProperties map[string]string `json:"additional-properties,omitempty"`
+	AdditionalProperties map[string]string `json:"additional-properties,omitempty" yaml:"additional-properties,omitempty"`
 }
 
 // FriendlyNames holds human-readable names resolved from the pci.ids database.
 type FriendlyNames struct {
-	VendorName    *string `json:"vendor-name,omitempty"`
-	DeviceName    *string `json:"device-name,omitempty"`
-	SubvendorName *string `json:"subvendor-name,omitempty"`
-	SubdeviceName *string `json:"subdevice-name,omitempty"`
+	VendorName    *string `json:"vendor-name,omitempty" yaml:"vendor-name,omitempty"`
+	DeviceName    *string `json:"device-name,omitempty" yaml:"device-name,omitempty"`
+	SubvendorName *string `json:"subvendor-name,omitempty" yaml:"subvendor-name,omitempty"`
+	SubdeviceName *string `json:"subdevice-name,omitempty" yaml:"subdevice-name,omitempty"`
 }
 
 // IsGpu reports whether the device is a GPU or display controller by PCI class.

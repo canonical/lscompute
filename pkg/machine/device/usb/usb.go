@@ -13,22 +13,22 @@ const BusName = "usb"
 
 // Device represents a single USB device detected on the system.
 type Device struct {
-	Bus string `json:"bus"`
+	Bus string `json:"bus" yaml:"bus"`
 
-	BusNumber     int          `json:"bus-number"`
-	DeviceNumber  int          `json:"device-number"`
-	VendorId      types.HexInt `json:"vendor-id"`
-	ProductId     types.HexInt `json:"product-id"`
-	FriendlyNames `json:",inline"`
+	BusNumber     int          `json:"bus-number" yaml:"bus-number"`
+	DeviceNumber  int          `json:"device-number" yaml:"device-number"`
+	VendorId      types.HexInt `json:"vendor-id" yaml:"vendor-id"`
+	ProductId     types.HexInt `json:"product-id" yaml:"product-id"`
+	FriendlyNames `json:",inline" yaml:",inline"`
 
 	// Vendor specific device key-value pairs
-	AdditionalProperties map[string]string `json:"additional-properties,omitempty"`
+	AdditionalProperties map[string]string `json:"additional-properties,omitempty" yaml:"additional-properties,omitempty"`
 }
 
 // FriendlyNames holds human-readable names resolved from the usb.ids database.
 type FriendlyNames struct {
-	VendorName  *string `json:"vendor-name,omitempty"`
-	ProductName *string `json:"product-name,omitempty"`
+	VendorName  *string `json:"vendor-name,omitempty" yaml:"vendor-name,omitempty"`
+	ProductName *string `json:"product-name,omitempty" yaml:"product-name,omitempty"`
 }
 
 // usb implements bus.Bus for the USB bus.
