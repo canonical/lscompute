@@ -250,9 +250,9 @@ func TestScannerScan_EmptyHost(t *testing.T) {
 func TestDecode(t *testing.T) {
 	t.Run("valid JSON round-trip", func(t *testing.T) {
 		raw := `{"bus":"usb","bus-number":1,"device-number":2,"vendor-id":"0x1d6b","product-id":"0x0002"}`
-		dev, err := Decode([]byte(raw))
+		dev, err := DecodeJSON([]byte(raw))
 		if err != nil {
-			t.Fatalf("Decode() unexpected error: %v", err)
+			t.Fatalf("DecodeJSON() unexpected error: %v", err)
 		}
 		if dev.Bus != "usb" {
 			t.Errorf("Bus = %q, want %q", dev.Bus, "usb")
@@ -266,9 +266,9 @@ func TestDecode(t *testing.T) {
 	})
 
 	t.Run("invalid JSON returns error", func(t *testing.T) {
-		_, err := Decode([]byte(`{not valid json`))
+		_, err := DecodeJSON([]byte(`{not valid json`))
 		if err == nil {
-			t.Fatal("Decode() expected error for invalid JSON, got nil")
+			t.Fatal("DecodeJSON() expected error for invalid JSON, got nil")
 		}
 	})
 }

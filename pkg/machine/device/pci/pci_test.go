@@ -181,9 +181,9 @@ func TestDecode(t *testing.T) {
 			"vendor-id": "0x8086",
 			"device-id": "0x1234"
 		}`
-		dev, err := Decode([]byte(raw))
+		dev, err := DecodeJSON([]byte(raw))
 		if err != nil {
-			t.Fatalf("Decode() unexpected error: %v", err)
+			t.Fatalf("DecodeJSON() unexpected error: %v", err)
 		}
 		if dev.Bus != "pci" {
 			t.Errorf("Bus = %q, want %q", dev.Bus, "pci")
@@ -197,9 +197,9 @@ func TestDecode(t *testing.T) {
 	})
 
 	t.Run("invalid JSON returns error", func(t *testing.T) {
-		_, err := Decode([]byte(`{not valid json`))
+		_, err := DecodeJSON([]byte(`{not valid json`))
 		if err == nil {
-			t.Fatal("Decode() expected error for invalid JSON, got nil")
+			t.Fatal("DecodeJSON() expected error for invalid JSON, got nil")
 		}
 	})
 }

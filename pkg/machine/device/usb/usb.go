@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"go.yaml.in/yaml/v4"
+
 	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/types"
@@ -73,10 +75,21 @@ func (bus *usb) Devices() ([]any, []string, error) {
 	return result, warnings, nil
 }
 
-func Decode(bytes []byte) (Device, error) {
+// DecodeJSON decodes JSON bytes into a USB Device.
+func DecodeJSON(bytes []byte) (Device, error) {
 	var device Device
 	if err := json.Unmarshal(bytes, &device); err != nil {
 		return Device{}, err
 	}
 	return device, nil
 }
+
+// DecodeYAML decodes a YAML node into a USB Device.
+func DecodeYAML(value *yaml.Node) (*Device, error) {
+	var device Device
+	if err := value.Decode(&device); err != nil {
+		return nil, err
+	}
+	return &device, nil
+}
+
