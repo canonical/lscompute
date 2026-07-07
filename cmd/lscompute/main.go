@@ -13,7 +13,7 @@ import (
 func main() {
 	log.SetFlags(0) // no timestamps
 
-	format := flag.String("format", FormatPlain, "output serialization format: plain or json")
+	format := flag.String("format", string(machine.FormatPlain), "output serialization format: plain or json")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage:\n\nOptions:\n")
 		flag.PrintDefaults()
@@ -29,10 +29,10 @@ func main() {
 		log.Printf("Warning: %s", warning)
 	}
 
-	machineDetails := NewMachineDetails(output)
-	b, err := machineDetails.Marshal(*format)
+	rendered, err := machine.Marshal(output, machine.Format(*format))
 	if err != nil {
 		log.Fatalf("Error: %s", err)
 	}
-	fmt.Print(string(b))
+
+	fmt.Println(string(rendered))
 }
