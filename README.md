@@ -11,9 +11,15 @@ To build and install from source, refer to [here](#build-snap).
 
 ## Usage
 
-Currently the only output format is JSON:
+By default `lscompute` prints a human-readable (plain) summary:
 ```bash
-lscompute 
+lscompute
+```
+
+Use the `--format` flag to change the output serialization format. Supported
+formats are `plain` (default) and `json`:
+```bash
+lscompute --format=json
 ```
 
 ## Development
