@@ -88,21 +88,18 @@ func Example_marshalPlain() {
 	}
 	fmt.Println(string(testOutput))
 	// Output:
-	// CPUs:
+	// cpus:
 	//   - architecture: amd64
 	//     manufacturer-id: GenuineIntel
-	//     flags:
-	//       - fpu
-	//       - vme
-	//       - de
-	// Memory:
-	//   total-ram: 62.4GiB
+	//     flags: [fpu, vme, de]
+	// memory:
+	//   total-ram: 62.4G
 	//   total-swap: 0
-	// Disk:
+	// disk:
 	//   /var/lib/snapd/snaps:
-	//     total: 937.3GiB
-	//     avail: 878.7GiB
-	// Devices:
+	//     total: 937.3G
+	//     avail: 878.7G
+	// devices:
 	//   - bus: pci
 	//     slot: '0000:00:00.0'
 	//     bus-number: "0x0"
