@@ -14,15 +14,18 @@ type Format string
 
 const (
 	// FormatPlain is a human-readable output with disk and memory capacities
-	// rendered using T, G and M suffixes.
+	// rendered using IEC binary suffixes (KiB, MiB, GiB, TiB).
 	FormatPlain Format = "plain"
 	// FormatJSON is a machine-readable, indented JSON output with kebab-cased keys.
 	FormatJSON Format = "json"
 )
 
 // Marshal serializes the given machine information using the requested format.
-// It returns an error if the format is not recognized.
+// It returns an error if the format is not recognized or if info is nil.
 func Marshal(info *MachineInfo, f Format) ([]byte, error) {
+	if info == nil {
+		return nil, fmt.Errorf("cannot marshal nil machine info")
+	}
 	switch f {
 	case FormatJSON:
 		return json.MarshalIndent(info, "", "  ")
@@ -83,15 +86,16 @@ func marshalPlain(info *MachineInfo) ([]byte, error) {
 	return []byte(b.String()), nil
 }
 
-// FmtBytes converts bytes to a printable string with binary prefixes (XiB)
+// fmtBytes converts bytes to a printable string using IEC binary prefixes
+// (KiB, MiB, GiB, TiB). Values below 1KiB are rendered as a raw byte count.
 func fmtBytes(bytes uint64) string {
-	if bytes > 1024*1024*1024*1024 {
+	if bytes >= 1024*1024*1024*1024 {
 		return fmt.Sprintf("%.1fTiB", float64(bytes)/1024/1024/1024/1024)
-	} else if bytes > 1024*1024*1024 {
+	} else if bytes >= 1024*1024*1024 {
 		return fmt.Sprintf("%.1fGiB", float64(bytes)/1024/1024/1024)
-	} else if bytes > 1024*1024 {
+	} else if bytes >= 1024*1024 {
 		return fmt.Sprintf("%.1fMiB", float64(bytes)/1024/1024)
-	} else if bytes > 1024 {
+	} else if bytes >= 1024 {
 		return fmt.Sprintf("%.1fKiB", float64(bytes)/1024)
 	}
 	return fmt.Sprintf("%d", bytes)

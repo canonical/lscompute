@@ -36,7 +36,7 @@ func Example_marshalJson() {
 	}
 	fmt.Println(string(testOutput))
 	// Output:
-	// 	{
+	// {
 	//   "cpus": [
 	//     {
 	//       "architecture": "amd64",
