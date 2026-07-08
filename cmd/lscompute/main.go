@@ -34,5 +34,5 @@ func main() {
 		log.Fatalf("Error: %s", err)
 	}
 
-	fmt.Println(string(rendered))
+	fmt.Print(string(rendered))
 }
