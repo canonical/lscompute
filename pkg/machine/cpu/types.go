@@ -2,25 +2,11 @@ package cpu
 
 import (
 	"github.com/canonical/lscompute/pkg/machine/types"
-
-	"go.yaml.in/yaml/v4"
 )
 
-// FlagList is a list of CPU flags rendered as an inline (flow-style) YAML
-// sequence, e.g. [fpu, vme, de]. JSON output is unaffected.
+// FlagList is a list of CPU flags. Presentation-specific YAML rendering lives
+// in the visualization package.
 type FlagList []string
-
-// MarshalYAML renders the flag list as a flow-style sequence.
-func (f FlagList) MarshalYAML() (any, error) {
-	node := &yaml.Node{Kind: yaml.SequenceNode, Style: yaml.FlowStyle}
-	for _, flag := range f {
-		node.Content = append(node.Content, &yaml.Node{
-			Kind:  yaml.ScalarNode,
-			Value: flag,
-		})
-	}
-	return node, nil
-}
 
 type CpuInfo struct {
 	Architecture string `json:"architecture" yaml:"architecture"`

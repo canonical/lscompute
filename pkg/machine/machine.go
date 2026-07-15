@@ -11,10 +11,10 @@ import (
 )
 
 type MachineInfo struct {
-	Cpus    []cpu.CpuInfo           `json:"cpus,omitempty" yaml:"cpus,omitempty"`
-	Memory  memory.MemoryInfo       `json:"memory,omitempty" yaml:"memory,omitempty"`
-	Disk    map[string]disk.DirInfo `json:"disk,omitempty" yaml:"disk,omitempty"`
-	Devices []any                   `json:"devices,omitempty" yaml:"devices,omitempty"`
+	Cpus    []cpu.CpuInfo
+	Memory  memory.MemoryInfo
+	Disk    map[string]disk.DirInfo
+	Devices []any
 }
 
 func Get(h host.Host, friendlyNames bool) (*MachineInfo, []string, error) {
