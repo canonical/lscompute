@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/canonical/lscompute/cmd/lscompute/visualization"
 	"github.com/canonical/lscompute/pkg/machine"
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
@@ -13,7 +14,7 @@ import (
 func main() {
 	log.SetFlags(0) // no timestamps
 
-	format := flag.String("format", string(machine.FormatPlain), "output serialization format: plain or json")
+	format := flag.String("format", string(visualization.FormatPlain), "output serialization format: plain or json")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage:\n\nOptions:\n")
 		flag.PrintDefaults()
@@ -29,7 +30,7 @@ func main() {
 		log.Printf("Warning: %s", warning)
 	}
 
-	rendered, err := machine.Marshal(output, machine.Format(*format))
+	rendered, err := visualization.Marshal(visualization.New(output), visualization.Format(*format))
 	if err != nil {
 		log.Fatalf("Error: %s", err)
 	}

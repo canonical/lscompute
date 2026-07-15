@@ -1,21 +1,23 @@
-package machine
+package visualization_test
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/canonical/lscompute/cmd/lscompute/visualization"
+	"github.com/canonical/lscompute/pkg/machine"
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
-func machineInfoFromTestData(machineName string) (*MachineInfo, error) {
-	machineRoot := filepath.Join("..", "..", "test_data", "machines", machineName, "machine-root")
+func machineInfoFromTestData(machineName string) (*machine.MachineInfo, error) {
+	machineRoot := filepath.Join("..", "..", "..", "test_data", "machines", machineName, "machine-root")
 
 	pciIdsPath := filepath.Join(machineRoot, "usr", "share", "misc", "pci.ids")
 	_, pciIdsErr := os.Stat(pciIdsPath)
 	friendlyNames := pciIdsErr == nil
 
-	info, _, err := Get(host.Fake(machineRoot), friendlyNames)
+	info, _, err := machine.Get(host.Fake(machineRoot), friendlyNames)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +31,7 @@ func Example_marshalJson() {
 		fmt.Printf("Get() failed: %v", err)
 		return
 	}
-	testOutput, err := Marshal(machineInfo, FormatJSON)
+	testOutput, err := visualization.Marshal(visualization.New(machineInfo), visualization.FormatJSON)
 	if err != nil {
 		fmt.Printf("Marshal() failed: %v", err)
 		return
@@ -81,7 +83,7 @@ func Example_marshalPlain() {
 		fmt.Printf("Get() failed: %v", err)
 		return
 	}
-	testOutput, err := Marshal(machineInfo, FormatPlain)
+	testOutput, err := visualization.Marshal(visualization.New(machineInfo), visualization.FormatPlain)
 	if err != nil {
 		fmt.Printf("Marshal() failed: %v", err)
 		return
