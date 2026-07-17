@@ -15,7 +15,7 @@ type CpuInfo struct {
 	Features      []string     `json:"features,omitempty" yaml:"features,omitempty"`
 
 	// riscv64
-	Isa []string `json:"isa,omitempty" yaml:"isa,omitempty"`
+	Isa           []string `json:"isa,omitempty" yaml:"isa,omitempty"`
 }
 
 // procCpuInfo contains general information about a system CPU found in /proc/cpuinfo.
@@ -39,5 +39,5 @@ type procCpuInfo struct {
 	Revision   uint64 // %d
 
 	// riscv64
-	Isa []string // underscore separated strings
+	Isa           []string // underscore separated strings
 }
