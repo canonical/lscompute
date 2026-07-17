@@ -125,7 +125,12 @@ func NewMachineDetails(info *machine.MachineInfo) *MachineDetails {
 func (m MachineDetails) Marshal(f string) ([]byte, error) {
 	switch f {
 	case FormatJSON:
-		return json.MarshalIndent(m, "", "  ")
+		jsonString, err := json.MarshalIndent(m, "", "  ")
+		if err != nil {
+			return nil, err
+		}
+		jsonString = append(jsonString, '\n')
+		return jsonString, nil
 	case FormatPlain:
 		return marshalPlain(&m)
 	default:
