@@ -1,19 +1,13 @@
 package cpu
 
-import (
-	"github.com/canonical/lscompute/pkg/machine/types"
-)
-
-// FlagList is a list of CPU flags. Presentation-specific YAML rendering lives
-// in the visualization package.
-type FlagList []string
+import "github.com/canonical/lscompute/pkg/machine/types"
 
 type CpuInfo struct {
 	Architecture string `json:"architecture" yaml:"architecture"`
 
 	// amd64
 	ManufacturerId string   `json:"manufacturer-id,omitempty" yaml:"manufacturer-id,omitempty"`
-	Flags          FlagList `json:"flags,omitempty" yaml:"flags,omitempty"`
+	Flags          []string `json:"flags,omitempty" yaml:"flags,omitempty"`
 
 	// arm64
 	ImplementerId types.HexInt `json:"implementer-id,omitempty" yaml:"implementer-id,omitempty"`
