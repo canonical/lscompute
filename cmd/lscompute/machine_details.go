@@ -4,8 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/canonical/lscompute/pkg/machine"
+	"github.com/canonical/lscompute/pkg/machine/device/fastrpc"
+	"github.com/canonical/lscompute/pkg/machine/device/pci"
+	"github.com/canonical/lscompute/pkg/machine/device/usb"
 	"github.com/canonical/lscompute/pkg/machine/types"
 	"go.yaml.in/yaml/v4"
 )
@@ -21,7 +25,7 @@ type MachineDetails struct {
 	Cpus    []CpuDetails          `json:"cpus,omitempty" yaml:"cpus,omitempty"`
 	Memory  MemoryDetails         `json:"memory,omitempty" yaml:"memory,omitempty"`
 	Disk    map[string]DirDetails `json:"disk,omitempty" yaml:"disk,omitempty"`
-	Devices []any                 `json:"devices,omitempty" yaml:"devices,omitempty"`
+	Devices []DeviceDetails       `json:"devices,omitempty" yaml:"devices,omitempty"`
 }
 
 type CpuDetails struct {
@@ -29,7 +33,7 @@ type CpuDetails struct {
 
 	// amd64
 	ManufacturerId string   `json:"manufacturer-id,omitempty" yaml:"manufacturer-id,omitempty"`
-	Flags          []string `json:"flags,omitempty" yaml:"flags,omitempty"`
+	Flags          []string `json:"flags,omitempty" yaml:"flags,flow,omitempty"`
 
 	// arm64
 	ImplementerId types.HexInt `json:"implementer-id,omitempty" yaml:"implementer-id,omitempty"`
@@ -70,21 +74,45 @@ func (d DirDetails) MarshalYAML() (any, error) {
 	}, nil
 }
 
-func (cpu CpuDetails) MarshalYAML() (any, error) {
-	// Marshal all fields the standard way, then render only the flags
-	// sequence inline (flow style). The local alias prevents this method
-	// from recursing when the struct is encoded.
-	type cpuDetails CpuDetails
-	var node yaml.Node
-	if err := node.Encode(cpuDetails(cpu)); err != nil {
-		return nil, err
-	}
-	for i := 0; i+1 < len(node.Content); i += 2 {
-		if node.Content[i].Value == "flags" {
-			node.Content[i+1].Style = yaml.FlowStyle
-		}
-	}
-	return &node, nil
+type DeviceDetails struct {
+	Bus                  string                `json:"bus" yaml:"bus"`
+	Slot                 string                `json:"slot,omitempty" yaml:"slot,omitempty"`
+	BusNumber            any                   `json:"bus-number,omitempty" yaml:"bus-number,omitempty"`
+	DeviceNumber         int                   `json:"device-number,omitempty" yaml:"device-number,omitempty"`
+	DeviceClass          types.HexInt          `json:"device-class,omitempty" yaml:"device-class,omitempty"`
+	ProgrammingInterface int                   `json:"programming-interface,omitempty" yaml:"programming-interface,omitempty"`
+	VendorId             types.HexInt          `json:"vendor-id,omitempty" yaml:"vendor-id,omitempty"`
+	ProductId            types.HexInt          `json:"product-id,omitempty" yaml:"product-id,omitempty"`
+	DeviceId             types.HexInt          `json:"device-id,omitempty" yaml:"device-id,omitempty"`
+	SubvendorId          types.HexInt          `json:"subvendor-id,omitempty" yaml:"subvendor-id,omitempty"`
+	SubdeviceId          types.HexInt          `json:"subdevice-id,omitempty" yaml:"subdevice-id,omitempty"`
+	VendorName           string                `json:"vendor-name,omitempty" yaml:"vendor-name,omitempty"`
+	ProductName          string                `json:"product-name,omitempty" yaml:"product-name,omitempty"`
+	DeviceName           string                `json:"device-name,omitempty" yaml:"device-name,omitempty"`
+	SubvendorName        string                `json:"subvendor-name,omitempty" yaml:"subvendor-name,omitempty"`
+	SubdeviceName        string                `json:"subdevice-name,omitempty" yaml:"subdevice-name,omitempty"`
+	Domain               string                `json:"domain,omitempty" yaml:"domain,omitempty"`
+	Index                int                   `json:"index,omitempty" yaml:"index,omitempty"`
+	Secure               bool                  `json:"secure,omitempty" yaml:"secure,omitempty"`
+	AdditionalProperties *AdditionalProperties `json:"additional-properties,omitempty" yaml:"additional-properties,omitempty"`
+}
+
+type AdditionalProperties struct {
+	Microarchitecture string `json:"microarchitecture,omitempty" yaml:"microarchitecture,omitempty"`
+	Vram              uint64 `json:"vram,omitempty" yaml:"vram,omitempty"`
+	ComputeCapability string `json:"compute-capability,omitempty" yaml:"compute-capability,omitempty"`
+}
+
+func (a AdditionalProperties) MarshalYAML() (any, error) {
+	return struct {
+		Microarchitecture string `yaml:"microarchitecture,omitempty"`
+		Vram              any    `yaml:"vram,omitempty"`
+		ComputeCapability string `yaml:"compute-capability,omitempty"`
+	}{
+		Microarchitecture: a.Microarchitecture,
+		Vram:              FormatBytes(a.Vram),
+		ComputeCapability: a.ComputeCapability,
+	}, nil
 }
 
 func NewMachineDetails(info *machine.MachineInfo) *MachineDetails {
@@ -93,22 +121,58 @@ func NewMachineDetails(info *machine.MachineInfo) *MachineDetails {
 	}
 
 	v := &MachineDetails{
-		Memory:  MemoryDetails(info.Memory),
-		Devices: info.Devices,
+		Memory: MemoryDetails(info.Memory),
+	}
+
+	if info.Devices != nil {
+		v.Devices = make([]DeviceDetails, len(info.Devices))
+		for i, d := range info.Devices {
+			switch typed := d.(type) {
+			case pci.Device:
+				v.Devices[i] = DeviceDetails{
+					Bus:                  typed.Bus,
+					Slot:                 typed.Slot,
+					BusNumber:            typed.BusNumber,
+					DeviceClass:          typed.DeviceClass,
+					VendorId:             typed.VendorId,
+					DeviceId:             typed.DeviceId,
+					SubvendorId:          derefHexInt(typed.SubvendorId),
+					SubdeviceId:          derefHexInt(typed.SubdeviceId),
+					VendorName:           derefString(typed.VendorName),
+					DeviceName:           derefString(typed.DeviceName),
+					SubvendorName:        derefString(typed.SubvendorName),
+					SubdeviceName:        derefString(typed.SubdeviceName),
+					AdditionalProperties: newAdditionalProperties(typed.AdditionalProperties),
+				}
+			case usb.Device:
+				v.Devices[i] = DeviceDetails{
+					Bus:                  typed.Bus,
+					BusNumber:            typed.BusNumber,
+					DeviceNumber:         typed.DeviceNumber,
+					VendorId:             typed.VendorId,
+					ProductId:            typed.ProductId,
+					VendorName:           derefString(typed.VendorName),
+					ProductName:          derefString(typed.ProductName),
+					AdditionalProperties: newAdditionalProperties(typed.AdditionalProperties),
+				}
+			case fastrpc.Device:
+				v.Devices[i] = DeviceDetails{
+					Bus:                  typed.Bus,
+					Domain:               string(typed.Domain),
+					Index:                typed.Index,
+					Secure:               typed.Secure,
+					AdditionalProperties: newAdditionalProperties(typed.AdditionalProperties),
+				}
+			default:
+				continue
+			}
+		}
 	}
 
 	if info.Cpus != nil {
 		v.Cpus = make([]CpuDetails, len(info.Cpus))
 		for i, c := range info.Cpus {
-			v.Cpus[i] = CpuDetails{
-				Architecture:   c.Architecture,
-				ManufacturerId: c.ManufacturerId,
-				Flags:          c.Flags,
-				ImplementerId:  c.ImplementerId,
-				PartNumber:     c.PartNumber,
-				Features:       c.Features,
-				Isa:            c.Isa,
-			}
+			v.Cpus[i] = CpuDetails(c)
 		}
 	}
 
@@ -122,7 +186,7 @@ func NewMachineDetails(info *machine.MachineInfo) *MachineDetails {
 	return v
 }
 
-func (m MachineDetails) Marshal(f string) ([]byte, error) {
+func (m *MachineDetails) Marshal(f string) ([]byte, error) {
 	switch f {
 	case FormatJSON:
 		jsonString, err := json.MarshalIndent(m, "", "  ")
@@ -132,13 +196,13 @@ func (m MachineDetails) Marshal(f string) ([]byte, error) {
 		jsonString = append(jsonString, '\n')
 		return jsonString, nil
 	case FormatPlain:
-		return marshalPlain(&m)
+		return m.marshalPlain()
 	default:
 		return nil, fmt.Errorf("unknown format %q (choices: plain, json)", f)
 	}
 }
 
-func marshalPlain(m *MachineDetails) ([]byte, error) {
+func (m *MachineDetails) marshalPlain() ([]byte, error) {
 	var b bytes.Buffer
 	enc := yaml.NewEncoder(&b)
 	enc.SetIndent(2)
@@ -167,4 +231,42 @@ func FormatBytes(b uint64) any {
 	default:
 		return b
 	}
+}
+
+func newAdditionalProperties(props map[string]string) *AdditionalProperties {
+	if len(props) == 0 {
+		return nil
+	}
+
+	ap := AdditionalProperties{
+		Microarchitecture: props["microarchitecture"],
+		ComputeCapability: props["compute-capability"],
+	}
+	if v, ok := props["vram"]; ok {
+		if n, err := strconv.ParseUint(v, 10, 64); err == nil {
+			ap.Vram = n
+		}
+	}
+	if ap == (AdditionalProperties{}) {
+		return nil
+	}
+
+	return &ap
+}
+
+// derefString returns the pointed-to string, or "" when the pointer is nil.
+func derefString(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
+// derefHexInt returns the pointed-to value, or the zero value when the
+// pointer is nil.
+func derefHexInt(h *types.HexInt) types.HexInt {
+	if h == nil {
+		return 0
+	}
+	return *h
 }
