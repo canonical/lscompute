@@ -30,6 +30,47 @@
       "device-id": "0x4637",
       "subvendor-id": "0x103C",
       "subdevice-id": "0x89C6"
+    },
+    {
+      "bus": "pci",
+      "slot": "0000:00:02.0",
+      "bus-number": "0x0",
+      "device-class": "0x300",
+      "vendor-id": "0x8086",
+      "device-id": "0x9B41",
+      "subvendor-id": "0x1028",
+      "subdevice-id": "0x962",
+      "additional-properties": {
+        "vram": "14477950976"
+      }
+    },
+    {
+      "bus": "pci",
+      "slot": "0000:01:00.0",
+      "bus-number": "0x1",
+      "device-class": "0x300",
+      "vendor-id": "0x10DE",
+      "device-id": "0x1B06",
+      "subvendor-id": "0x10DE",
+      "subdevice-id": "0x1B06",
+      "additional-properties": {
+        "compute-capability": "6.1",
+        "vram": "11811160064"
+      }
+    },
+    {
+      "bus": "pci",
+      "slot": "0000:03:00.0",
+      "bus-number": "0x3",
+      "device-class": "0x300",
+      "vendor-id": "0x1002",
+      "device-id": "0x73E1",
+      "subvendor-id": "0x103C",
+      "subdevice-id": "0x89C6",
+      "additional-properties": {
+        "microarchitecture": "gfx1032",
+        "vram": "8573157376"
+      }
     }
   ]
 }
