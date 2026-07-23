@@ -75,38 +75,38 @@ func (d DirDetails) MarshalYAML() (any, error) {
 }
 
 type PciDeviceDetails struct {
-	Bus                  string                      `json:"bus" yaml:"bus"`
-	Slot                 string                      `json:"slot,omitempty" yaml:"slot,omitempty"`
-	BusNumber            any                         `json:"bus-number,omitempty" yaml:"bus-number,omitempty"`
-	DeviceClass          types.HexInt                `json:"device-class,omitempty" yaml:"device-class,omitempty"`
-	VendorId             types.HexInt                `json:"vendor-id,omitempty" yaml:"vendor-id,omitempty"`
-	DeviceId             types.HexInt                `json:"device-id,omitempty" yaml:"device-id,omitempty"`
-	SubvendorId          types.HexInt                `json:"subvendor-id,omitempty" yaml:"subvendor-id,omitempty"`
-	SubdeviceId          types.HexInt                `json:"subdevice-id,omitempty" yaml:"subdevice-id,omitempty"`
-	VendorName           string                      `json:"vendor-name,omitempty" yaml:"vendor-name,omitempty"`
-	DeviceName           string                      `json:"device-name,omitempty" yaml:"device-name,omitempty"`
-	SubvendorName        string                      `json:"subvendor-name,omitempty" yaml:"subvendor-name,omitempty"`
-	SubdeviceName        string                      `json:"subdevice-name,omitempty" yaml:"subdevice-name,omitempty"`
-	AdditionalProperties *AdditionalDeviceProperties `json:"additional-properties,omitempty" yaml:"additional-properties,omitempty"`
+	Bus                  string                         `json:"bus" yaml:"bus"`
+	Slot                 string                         `json:"slot,omitempty" yaml:"slot,omitempty"`
+	BusNumber            any                            `json:"bus-number,omitempty" yaml:"bus-number,omitempty"`
+	DeviceClass          types.HexInt                   `json:"device-class,omitempty" yaml:"device-class,omitempty"`
+	VendorId             types.HexInt                   `json:"vendor-id,omitempty" yaml:"vendor-id,omitempty"`
+	DeviceId             types.HexInt                   `json:"device-id,omitempty" yaml:"device-id,omitempty"`
+	SubvendorId          types.HexInt                   `json:"subvendor-id,omitempty" yaml:"subvendor-id,omitempty"`
+	SubdeviceId          types.HexInt                   `json:"subdevice-id,omitempty" yaml:"subdevice-id,omitempty"`
+	VendorName           string                         `json:"vendor-name,omitempty" yaml:"vendor-name,omitempty"`
+	DeviceName           string                         `json:"device-name,omitempty" yaml:"device-name,omitempty"`
+	SubvendorName        string                         `json:"subvendor-name,omitempty" yaml:"subvendor-name,omitempty"`
+	SubdeviceName        string                         `json:"subdevice-name,omitempty" yaml:"subdevice-name,omitempty"`
+	AdditionalProperties *PciAdditionalDeviceProperties `json:"additional-properties,omitempty" yaml:"additional-properties,omitempty"`
 }
 
 type UsbDeviceDetails struct {
-	Bus                  string                      `json:"bus" yaml:"bus"`
-	BusNumber            any                         `json:"bus-number,omitempty" yaml:"bus-number,omitempty"`
-	DeviceNumber         int                         `json:"device-number,omitempty" yaml:"device-number,omitempty"`
-	VendorId             types.HexInt                `json:"vendor-id,omitempty" yaml:"vendor-id,omitempty"`
-	ProductId            types.HexInt                `json:"product-id,omitempty" yaml:"product-id,omitempty"`
-	VendorName           string                      `json:"vendor-name,omitempty" yaml:"vendor-name,omitempty"`
-	ProductName          string                      `json:"product-name,omitempty" yaml:"product-name,omitempty"`
-	AdditionalProperties *AdditionalDeviceProperties `json:"additional-properties,omitempty" yaml:"additional-properties,omitempty"`
+	Bus                  string            `json:"bus" yaml:"bus"`
+	BusNumber            any               `json:"bus-number,omitempty" yaml:"bus-number,omitempty"`
+	DeviceNumber         int               `json:"device-number,omitempty" yaml:"device-number,omitempty"`
+	VendorId             types.HexInt      `json:"vendor-id,omitempty" yaml:"vendor-id,omitempty"`
+	ProductId            types.HexInt      `json:"product-id,omitempty" yaml:"product-id,omitempty"`
+	VendorName           string            `json:"vendor-name,omitempty" yaml:"vendor-name,omitempty"`
+	ProductName          string            `json:"product-name,omitempty" yaml:"product-name,omitempty"`
+	AdditionalProperties map[string]string `json:"additional-properties,omitempty" yaml:"additional-properties,omitempty"`
 }
 
 type FastRPCDeviceDetails struct {
-	Bus                  string                      `json:"bus" yaml:"bus"`
-	Domain               string                      `json:"domain,omitempty" yaml:"domain,omitempty"`
-	Index                int                         `json:"index,omitempty" yaml:"index,omitempty"`
-	Secure               bool                        `json:"secure,omitempty" yaml:"secure,omitempty"`
-	AdditionalProperties *AdditionalDeviceProperties `json:"additional-properties,omitempty" yaml:"additional-properties,omitempty"`
+	Bus                  string            `json:"bus" yaml:"bus"`
+	Domain               string            `json:"domain,omitempty" yaml:"domain,omitempty"`
+	Index                int               `json:"index,omitempty" yaml:"index,omitempty"`
+	Secure               bool              `json:"secure,omitempty" yaml:"secure,omitempty"`
+	AdditionalProperties map[string]string `json:"additional-properties,omitempty" yaml:"additional-properties,omitempty"`
 }
 
 type PciAdditionalDeviceProperties struct {
@@ -125,45 +125,6 @@ func (a PciAdditionalDeviceProperties) MarshalYAML() (any, error) {
 		Vram:              FormatBytes(a.Vram),
 		ComputeCapability: a.ComputeCapability,
 	}, nil
-}
-
-type UsbAdditionalDeviceProperties struct {
-	Properties map[string]string
-}
-
-type FastRPCAdditionalDeviceProperties struct {
-	Properties map[string]string
-}
-type AdditionalDeviceProperties struct {
-	pci     *PciAdditionalDeviceProperties
-	usb     *UsbAdditionalDeviceProperties
-	fastrpc *FastRPCAdditionalDeviceProperties
-}
-
-func (a AdditionalDeviceProperties) MarshalJSON() ([]byte, error) {
-	switch {
-	case a.pci != nil:
-		return json.Marshal(a.pci)
-	case a.usb != nil:
-		return json.Marshal(a.usb.Properties)
-	case a.fastrpc != nil:
-		return json.Marshal(a.fastrpc.Properties)
-	default:
-		return json.Marshal(struct{}{})
-	}
-}
-
-func (a AdditionalDeviceProperties) MarshalYAML() (any, error) {
-	switch {
-	case a.pci != nil:
-		return a.pci.MarshalYAML()
-	case a.usb != nil:
-		return a.usb.Properties, nil
-	case a.fastrpc != nil:
-		return a.fastrpc.Properties, nil
-	default:
-		return struct{}{}, nil
-	}
 }
 
 func NewMachineDetails(info *machine.MachineInfo) *MachineDetails {
@@ -193,7 +154,7 @@ func NewMachineDetails(info *machine.MachineInfo) *MachineDetails {
 					DeviceName:           derefString(typed.DeviceName),
 					SubvendorName:        derefString(typed.SubvendorName),
 					SubdeviceName:        derefString(typed.SubdeviceName),
-					AdditionalProperties: newAdditionalDeviceProperties(typed.Bus, typed.AdditionalProperties),
+					AdditionalProperties: newPciAdditionalDeviceProperties(typed.AdditionalProperties),
 				}
 			case usb.Device:
 				v.Devices[i] = UsbDeviceDetails{
@@ -204,7 +165,7 @@ func NewMachineDetails(info *machine.MachineInfo) *MachineDetails {
 					ProductId:            typed.ProductId,
 					VendorName:           derefString(typed.VendorName),
 					ProductName:          derefString(typed.ProductName),
-					AdditionalProperties: newAdditionalDeviceProperties(typed.Bus, typed.AdditionalProperties),
+					AdditionalProperties: typed.AdditionalProperties,
 				}
 			case fastrpc.Device:
 				v.Devices[i] = FastRPCDeviceDetails{
@@ -212,7 +173,7 @@ func NewMachineDetails(info *machine.MachineInfo) *MachineDetails {
 					Domain:               string(typed.Domain),
 					Index:                typed.Index,
 					Secure:               typed.Secure,
-					AdditionalProperties: newAdditionalDeviceProperties(typed.Bus, typed.AdditionalProperties),
+					AdditionalProperties: typed.AdditionalProperties,
 				}
 			default:
 				continue
@@ -284,33 +245,24 @@ func FormatBytes(b uint64) any {
 	}
 }
 
-func newAdditionalDeviceProperties(bus string, props map[string]string) *AdditionalDeviceProperties {
+func newPciAdditionalDeviceProperties(props map[string]string) *PciAdditionalDeviceProperties {
 	if len(props) == 0 {
 		return nil
 	}
 
-	switch bus {
-	case "pci":
-		ap := &PciAdditionalDeviceProperties{
-			Microarchitecture: props["microarchitecture"],
-			ComputeCapability: props["compute-capability"],
+	ap := &PciAdditionalDeviceProperties{
+		Microarchitecture: props["microarchitecture"],
+		ComputeCapability: props["compute-capability"],
+	}
+	if v, ok := props["vram"]; ok {
+		if n, err := strconv.ParseUint(v, 10, 64); err == nil {
+			ap.Vram = n
 		}
-		if v, ok := props["vram"]; ok {
-			if n, err := strconv.ParseUint(v, 10, 64); err == nil {
-				ap.Vram = n
-			}
-		}
-		if *ap == (PciAdditionalDeviceProperties{}) {
-			return nil
-		}
-		return &AdditionalDeviceProperties{pci: ap}
-	case "usb":
-		return &AdditionalDeviceProperties{usb: &UsbAdditionalDeviceProperties{Properties: props}}
-	case "fastrpc":
-		return &AdditionalDeviceProperties{fastrpc: &FastRPCAdditionalDeviceProperties{Properties: props}}
-	default:
+	}
+	if *ap == (PciAdditionalDeviceProperties{}) {
 		return nil
 	}
+	return ap
 }
 
 // derefString returns the pointed-to string, or "" when the pointer is nil.
