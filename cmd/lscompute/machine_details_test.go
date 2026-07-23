@@ -2,34 +2,94 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/canonical/lscompute/pkg/machine"
-	"github.com/canonical/lscompute/pkg/machine/host"
+	"github.com/canonical/lscompute/pkg/machine/cpu"
+	"github.com/canonical/lscompute/pkg/machine/device/pci"
+	"github.com/canonical/lscompute/pkg/machine/disk"
+	"github.com/canonical/lscompute/pkg/machine/memory"
+	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
-func machineInfoFromTestData(machineName string) (*machine.MachineInfo, error) {
-	machineRoot := filepath.Join("..", "..", "test_data", "machines", machineName, "machine-root")
-
-	pciIdsPath := filepath.Join(machineRoot, "usr", "share", "misc", "pci.ids")
-	_, pciIdsErr := os.Stat(pciIdsPath)
-	friendlyNames := pciIdsErr == nil
-
-	info, _, err := machine.Get(host.Fake(machineRoot), friendlyNames)
-	if err != nil {
-		return nil, err
+func machineInfoForExamples() *machine.MachineInfo {
+	return &machine.MachineInfo{
+		Cpus: []cpu.CpuInfo{{
+			Architecture:   "amd64",
+			ManufacturerId: "GenuineIntel",
+			Flags:          []string{"fpu", "vme", "de"},
+		}},
+		Memory: memory.MemoryInfo{
+			TotalRam:  67012501504,
+			TotalSwap: 0,
+		},
+		Disk: map[string]disk.DirInfo{
+			"/var/lib/snapd/snaps": {
+				Total: 1006451294208,
+				Avail: 943543738368,
+			},
+		},
+		Devices: []any{
+			pci.Device{
+				Bus:         pci.BusName,
+				Slot:        "0000:00:00.0",
+				BusNumber:   0x0,
+				DeviceClass: 0x600,
+				VendorId:    0x8086,
+				DeviceId:    0x4637,
+				SubvendorId: hexIntPtr(0x103C),
+				SubdeviceId: hexIntPtr(0x89C6),
+			},
+			pci.Device{
+				Bus:         pci.BusName,
+				Slot:        "0000:00:02.0",
+				BusNumber:   0x0,
+				DeviceClass: 0x300,
+				VendorId:    0x8086,
+				DeviceId:    0x9B41,
+				SubvendorId: hexIntPtr(0x1028),
+				SubdeviceId: hexIntPtr(0x962),
+				AdditionalProperties: map[string]string{
+					"vram": "14477950976",
+				},
+			},
+			pci.Device{
+				Bus:         pci.BusName,
+				Slot:        "0000:01:00.0",
+				BusNumber:   0x1,
+				DeviceClass: 0x300,
+				VendorId:    0x10DE,
+				DeviceId:    0x1B06,
+				SubvendorId: hexIntPtr(0x10DE),
+				SubdeviceId: hexIntPtr(0x1B06),
+				AdditionalProperties: map[string]string{
+					"vram":               "11811160064",
+					"compute-capability": "6.1",
+				},
+			},
+			pci.Device{
+				Bus:         pci.BusName,
+				Slot:        "0000:03:00.0",
+				BusNumber:   0x3,
+				DeviceClass: 0x300,
+				VendorId:    0x1002,
+				DeviceId:    0x73E1,
+				SubvendorId: hexIntPtr(0x103C),
+				SubdeviceId: hexIntPtr(0x89C6),
+				AdditionalProperties: map[string]string{
+					"microarchitecture": "gfx1032",
+					"vram":              "8573157376",
+				},
+			},
+		},
 	}
-	return info, nil
+}
+
+func hexIntPtr(value types.HexInt) *types.HexInt {
+	return &value
 }
 
 func Example_marshalJson() {
-	machineName := "dummy-machine"
-	machineInfo, err := machineInfoFromTestData(machineName)
-	if err != nil {
-		fmt.Printf("Get() failed: %v", err)
-		return
-	}
+	machineInfo := machineInfoForExamples()
 	testOutput, err := NewMachineDetails(machineInfo).Marshal(FormatJSON)
 	if err != nil {
 		fmt.Printf("Marshal() failed: %v", err)
@@ -117,12 +177,7 @@ func Example_marshalJson() {
 }
 
 func Example_marshalPlain() {
-	machineName := "dummy-machine"
-	machineInfo, err := machineInfoFromTestData(machineName)
-	if err != nil {
-		fmt.Printf("Get() failed: %v", err)
-		return
-	}
+	machineInfo := machineInfoForExamples()
 	testOutput, err := NewMachineDetails(machineInfo).Marshal(FormatPlain)
 	if err != nil {
 		fmt.Printf("Marshal() failed: %v", err)
