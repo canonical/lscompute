@@ -136,7 +136,7 @@ func Example_marshalPlain() {
 	//     flags: [fpu, vme, de]
 	// memory:
 	//   total-ram: 62.4G
-	//   total-swap: 0
+	//   total-swap: "0"
 	// disk:
 	//   /var/lib/snapd/snaps:
 	//     total: 937.3G
