@@ -5,7 +5,9 @@ import (
 
 	"github.com/canonical/lscompute/pkg/machine"
 	"github.com/canonical/lscompute/pkg/machine/cpu"
+	"github.com/canonical/lscompute/pkg/machine/device/fastrpc"
 	"github.com/canonical/lscompute/pkg/machine/device/pci"
+	"github.com/canonical/lscompute/pkg/machine/device/usb"
 	"github.com/canonical/lscompute/pkg/machine/disk"
 	"github.com/canonical/lscompute/pkg/machine/memory"
 	"github.com/canonical/lscompute/pkg/machine/types"
@@ -78,6 +80,27 @@ func machineInfoForExamples() *machine.MachineInfo {
 				AdditionalProperties: map[string]string{
 					"microarchitecture": "gfx1032",
 					"vram":              "8573157376",
+				},
+			},
+			usb.Device{
+				Bus:          usb.BusName,
+				BusNumber:    7,
+				DeviceNumber: 1,
+				VendorId:     0x1D6B,
+				ProductId:    0x2,
+				FriendlyNames: usb.FriendlyNames{
+					VendorName:  new("Linux Foundation"),
+					ProductName: new("2.0 root hub"),
+				},
+			},
+			fastrpc.Device{
+				Bus:    fastrpc.BusName,
+				Domain: fastrpc.ADSPDomain,
+				Index:  0,
+				Secure: false,
+				AdditionalProperties: map[string]string{
+					"test":  "test",
+					"test1": "1073741824",
 				},
 			},
 		},
@@ -166,6 +189,23 @@ func Example_marshalJson() {
 	//         "microarchitecture": "gfx1032",
 	//         "vram": 8573157376
 	//       }
+	//     },
+	//     {
+	//       "bus": "usb",
+	//       "bus-number": 7,
+	//       "device-number": 1,
+	//       "vendor-id": "0x1D6B",
+	//       "product-id": "0x2",
+	//       "vendor-name": "Linux Foundation",
+	//       "product-name": "2.0 root hub"
+	//     },
+	//     {
+	//       "bus": "fastrpc",
+	//       "domain": "adsp",
+	//       "additional-properties": {
+	//         "test": "test",
+	//         "test1": "1073741824"
+	//       }
 	//     }
 	//   ]
 	// }
@@ -233,4 +273,16 @@ func Example_marshalPlain() {
 	//     additional-properties:
 	//       microarchitecture: gfx1032
 	//       vram: 8.0G
+	//   - bus: usb
+	//     bus-number: 7
+	//     device-number: 1
+	//     vendor-id: "0x1D6B"
+	//     product-id: "0x2"
+	//     vendor-name: Linux Foundation
+	//     product-name: 2.0 root hub
+	//   - bus: fastrpc
+	//     domain: adsp
+	//     additional-properties:
+	//       test: test
+	//       test1: "1073741824"
 }
