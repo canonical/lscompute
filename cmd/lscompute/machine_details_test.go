@@ -36,8 +36,8 @@ func machineInfoForExamples() *machine.MachineInfo {
 				DeviceClass: 0x600,
 				VendorId:    0x8086,
 				DeviceId:    0x4637,
-				SubvendorId: hexIntPtr(0x103C),
-				SubdeviceId: hexIntPtr(0x89C6),
+				SubvendorId: new(types.HexInt(0x103C)),
+				SubdeviceId: new(types.HexInt(0x89C6)),
 			},
 			pci.Device{
 				Bus:         pci.BusName,
@@ -46,8 +46,8 @@ func machineInfoForExamples() *machine.MachineInfo {
 				DeviceClass: 0x300,
 				VendorId:    0x8086,
 				DeviceId:    0x9B41,
-				SubvendorId: hexIntPtr(0x1028),
-				SubdeviceId: hexIntPtr(0x962),
+				SubvendorId: new(types.HexInt(0x1028)),
+				SubdeviceId: new(types.HexInt(0x962)),
 				AdditionalProperties: map[string]string{
 					"vram": "14477950976",
 				},
@@ -59,8 +59,8 @@ func machineInfoForExamples() *machine.MachineInfo {
 				DeviceClass: 0x300,
 				VendorId:    0x10DE,
 				DeviceId:    0x1B06,
-				SubvendorId: hexIntPtr(0x10DE),
-				SubdeviceId: hexIntPtr(0x1B06),
+				SubvendorId: new(types.HexInt(0x10DE)),
+				SubdeviceId: new(types.HexInt(0x1B06)),
 				AdditionalProperties: map[string]string{
 					"vram":               "11811160064",
 					"compute-capability": "6.1",
@@ -73,8 +73,8 @@ func machineInfoForExamples() *machine.MachineInfo {
 				DeviceClass: 0x300,
 				VendorId:    0x1002,
 				DeviceId:    0x73E1,
-				SubvendorId: hexIntPtr(0x103C),
-				SubdeviceId: hexIntPtr(0x89C6),
+				SubvendorId: new(types.HexInt(0x103C)),
+				SubdeviceId: new(types.HexInt(0x89C6)),
 				AdditionalProperties: map[string]string{
 					"microarchitecture": "gfx1032",
 					"vram":              "8573157376",
@@ -82,10 +82,6 @@ func machineInfoForExamples() *machine.MachineInfo {
 			},
 		},
 	}
-}
-
-func hexIntPtr(value types.HexInt) *types.HexInt {
-	return &value
 }
 
 func Example_marshalJson() {
@@ -191,7 +187,7 @@ func Example_marshalPlain() {
 	//     flags: [fpu, vme, de]
 	// memory:
 	//   total-ram: 62.4G
-	//   total-swap: "0"
+	//   total-swap: 0
 	// disk:
 	//   /var/lib/snapd/snaps:
 	//     total: 937.3G
