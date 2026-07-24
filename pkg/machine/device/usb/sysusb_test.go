@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 // xps13MachineRoot is the shared fake-host fixture for the xps13-9350 machine.
@@ -45,15 +44,15 @@ func TestReadSysUsb_XPS13(t *testing.T) {
 	}
 
 	// Spot-check: usb1 → Linux Foundation 2.0 root hub
-	assertDevice(t, devices, types.HexInt(0x1d6b), types.HexInt(0x0002), 1, 1)
+	assertDevice(t, devices, 0x1d6b, 0x0002, 1, 1)
 	// Spot-check: usb2 → Linux Foundation 3.0 root hub
-	assertDevice(t, devices, types.HexInt(0x1d6b), types.HexInt(0x0003), 2, 1)
+	assertDevice(t, devices, 0x1d6b, 0x0003, 2, 1)
 	// Spot-check: Logitech Unifying Receiver
-	assertDevice(t, devices, types.HexInt(0x046d), types.HexInt(0xc52b), 3, 22)
+	assertDevice(t, devices, 0x046d, 0xc52b, 3, 22)
 	// Spot-check: Goodix Fingerprint Reader
-	assertDevice(t, devices, types.HexInt(0x27c6), types.HexInt(0x633c), 3, 8)
+	assertDevice(t, devices, 0x27c6, 0x633c, 3, 8)
 	// Spot-check: unknown vendor still parsed correctly
-	assertDevice(t, devices, types.HexInt(0x2ac1), types.HexInt(0x20c9), 3, 3)
+	assertDevice(t, devices, 0x2ac1, 0x20c9, 3, 3)
 }
 
 // TestReadSysUsb_MissingDir verifies that a host with no sys/bus/usb/devices
@@ -224,7 +223,7 @@ func TestReadSysUsbDevice_ParseErrors(t *testing.T) {
 }
 
 // assertDevice fails the test if no device in the slice matches all four fields.
-func assertDevice(t *testing.T, devices []Device, vendorId, productId types.HexInt, busNum, devNum int) {
+func assertDevice(t *testing.T, devices []USBDevice, vendorId, productId uint64, busNum, devNum int) {
 	t.Helper()
 	for _, d := range devices {
 		if d.VendorId == vendorId && d.ProductId == productId &&

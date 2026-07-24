@@ -76,7 +76,7 @@ func TestGetFromMachineDirs(t *testing.T) {
 	}
 }
 
-func writeGolden(t *testing.T, path string, info *MachineInfo) {
+func writeGolden(t *testing.T, path string, info *Machine) {
 	t.Helper()
 	data, err := json.MarshalIndent(info, "", "  ")
 	if err != nil {
@@ -88,7 +88,7 @@ func writeGolden(t *testing.T, path string, info *MachineInfo) {
 	t.Logf("updated golden: %s", path)
 }
 
-func assertEqualToGolden(t *testing.T, path string, got *MachineInfo) {
+func assertEqualToGolden(t *testing.T, path string, got *Machine) {
 	t.Helper()
 	goldenData, err := os.ReadFile(path)
 	if err != nil {

@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 // pciIdsSearchPaths lists candidate paths for the pci.ids database, in priority order.
@@ -30,7 +29,7 @@ type pciIdEntry struct {
 // lookupPciIds looks up the human-readable vendor, device, subvendor and
 // subdevice names for the given IDs from the pci.ids database file.
 // Any name may be empty if the corresponding ID is not found.
-func lookupPciIds(h host.Host, vendorId, deviceId types.HexInt, subvendorId, subdeviceId *types.HexInt) (pciIdEntry, error) {
+func lookupPciIds(h host.Host, vendorId uint64, deviceId uint64, subvendorId uint64, subdeviceId uint64) (pciIdEntry, error) {
 	path, err := findPciIdsFile(h)
 	if err != nil {
 		return pciIdEntry{}, err
@@ -41,16 +40,16 @@ func lookupPciIds(h host.Host, vendorId, deviceId types.HexInt, subvendorId, sub
 		return pciIdEntry{}, fmt.Errorf("opening pci.ids: %w", err)
 	}
 
-	vendorHex := fmt.Sprintf("%04x", uint64(vendorId))
-	deviceHex := fmt.Sprintf("%04x", uint64(deviceId))
+	vendorHex := fmt.Sprintf("%04x", vendorId)
+	deviceHex := fmt.Sprintf("%04x", deviceId)
 
 	subvendorHex := ""
 	subdeviceHex := ""
-	if subvendorId != nil {
-		subvendorHex = fmt.Sprintf("%04x", uint64(*subvendorId))
+	if subvendorId != 0 {
+		subvendorHex = fmt.Sprintf("%04x", subvendorId)
 	}
-	if subdeviceId != nil {
-		subdeviceHex = fmt.Sprintf("%04x", uint64(*subdeviceId))
+	if subdeviceId != 0 {
+		subdeviceHex = fmt.Sprintf("%04x", subdeviceId)
 	}
 
 	var result pciIdEntry
@@ -78,7 +77,7 @@ func lookupPciIds(h host.Host, vendorId, deviceId types.HexInt, subvendorId, sub
 		// Three-tab lines don't exist in pci.ids; two-tab lines are subsystems.
 		if strings.HasPrefix(line, "\t\t") {
 			// Subsystem line: "\t\tSSVV SSDD  Subsystem Name"
-			if inTargetDevice && subvendorId != nil && subdeviceId != nil {
+			if inTargetDevice && subvendorId != 0 && subdeviceId != 0 {
 				rest := strings.TrimPrefix(line, "\t\t")
 				sv, sd, name, ok := splitSubsystemLine(rest)
 				if ok && sv == subvendorHex && sd == subdeviceHex {
@@ -125,7 +124,7 @@ func lookupPciIds(h host.Host, vendorId, deviceId types.HexInt, subvendorId, sub
 		}
 
 		// Check whether this vendor is also the subvendor we're looking for.
-		if subvendorId != nil && currentVendorId == subvendorHex {
+		if subvendorId != 0 && currentVendorId == subvendorHex {
 			result.SubvendorName = name
 		}
 	}
@@ -174,7 +173,7 @@ func findPciIdsFile(h host.Host) (string, error) {
 
 // lookupFriendlyNames uses the numeric PCI ID fields to look up human-readable
 // names from the pci.ids database and converts them into a FriendlyNames value.
-func lookupFriendlyNames(h host.Host, device Device) (FriendlyNames, error) {
+func lookupFriendlyNames(h host.Host, device PCIDevice) (FriendlyNames, error) {
 	entry, err := lookupPciIds(h, device.VendorId, device.DeviceId, device.SubvendorId, device.SubdeviceId)
 	if err != nil {
 		return FriendlyNames{}, fmt.Errorf("pci ids lookup for %04x:%04x: %w", uint64(device.VendorId), uint64(device.DeviceId), err)
@@ -183,19 +182,19 @@ func lookupFriendlyNames(h host.Host, device Device) (FriendlyNames, error) {
 	var names FriendlyNames
 	if entry.VendorName != "" {
 		s := entry.VendorName
-		names.VendorName = &s
+		names.VendorName = s
 	}
 	if entry.DeviceName != "" {
 		s := entry.DeviceName
-		names.DeviceName = &s
+		names.DeviceName = s
 	}
 	if entry.SubvendorName != "" {
 		s := entry.SubvendorName
-		names.SubvendorName = &s
+		names.SubvendorName = s
 	}
 	if entry.SubdeviceName != "" {
 		s := entry.SubdeviceName
-		names.SubdeviceName = &s
+		names.SubdeviceName = s
 	}
 	return names, nil
 }

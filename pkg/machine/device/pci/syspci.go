@@ -8,18 +8,17 @@ import (
 	"strings"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 const pciDevicesDir = "sys/bus/pci/devices" // io/fs path (no leading slash)
 
-func readSysPci(h host.Host) ([]Device, []string, error) {
+func readSysPci(h host.Host) ([]PCIDevice, []string, error) {
 	entries, err := fs.ReadDir(h.FS(), pciDevicesDir)
 	if err != nil {
 		return nil, nil, fmt.Errorf("reading %s: %w", pciDevicesDir, err)
 	}
 
-	var devices []Device
+	var devices []PCIDevice
 	var warnings []string
 
 	for _, entry := range entries {
@@ -37,8 +36,8 @@ func readSysPci(h host.Host) ([]Device, []string, error) {
 	return devices, warnings, nil
 }
 
-func readSysPciDevice(h host.Host, dir, slot string) (Device, error) {
-	var device Device
+func readSysPciDevice(h host.Host, dir, slot string) (PCIDevice, error) {
+	var device PCIDevice
 	device.Slot = slot
 
 	// slot format: "0000:3b:00.0" — index 1 is the bus number in hex
@@ -50,19 +49,19 @@ func readSysPciDevice(h host.Host, dir, slot string) (Device, error) {
 	if err != nil {
 		return device, fmt.Errorf("parsing bus number from %q: %w", slot, err)
 	}
-	device.BusNumber = types.HexInt(busNum)
+	device.BusNumber = busNum
 
 	vendor, err := readHexFSFile(h, filepath.Join(dir, "vendor"))
 	if err != nil {
 		return device, fmt.Errorf("vendor: %w", err)
 	}
-	device.VendorId = types.HexInt(vendor)
+	device.VendorId = vendor
 
 	deviceId, err := readHexFSFile(h, filepath.Join(dir, "device"))
 	if err != nil {
 		return device, fmt.Errorf("device: %w", err)
 	}
-	device.DeviceId = types.HexInt(deviceId)
+	device.DeviceId = deviceId
 
 	// class is 24-bit 0xCCSSPP: upper 16 bits are the device class (class+subclass),
 	// lower 8 bits are the programming interface.
@@ -70,19 +69,17 @@ func readSysPciDevice(h host.Host, dir, slot string) (Device, error) {
 	if err != nil {
 		return device, fmt.Errorf("class: %w", err)
 	}
-	device.DeviceClass = types.HexInt(classVal >> 8)
+	device.DeviceClass = classVal >> 8
 	if progIf := uint8(classVal & 0xFF); progIf != 0 {
-		device.ProgrammingInterface = &progIf
+		device.ProgrammingInterface = progIf
 	}
 
 	if subVendor, err := readHexFSFile(h, filepath.Join(dir, "subsystem_vendor")); err == nil {
-		sv := types.HexInt(subVendor)
-		device.SubvendorId = &sv
+		device.SubvendorId = subVendor
 	}
 
 	if subDevice, err := readHexFSFile(h, filepath.Join(dir, "subsystem_device")); err == nil {
-		sd := types.HexInt(subDevice)
-		device.SubdeviceId = &sd
+		device.SubdeviceId = subDevice
 	}
 
 	return device, nil

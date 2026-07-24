@@ -16,18 +16,19 @@ var directories = []string{
 
 // Info returns the total size and available size for configured directories,
 // using the host's StatFs implementation.
-func Info(h host.Host) (map[string]DirInfo, error) {
-	info := make(map[string]DirInfo, len(directories))
+func Info(h host.Host) ([]Disk, error) {
+	disks := []Disk{}
 	for _, dir := range directories {
 		hostDirInfo, err := h.StatFs(strings.TrimPrefix(dir, "/"))
 		if err != nil {
 			return nil, fmt.Errorf("getting directory info for %s: %w", dir, err)
 		}
 
-		info[dir] = DirInfo{
-			Total: hostDirInfo.Total,
-			Avail: hostDirInfo.Avail,
-		}
+		disks = append(disks, Disk{
+			MountPoint: hostDirInfo.Mountpoint,
+			Total:      hostDirInfo.Total,
+			Available:  hostDirInfo.Avail,
+		})
 	}
-	return info, nil
+	return disks, nil
 }

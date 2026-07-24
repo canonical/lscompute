@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 // pciIdsFixture is a curated subset of a real pci.ids database that exercises
@@ -42,15 +41,15 @@ func writePciIdsFixture(t *testing.T) host.Host {
 func TestLookupPciIds(t *testing.T) {
 	h := writePciIdsFixture(t)
 
-	sv := types.HexInt(0x8086)
-	sd := types.HexInt(0x5678)
+	sv := uint64(0x8086)
+	sd := uint64(0x5678)
 
 	tests := []struct {
 		name          string
-		vendorId      types.HexInt
-		deviceId      types.HexInt
-		subvendorId   *types.HexInt
-		subdeviceId   *types.HexInt
+		vendorId      uint64
+		deviceId      uint64
+		subvendorId   uint64
+		subdeviceId   uint64
 		wantVendor    string
 		wantDevice    string
 		wantSubvendor string
@@ -67,8 +66,8 @@ func TestLookupPciIds(t *testing.T) {
 			name:          "known vendor, device, subvendor and subdevice",
 			vendorId:      0x8086,
 			deviceId:      0x1234,
-			subvendorId:   &sv,
-			subdeviceId:   &sd,
+			subvendorId:   sv,
+			subdeviceId:   sd,
 			wantVendor:    "Intel Corporation",
 			wantDevice:    "Fake Display Device",
 			wantSubvendor: "Intel Corporation",
@@ -128,7 +127,7 @@ func TestLookupPciIds(t *testing.T) {
 
 func TestLookupPciIds_MissingFile(t *testing.T) {
 	h := host.Fake(t.TempDir()) // no pci.ids written
-	_, err := lookupPciIds(h, 0x8086, 0x1234, nil, nil)
+	_, err := lookupPciIds(h, 0x8086, 0x1234, 0, 0)
 	if err == nil {
 		t.Fatal("expected error when pci.ids is missing, got nil")
 	}
@@ -258,52 +257,52 @@ func TestSplitSubsystemLine(t *testing.T) {
 func TestLookupFriendlyNames(t *testing.T) {
 	h := writePciIdsFixture(t)
 
-	sv := types.HexInt(0x8086)
-	sd := types.HexInt(0x5678)
+	sv := uint64(0x8086)
+	sd := uint64(0x5678)
 
 	t.Run("known vendor and device populate names", func(t *testing.T) {
-		dev := Device{VendorId: 0x8086, DeviceId: 0x1234}
+		dev := PCIDevice{VendorId: 0x8086, DeviceId: 0x1234}
 		names, err := lookupFriendlyNames(h, dev)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if names.VendorName == nil || *names.VendorName != "Intel Corporation" {
+		if names.VendorName != "Intel Corporation" {
 			t.Errorf("VendorName = %v, want %q", names.VendorName, "Intel Corporation")
 		}
-		if names.DeviceName == nil || *names.DeviceName != "Fake Display Device" {
+		if names.DeviceName != "Fake Display Device" {
 			t.Errorf("DeviceName = %v, want %q", names.DeviceName, "Fake Display Device")
 		}
-		if names.SubvendorName != nil {
-			t.Errorf("SubvendorName should be nil when not requested, got %q", *names.SubvendorName)
+		if names.SubvendorName != "" {
+			t.Errorf("SubvendorName should be empty when not requested, got %q", names.SubvendorName)
 		}
 	})
 
 	t.Run("known subsystem populates all four names", func(t *testing.T) {
-		dev := Device{
+		dev := PCIDevice{
 			VendorId:    0x8086,
 			DeviceId:    0x1234,
-			SubvendorId: &sv,
-			SubdeviceId: &sd,
+			SubvendorId: sv,
+			SubdeviceId: sd,
 		}
 		names, err := lookupFriendlyNames(h, dev)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if names.SubvendorName == nil || *names.SubvendorName != "Intel Corporation" {
+		if names.SubvendorName != "Intel Corporation" {
 			t.Errorf("SubvendorName = %v, want %q", names.SubvendorName, "Intel Corporation")
 		}
-		if names.SubdeviceName == nil || *names.SubdeviceName != "Intel Reference Subsystem" {
+		if names.SubdeviceName != "Intel Reference Subsystem" {
 			t.Errorf("SubdeviceName = %v, want %q", names.SubdeviceName, "Intel Reference Subsystem")
 		}
 	})
 
 	t.Run("unknown vendor returns all-nil FriendlyNames", func(t *testing.T) {
-		dev := Device{VendorId: 0xffff, DeviceId: 0xffff}
+		dev := PCIDevice{VendorId: 0xffff, DeviceId: 0xffff}
 		names, err := lookupFriendlyNames(h, dev)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if names.VendorName != nil || names.DeviceName != nil {
+		if names.VendorName != "" || names.DeviceName != "" {
 			t.Errorf("expected all-nil names for unknown vendor, got vendor=%v device=%v",
 				names.VendorName, names.DeviceName)
 		}
@@ -311,7 +310,7 @@ func TestLookupFriendlyNames(t *testing.T) {
 
 	t.Run("missing pci.ids returns error", func(t *testing.T) {
 		emptyHost := host.Fake(t.TempDir())
-		dev := Device{VendorId: 0x8086, DeviceId: 0x1234}
+		dev := PCIDevice{VendorId: 0x8086, DeviceId: 0x1234}
 		_, err := lookupFriendlyNames(emptyHost, dev)
 		if err == nil {
 			t.Fatal("expected error for missing pci.ids, got nil")

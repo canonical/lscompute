@@ -29,15 +29,15 @@ const (
 )
 
 // Device represents a single FastRPC device detected on the system.
-type Device struct {
-	Bus string `json:"bus" yaml:"bus"`
+type FastRPCDevice struct {
+	Bus string
 
-	Domain FastRPCDomain `json:"domain" yaml:"domain"`
-	Index  int           `json:"index" yaml:"index"`
-	Secure bool          `json:"secure" yaml:"secure"`
+	Domain FastRPCDomain
+	Index  int
+	Secure bool
 
 	// Vendor specific device key-value pairs
-	AdditionalProperties map[string]string `json:"additional-properties,omitempty" yaml:"additional-properties,omitempty"`
+	AdditionalProperties map[string]string
 }
 
 // fastRpc implements bus.Bus for the FastRPC bus.
@@ -83,15 +83,15 @@ func (bus *fastRpc) Devices() ([]any, []string, error) {
 	return result, nil, nil
 }
 
-func Decode(bytes []byte) (Device, error) {
-	var device Device
+func Decode(bytes []byte) (FastRPCDevice, error) {
+	var device FastRPCDevice
 	if err := json.Unmarshal(bytes, &device); err != nil {
-		return Device{}, err
+		return FastRPCDevice{}, err
 	}
 	return device, nil
 }
 
-func parseFastRPCDeviceName(name string) (Device, bool) {
+func parseFastRPCDeviceName(name string) (FastRPCDevice, bool) {
 	name = strings.TrimPrefix(strings.ToLower(name), fastRPCDeviceNamePrefix)
 
 	secure := strings.HasSuffix(name, "-secure")
@@ -108,7 +108,7 @@ func parseFastRPCDeviceName(name string) (Device, bool) {
 	if i < len(name) {
 		parsedIndex, err := strconv.Atoi(name[i:])
 		if err != nil {
-			return Device{}, false
+			return FastRPCDevice{}, false
 		}
 		index = parsedIndex
 	}
@@ -121,10 +121,10 @@ func parseFastRPCDeviceName(name string) (Device, bool) {
 	case CDSPDomain:
 	case GDSPDomain:
 	default:
-		return Device{}, false
+		return FastRPCDevice{}, false
 	}
 
-	return Device{
+	return FastRPCDevice{
 		Domain: domain,
 		Index:  index,
 		Secure: secure,

@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 func TestScannerScan_EmptyHost(t *testing.T) {
@@ -66,15 +65,15 @@ func TestScannerScan_NoFriendlyNames(t *testing.T) {
 		t.Errorf("expected 2 devices, got %d", len(result))
 	}
 	for _, di := range result {
-		dev, ok := di.(Device)
+		dev, ok := di.(PCIDevice)
 		if !ok {
 			t.Fatalf("item is not Device: %T", di)
 		}
 		if dev.Bus != BusName {
 			t.Errorf("Device.Bus = %q, want %q", dev.Bus, BusName)
 		}
-		if dev.VendorName != nil {
-			t.Errorf("expected nil VendorName without FriendlyNames, got %q", *dev.VendorName)
+		if dev.FriendlyNames.VendorName != "" {
+			t.Errorf("expected empty VendorName without FriendlyNames, got %q", dev.FriendlyNames.VendorName)
 		}
 	}
 }
@@ -100,12 +99,12 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 	}
 	// No friendly names should have been populated.
 	for _, di := range result {
-		dev, ok := di.(Device)
+		dev, ok := di.(PCIDevice)
 		if !ok {
-			t.Fatalf("item is not Device: %T", di)
+			t.Fatalf("item is not PCIDevice: %T", di)
 		}
-		if dev.VendorName != nil {
-			t.Errorf("expected nil VendorName on lookup failure, got %q", *dev.VendorName)
+		if dev.FriendlyNames.VendorName != "" {
+			t.Errorf("expected empty VendorName on lookup failure, got %q", dev.FriendlyNames.VendorName)
 		}
 	}
 }
@@ -132,15 +131,15 @@ func TestScannerScan_FriendlyNamesSuccess(t *testing.T) {
 	if len(result) != 1 {
 		t.Fatalf("expected 1 device, got %d", len(result))
 	}
-	dev, ok := result[0].(Device)
+	dev, ok := result[0].(PCIDevice)
 	if !ok {
-		t.Fatalf("item is not Device: %T", result[0])
+		t.Fatalf("item is not PCIDevice: %T", result[0])
 	}
-	if dev.VendorName == nil || *dev.VendorName != "Intel Corporation" {
-		t.Errorf("VendorName = %v, want %q", dev.VendorName, "Intel Corporation")
+	if dev.FriendlyNames.VendorName != "Intel Corporation" {
+		t.Errorf("VendorName = %v, want %q", dev.FriendlyNames.VendorName, "Intel Corporation")
 	}
-	if dev.DeviceName == nil || *dev.DeviceName != "Fake Display Device" {
-		t.Errorf("DeviceName = %v, want %q", dev.DeviceName, "Fake Display Device")
+	if dev.FriendlyNames.DeviceName != "Fake Display Device" {
+		t.Errorf("DeviceName = %v, want %q", dev.FriendlyNames.DeviceName, "Fake Display Device")
 	}
 }
 
@@ -162,7 +161,7 @@ func TestIsGpu(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			d := Device{DeviceClass: types.HexInt(tc.deviceClass)}
+			d := PCIDevice{DeviceClass: tc.deviceClass}
 			if got := d.IsGpu(); got != tc.want {
 				t.Errorf("Device{DeviceClass: 0x%04x}.IsGpu() = %v, want %v",
 					tc.deviceClass, got, tc.want)
@@ -191,7 +190,7 @@ func TestDecode(t *testing.T) {
 		if dev.Slot != "0000:00:02.0" {
 			t.Errorf("Slot = %q, want %q", dev.Slot, "0000:00:02.0")
 		}
-		if dev.VendorId != types.HexInt(0x8086) {
+		if dev.VendorId != uint64(0x8086) {
 			t.Errorf("VendorId = 0x%x, want 0x8086", uint64(dev.VendorId))
 		}
 	})

@@ -14,7 +14,7 @@ func TestDecodeDeviceInfo(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Decode() error: %v", err)
 		}
-		pciDev, ok := dev.(pci.Device)
+		pciDev, ok := dev.(pci.PCIDevice)
 		if !ok {
 			t.Fatalf("expected pci.Device, got %T", dev)
 		}
@@ -29,7 +29,7 @@ func TestDecodeDeviceInfo(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Decode() error: %v", err)
 		}
-		usbDev, ok := dev.(usb.Device)
+		usbDev, ok := dev.(usb.USBDevice)
 		if !ok {
 			t.Fatalf("expected usb.Device, got %T", dev)
 		}

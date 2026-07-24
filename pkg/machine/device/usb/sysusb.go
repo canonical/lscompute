@@ -9,12 +9,11 @@ import (
 	"strings"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 const usbDevicesDir = "sys/bus/usb/devices" // io/fs path (no leading slash)
 
-func readSysUsb(h host.Host) ([]Device, []string, error) {
+func readSysUsb(h host.Host) ([]USBDevice, []string, error) {
 	entries, err := fs.ReadDir(h.FS(), usbDevicesDir)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
@@ -23,7 +22,7 @@ func readSysUsb(h host.Host) ([]Device, []string, error) {
 		return nil, nil, fmt.Errorf("reading %s: %w", usbDevicesDir, err)
 	}
 
-	var devices []Device
+	var devices []USBDevice
 	var warnings []string
 
 	for _, entry := range entries {
@@ -45,8 +44,8 @@ func readSysUsb(h host.Host) ([]Device, []string, error) {
 	return devices, warnings, nil
 }
 
-func readSysUsbDevice(h host.Host, dir string) (Device, error) {
-	var device Device
+func readSysUsbDevice(h host.Host, dir string) (USBDevice, error) {
+	var device USBDevice
 
 	vendorStr, err := readTrimmedFSFile(h, filepath.Join(dir, "idVendor"))
 	if err != nil {
@@ -56,7 +55,7 @@ func readSysUsbDevice(h host.Host, dir string) (Device, error) {
 	if err != nil {
 		return device, fmt.Errorf("parsing idVendor %q: %w", vendorStr, err)
 	}
-	device.VendorId = types.HexInt(vendorId)
+	device.VendorId = vendorId
 
 	productStr, err := readTrimmedFSFile(h, filepath.Join(dir, "idProduct"))
 	if err != nil {
@@ -66,7 +65,7 @@ func readSysUsbDevice(h host.Host, dir string) (Device, error) {
 	if err != nil {
 		return device, fmt.Errorf("parsing idProduct %q: %w", productStr, err)
 	}
-	device.ProductId = types.HexInt(productId)
+	device.ProductId = productId
 
 	busStr, err := readTrimmedFSFile(h, filepath.Join(dir, "busnum"))
 	if err != nil {

@@ -201,7 +201,7 @@ func TestLookupUsbIds_InterfaceEntriesSkipped(t *testing.T) {
 // is missing.
 func TestLookupFriendlyNames_LookupError(t *testing.T) {
 	h := host.Fake(t.TempDir()) // no usb.ids
-	dev := Device{}
+	dev := USBDevice{}
 	dev.VendorId = 0x046d
 	dev.ProductId = 0xc52b
 
@@ -210,7 +210,7 @@ func TestLookupFriendlyNames_LookupError(t *testing.T) {
 		t.Fatal("expected error, got nil")
 	}
 	// The device should be returned unchanged.
-	if got.VendorName != nil || got.ProductName != nil {
+	if got.VendorName != EMPTY_STRING || got.ProductName != EMPTY_STRING {
 		t.Errorf("expected unchanged device on error, got VendorName=%v ProductName=%v",
 			got.VendorName, got.ProductName)
 	}

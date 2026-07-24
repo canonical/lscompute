@@ -21,20 +21,21 @@ func TestDiskInfo(t *testing.T) {
 	}
 
 	h := host.Fake(dir)
-	result, err := Info(h)
+	results, err := Info(h)
 	if err != nil {
 		t.Fatalf("Info() error: %v", err)
 	}
 
-	stats, ok := result[snapStoragePath]
-	if !ok {
-		t.Fatalf("expected key %q in result, got keys: %v", snapStoragePath, keysOf(result))
-	}
-	if stats.Total != 107374182400 {
-		t.Errorf("Total = %d, want 107374182400", stats.Total)
-	}
-	if stats.Avail != 21474836480 {
-		t.Errorf("Avail = %d, want 21474836480", stats.Avail)
+	for _, result := range results {
+		if result.MountPoint != "/var/lib/snapd/snaps" {
+			t.Errorf("unexpected mount point: got %q, want %q", result.MountPoint, "/var/lib/snapd/snaps")
+		}
+		if result.Total != 107374182400 {
+			t.Errorf("Total = %d, want 107374182400", result.Total)
+		}
+		if result.Available != 21474836480 {
+			t.Errorf("Available = %d, want 21474836480", result.Available)
+		}
 	}
 }
 

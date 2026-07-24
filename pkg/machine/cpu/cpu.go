@@ -8,10 +8,9 @@ import (
 	"strings"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
-func Info(h host.Host) ([]CpuInfo, error) {
+func Info(h host.Host) ([]CPU, error) {
 	procCpuData, err := fs.ReadFile(h.FS(), "proc/cpuinfo")
 	if err != nil {
 		return nil, fmt.Errorf("reading proc/cpuinfo: %w", err)
@@ -42,7 +41,7 @@ func machineArch(h host.Host) (string, error) {
 	return hostMachineArchFallback()
 }
 
-func infoFromRawData(procCpuInfoData string, uname string) ([]CpuInfo, error) {
+func infoFromRawData(procCpuInfoData string, uname string) ([]CPU, error) {
 	architecture, err := debianArchitecture(uname)
 	if err != nil {
 		return nil, fmt.Errorf("translating architecture: %w", err)
@@ -67,7 +66,7 @@ func infoFromRawData(procCpuInfoData string, uname string) ([]CpuInfo, error) {
 	return cpus, nil
 }
 
-func uniqueCpuInfo(procCpus []procCpuInfo) ([]CpuInfo, error) {
+func uniqueCpuInfo(procCpus []procCpuInfo) ([]CPU, error) {
 	// Set processor index to 0 to only check other fields for uniqueness
 	for i := range procCpus {
 		procCpus[i].Processor = 0
@@ -86,18 +85,18 @@ func isDuplicate(a procCpuInfo, b procCpuInfo) bool {
 	return reflect.DeepEqual(a, b)
 }
 
-func cpuInfoFromProc(procCpus []procCpuInfo) ([]CpuInfo, error) {
-	var cpuInfos []CpuInfo
+func cpuInfoFromProc(procCpus []procCpuInfo) ([]CPU, error) {
+	var cpuInfos []CPU
 	for _, procCpu := range procCpus {
-		var cpuInfo CpuInfo
+		var cpuInfo CPU
 		if procCpu.Architecture == Amd64 {
 			cpuInfo.Architecture = procCpu.Architecture
 			cpuInfo.ManufacturerId = procCpu.ManufacturerId
 			cpuInfo.Flags = procCpu.Flags
 		} else if procCpu.Architecture == Arm64 {
 			cpuInfo.Architecture = procCpu.Architecture
-			cpuInfo.ImplementerId = types.HexInt(procCpu.ImplementerId)
-			cpuInfo.PartNumber = types.HexInt(procCpu.PartNumber)
+			cpuInfo.ImplementerId = procCpu.ImplementerId
+			cpuInfo.PartNumber = procCpu.PartNumber
 			cpuInfo.Features = procCpu.Features
 		} else if procCpu.Architecture == Riscv64 {
 			cpuInfo.Architecture = procCpu.Architecture

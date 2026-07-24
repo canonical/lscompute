@@ -1,6 +1,7 @@
 package host
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"io/fs"
@@ -41,11 +42,48 @@ func (realHost) RunCommand(ctx context.Context, name string, env []string, args 
 
 func (realHost) StatFs(path string) (dirStats, error) {
 	var st unix.Statfs_t
-	if err := unix.Statfs(filepath.Join("/", path), &st); err != nil {
+	fullPath := filepath.Join("/", path)
+	if err := unix.Statfs(fullPath, &st); err != nil {
 		return dirStats{}, fmt.Errorf("statfs %s: %w", path, err)
 	}
+
+	mountpoint, err := getMountpoint(fullPath)
+	if err != nil {
+		// Fall back to the path itself if we can't determine the mountpoint
+		mountpoint = fullPath
+	}
+
 	return dirStats{
-		Total: st.Blocks * uint64(st.Bsize),
-		Avail: st.Bavail * uint64(st.Bsize),
+		Mountpoint: mountpoint,
+		Total:      st.Blocks * uint64(st.Bsize),
+		Avail:      st.Bavail * uint64(st.Bsize),
 	}, nil
+}
+
+// getMountpoint retrieves the actual mountpoint for a given path by parsing /proc/mounts.
+func getMountpoint(path string) (string, error) {
+	file, err := os.Open("/proc/mounts")
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var longestMatch string
+	for scanner.Scan() {
+		parts := strings.Fields(scanner.Text())
+		if len(parts) < 2 {
+			continue
+		}
+		mountpoint := parts[1]
+		// Find the longest matching mountpoint (most specific)
+		if strings.HasPrefix(path, mountpoint) && len(mountpoint) > len(longestMatch) {
+			longestMatch = mountpoint
+		}
+	}
+
+	if longestMatch == "" {
+		return "", fmt.Errorf("mountpoint not found for %s", path)
+	}
+	return longestMatch, nil
 }

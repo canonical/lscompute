@@ -18,7 +18,7 @@ func TestGet_WithFakeHost(t *testing.T) {
 		t.Fatalf("Get() failed: %v", err)
 	}
 
-	if len(info.Cpus) == 0 {
+	if len(info.CPUs) == 0 {
 		t.Error("expected at least one CPU, got none")
 	}
 
@@ -26,7 +26,37 @@ func TestGet_WithFakeHost(t *testing.T) {
 		t.Error("expected TotalRam > 0, got 0")
 	}
 
-	for _, dev := range info.Devices {
+	for _, dev := range info.PCIDevices {
+		b, err := json.Marshal(dev)
+		if err != nil {
+			t.Fatalf("json.Marshal(device) failed: %v", err)
+		}
+		var peek struct {
+			Bus string `json:"bus"`
+		}
+		if err := json.Unmarshal(b, &peek); err != nil {
+			t.Fatalf("json.Unmarshal(device) failed: %v", err)
+		}
+		if peek.Bus == "" {
+			t.Error("device has empty Bus value")
+		}
+	}
+	for _, dev := range info.USBDevices {
+		b, err := json.Marshal(dev)
+		if err != nil {
+			t.Fatalf("json.Marshal(device) failed: %v", err)
+		}
+		var peek struct {
+			Bus string `json:"bus"`
+		}
+		if err := json.Unmarshal(b, &peek); err != nil {
+			t.Fatalf("json.Unmarshal(device) failed: %v", err)
+		}
+		if peek.Bus == "" {
+			t.Error("device has empty Bus value")
+		}
+	}
+	for _, dev := range info.FastRPCDevices {
 		b, err := json.Marshal(dev)
 		if err != nil {
 			t.Fatalf("json.Marshal(device) failed: %v", err)

@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 func TestScannerScan_NoFriendlyNames(t *testing.T) {
@@ -27,21 +26,21 @@ func TestScannerScan_NoFriendlyNames(t *testing.T) {
 	}
 
 	for _, di := range result {
-		dev, ok := di.(Device)
+		dev, ok := di.(USBDevice)
 		if !ok {
-			t.Fatalf("item is not Device: %T", di)
+			t.Fatalf("item is not USBDevice: %T", di)
 		}
 		if dev.Bus != BusName {
-			t.Errorf("Device.Bus = %q, want %q", dev.Bus, BusName)
+			t.Errorf("USBDevice.Bus = %q, want %q", dev.Bus, BusName)
 		}
 		// No friendly names requested — names must be absent.
-		if dev.VendorName != nil {
-			t.Errorf("device %04x:%04x: expected nil VendorName without FriendlyNames, got %q",
-				uint64(dev.VendorId), uint64(dev.ProductId), *dev.VendorName)
+		if dev.VendorName != EMPTY_STRING {
+			t.Errorf("device %04x:%04x: expected empty VendorName without FriendlyNames, got %q",
+				uint64(dev.VendorId), uint64(dev.ProductId), dev.VendorName)
 		}
-		if dev.ProductName != nil {
-			t.Errorf("device %04x:%04x: expected nil ProductName without FriendlyNames, got %q",
-				uint64(dev.VendorId), uint64(dev.ProductId), *dev.ProductName)
+		if dev.ProductName != EMPTY_STRING {
+			t.Errorf("device %04x:%04x: expected empty ProductName without FriendlyNames, got %q",
+				uint64(dev.VendorId), uint64(dev.ProductId), dev.ProductName)
 		}
 	}
 }
@@ -64,20 +63,20 @@ func TestScannerScan_WithFriendlyNames(t *testing.T) {
 	}
 
 	// Build a lookup map for targeted assertions.
-	type key struct{ vendorId, productId types.HexInt }
-	byIds := map[key]Device{}
+	type key struct{ vendorId, productId uint64 }
+	byIds := map[key]USBDevice{}
 	for i := range result {
-		dev, ok := result[i].(Device)
+		dev, ok := result[i].(USBDevice)
 		if !ok {
-			t.Fatalf("item is not Device: %T", result[i])
+			t.Fatalf("item is not USBDevice: %T", result[i])
 		}
 		byIds[key{dev.VendorId, dev.ProductId}] = dev
 	}
 
 	// knownBoth: vendor and product name both resolved from the curated usb.ids.
 	knownBoth := []struct {
-		vendorId    types.HexInt
-		productId   types.HexInt
+		vendorId    uint64
+		productId   uint64
 		wantVendor  string
 		wantProduct string
 	}{
@@ -96,28 +95,20 @@ func TestScannerScan_WithFriendlyNames(t *testing.T) {
 			t.Errorf("device %04x:%04x not found in scan result", uint64(tc.vendorId), uint64(tc.productId))
 			continue
 		}
-		if dev.VendorName == nil || *dev.VendorName != tc.wantVendor {
-			got := "<nil>"
-			if dev.VendorName != nil {
-				got = *dev.VendorName
-			}
+		if dev.VendorName != tc.wantVendor {
 			t.Errorf("device %04x:%04x VendorName = %q, want %q",
-				uint64(tc.vendorId), uint64(tc.productId), got, tc.wantVendor)
+				uint64(tc.vendorId), uint64(tc.productId), dev.VendorName, tc.wantVendor)
 		}
-		if dev.ProductName == nil || *dev.ProductName != tc.wantProduct {
-			got := "<nil>"
-			if dev.ProductName != nil {
-				got = *dev.ProductName
-			}
+		if dev.ProductName != tc.wantProduct {
 			t.Errorf("device %04x:%04x ProductName = %q, want %q",
-				uint64(tc.vendorId), uint64(tc.productId), got, tc.wantProduct)
+				uint64(tc.vendorId), uint64(tc.productId), dev.ProductName, tc.wantProduct)
 		}
 	}
 
 	// knownVendorOnly: product ID not in the curated usb.ids, so only vendor is resolved.
 	knownVendorOnly := []struct {
-		vendorId   types.HexInt
-		productId  types.HexInt
+		vendorId   uint64
+		productId  uint64
 		wantVendor string
 	}{
 		{0x045e, 0x0840, "Microsoft Corp."},
@@ -132,27 +123,23 @@ func TestScannerScan_WithFriendlyNames(t *testing.T) {
 			t.Errorf("device %04x:%04x not found in scan result", uint64(tc.vendorId), uint64(tc.productId))
 			continue
 		}
-		if dev.VendorName == nil || *dev.VendorName != tc.wantVendor {
-			got := "<nil>"
-			if dev.VendorName != nil {
-				got = *dev.VendorName
-			}
+		if dev.VendorName != tc.wantVendor {
 			t.Errorf("device %04x:%04x VendorName = %q, want %q",
-				uint64(tc.vendorId), uint64(tc.productId), got, tc.wantVendor)
+				uint64(tc.vendorId), uint64(tc.productId), dev.VendorName, tc.wantVendor)
 		}
-		if dev.ProductName != nil {
-			t.Errorf("device %04x:%04x: expected nil ProductName (not in db), got %q",
-				uint64(tc.vendorId), uint64(tc.productId), *dev.ProductName)
+		if dev.ProductName != EMPTY_STRING {
+			t.Errorf("device %04x:%04x: expected empty ProductName (not in db), got %q",
+				uint64(tc.vendorId), uint64(tc.productId), dev.ProductName)
 		}
 	}
 
 	// Unknown vendor (2ac1) — no names should be populated even with FriendlyNames on.
 	if dev, ok := byIds[key{0x2ac1, 0x20c9}]; ok {
-		if dev.VendorName != nil {
-			t.Errorf("unknown vendor 2ac1: expected nil VendorName, got %q", *dev.VendorName)
+		if dev.VendorName != EMPTY_STRING {
+			t.Errorf("unknown vendor 2ac1: expected empty VendorName, got %q", dev.VendorName)
 		}
-		if dev.ProductName != nil {
-			t.Errorf("unknown vendor 2ac1: expected nil ProductName, got %q", *dev.ProductName)
+		if dev.ProductName != EMPTY_STRING {
+			t.Errorf("unknown vendor 2ac1: expected empty ProductName, got %q", dev.ProductName)
 		}
 	} else {
 		t.Error("device 2ac1:20c9 not found in scan result")
@@ -207,26 +194,26 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 
 	// Devices must still have no friendly names (lookup failed).
 	for _, di := range result {
-		dev, ok := di.(Device)
+		dev, ok := di.(USBDevice)
 		if !ok {
 			t.Fatalf("item is not Device: %T", di)
 		}
-		if dev.VendorName != nil {
-			t.Errorf("expected nil VendorName on lookup failure, got %q", *dev.VendorName)
+		if dev.VendorName != EMPTY_STRING {
+			t.Errorf("expected empty VendorName on lookup failure, got %q", dev.VendorName)
 		}
-		if dev.ProductName != nil {
-			t.Errorf("expected nil ProductName on lookup failure, got %q", *dev.ProductName)
+		if dev.ProductName != EMPTY_STRING {
+			t.Errorf("expected empty ProductName on lookup failure, got %q", dev.ProductName)
 		}
 	}
 
 	// Device.Bus must still be set correctly.
 	for _, di := range result {
-		dev, ok := di.(Device)
+		dev, ok := di.(USBDevice)
 		if !ok {
-			t.Fatalf("item is not Device: %T", di)
+			t.Fatalf("item is not USBDevice: %T", di)
 		}
 		if dev.Bus != BusName {
-			t.Errorf("Device.Bus = %q, want %q", dev.Bus, BusName)
+			t.Errorf("USBDevice.Bus = %q, want %q", dev.Bus, BusName)
 		}
 	}
 }
@@ -260,8 +247,8 @@ func TestDecode(t *testing.T) {
 		if dev.BusNumber != 1 {
 			t.Errorf("BusNumber = %d, want 1", dev.BusNumber)
 		}
-		if dev.VendorId != types.HexInt(0x1d6b) {
-			t.Errorf("VendorId = 0x%x, want 0x1d6b", uint64(dev.VendorId))
+		if dev.VendorId != 0x1d6b {
+			t.Errorf("VendorId = 0x%x, want 0x1d6b", dev.VendorId)
 		}
 	})
 

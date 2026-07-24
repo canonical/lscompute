@@ -6,29 +6,28 @@ import (
 
 	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 const BusName = "usb"
 
 // Device represents a single USB device detected on the system.
-type Device struct {
+type USBDevice struct {
 	Bus string `json:"bus" yaml:"bus"`
 
-	BusNumber     int          `json:"bus-number" yaml:"bus-number"`
-	DeviceNumber  int          `json:"device-number" yaml:"device-number"`
-	VendorId      types.HexInt `json:"vendor-id" yaml:"vendor-id"`
-	ProductId     types.HexInt `json:"product-id" yaml:"product-id"`
-	FriendlyNames `json:",inline" yaml:",inline"`
+	BusNumber    int
+	DeviceNumber int
+	VendorId     uint64
+	ProductId    uint64
+	FriendlyNames
 
 	// Vendor specific device key-value pairs
-	AdditionalProperties map[string]string `json:"additional-properties,omitempty" yaml:"additional-properties,omitempty"`
+	AdditionalProperties map[string]string
 }
 
 // FriendlyNames holds human-readable names resolved from the usb.ids database.
 type FriendlyNames struct {
-	VendorName  *string `json:"vendor-name,omitempty" yaml:"vendor-name,omitempty"`
-	ProductName *string `json:"product-name,omitempty" yaml:"product-name,omitempty"`
+	VendorName  string
+	ProductName string
 }
 
 // usb implements bus.Bus for the USB bus.
@@ -73,10 +72,10 @@ func (bus *usb) Devices() ([]any, []string, error) {
 	return result, warnings, nil
 }
 
-func Decode(bytes []byte) (Device, error) {
-	var device Device
+func Decode(bytes []byte) (USBDevice, error) {
+	var device USBDevice
 	if err := json.Unmarshal(bytes, &device); err != nil {
-		return Device{}, err
+		return USBDevice{}, err
 	}
 	return device, nil
 }

@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 // usbIdsSearchPaths lists candidate paths for the usb.ids database, in priority order.
@@ -28,7 +27,7 @@ type usbIdEntry struct {
 // lookupUsbIds looks up the human-readable vendor and product names for the
 // given IDs from the usb.ids database file.
 // Both names may be empty if the IDs are not found.
-func lookupUsbIds(h host.Host, vendorId, productId types.HexInt) (usbIdEntry, error) {
+func lookupUsbIds(h host.Host, vendorId uint64, productId uint64) (usbIdEntry, error) {
 	path, err := findUsbIdsFile(h)
 	if err != nil {
 		return usbIdEntry{}, err
@@ -122,18 +121,16 @@ func findUsbIdsFile(h host.Host) (string, error) {
 // lookupFriendlyNames resolves human-readable vendor and product names for a
 // device from the usb.ids database and populates the device's FriendlyNames.
 // Errors are returned so the caller can emit them as warnings.
-func lookupFriendlyNames(h host.Host, device Device) (Device, error) {
+func lookupFriendlyNames(h host.Host, device USBDevice) (USBDevice, error) {
 	entry, err := lookupUsbIds(h, device.VendorId, device.ProductId)
 	if err != nil {
 		return device, err
 	}
-	if entry.VendorName != "" {
-		name := entry.VendorName
-		device.VendorName = &name
+	if entry.VendorName != EMPTY_STRING {
+		device.VendorName = entry.VendorName
 	}
-	if entry.ProductName != "" {
-		name := entry.ProductName
-		device.ProductName = &name
+	if entry.ProductName != EMPTY_STRING {
+		device.ProductName = entry.ProductName
 	}
 	return device, nil
 }

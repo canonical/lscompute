@@ -8,14 +8,16 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/device/usb"
 )
 
-func TestDecodeMachineInfo(t *testing.T) {
+func TestDecodeMachine(t *testing.T) {
 	wire := map[string]any{
 		"cpus":   []map[string]any{{"architecture": "amd64", "manufacturer-id": "GenuineIntel", "flags": []string{"sse2"}}},
 		"memory": map[string]any{"total-ram": 1024, "total-swap": 0},
 		"disk":   map[string]any{"/var/lib/snapd/snaps": map[string]any{"total": 100, "avail": 50}},
-		"devices": []map[string]any{
-			{"bus": "usb", "bus-number": 1, "device-number": 2, "vendor-id": "0x0bda", "product-id": "0x5487"},
-			{"bus": "pci", "slot": "0000:00:02.0", "bus-number": "0x00", "device-class": "0x0300", "vendor-id": "0x8086", "device-id": "0x5916"},
+		"PCIdevices": []pci.PCIDevice{
+			{Bus: "pci", Slot: "0000:00:02.0", BusNumber: 0x00, DeviceClass: 0x0300, VendorId: 0x8086, DeviceId: 0x5916},
+		},
+		"USBdevices": []usb.USBDevice{
+			{Bus: "usb", BusNumber: 1, DeviceNumber: 2, VendorId: 0x0bda, ProductId: 0x5487},
 		},
 	}
 
@@ -26,28 +28,25 @@ func TestDecodeMachineInfo(t *testing.T) {
 
 	info, err := Decode(data)
 	if err != nil {
-		t.Fatalf("DecodeMachineInfo() error: %v", err)
+		t.Fatalf("Decode() error: %v", err)
 	}
-	if len(info.Devices) != 2 {
-		t.Fatalf("len(Devices) = %d, want 2", len(info.Devices))
+	if _, ok := interface{}(info.PCIDevices[0]).(pci.PCIDevice); !ok {
+		t.Fatalf("PCIDevices[0] type = %T, want pci.PCIDevice", info.PCIDevices[0])
 	}
-	if _, ok := info.Devices[0].(usb.Device); !ok {
-		t.Fatalf("Devices[0] type = %T, want usb.Device", info.Devices[0])
-	}
-	if _, ok := info.Devices[1].(pci.Device); !ok {
-		t.Fatalf("Devices[1] type = %T, want pci.Device", info.Devices[1])
+	if _, ok := interface{}(info.USBDevices[0]).(usb.USBDevice); !ok {
+		t.Fatalf("USBDevices[0] type = %T, want usb.USBDevice", info.USBDevices[0])
 	}
 }
 
-func TestDecodeMachineInfo_InvalidDevice(t *testing.T) {
-	// Build JSON directly with an unknown bus — DecodeMachineInfo must return an error.
+func TestDecodeMachine_InvalidDevice(t *testing.T) {
+	// Build JSON directly with an unknown bus — Decode must return an error.
 	data := []byte(`{"devices":[{"bus":"unknown","vendor-id":1}]}`)
 	if _, err := Decode(data); err == nil {
 		t.Fatal("expected error for unknown bus, got nil")
 	}
 }
 
-func TestDecodeMachineInfo_MalformedJSON(t *testing.T) {
+func TestDecodeMachine_MalformedJSON(t *testing.T) {
 	_, err := Decode([]byte(`not valid json`))
 	if err == nil {
 		t.Fatal("expected error for malformed JSON, got nil")
