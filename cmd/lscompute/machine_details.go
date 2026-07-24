@@ -51,8 +51,8 @@ type MemoryDetails struct {
 
 func (m MemoryDetails) MarshalYAML() (any, error) {
 	return struct {
-		TotalRam  string `yaml:"total-ram"`
-		TotalSwap string `yaml:"total-swap"`
+		TotalRam  any `yaml:"total-ram"`
+		TotalSwap any `yaml:"total-swap"`
 	}{
 		TotalRam:  FormatBytes(m.TotalRam),
 		TotalSwap: FormatBytes(m.TotalSwap),
@@ -66,8 +66,8 @@ type DirDetails struct {
 
 func (d DirDetails) MarshalYAML() (any, error) {
 	return struct {
-		Total string `yaml:"total"`
-		Avail string `yaml:"avail"`
+		Total any `yaml:"total"`
+		Avail any `yaml:"avail"`
 	}{
 		Total: FormatBytes(d.Total),
 		Avail: FormatBytes(d.Avail),
@@ -118,7 +118,7 @@ type PciAdditionalDeviceProperties struct {
 func (a PciAdditionalDeviceProperties) MarshalYAML() (any, error) {
 	return struct {
 		Microarchitecture string `yaml:"microarchitecture,omitempty"`
-		Vram              string `yaml:"vram,omitempty"`
+		Vram              any    `yaml:"vram,omitempty"`
 		ComputeCapability string `yaml:"compute-capability,omitempty"`
 	}{
 		Microarchitecture: a.Microarchitecture,
@@ -227,7 +227,7 @@ func (m *MachineDetails) marshalPlain() ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func FormatBytes(b uint64) string {
+func FormatBytes(b uint64) any {
 	const (
 		mib = 1024 * 1024
 		gib = 1024 * mib
@@ -241,7 +241,7 @@ func FormatBytes(b uint64) string {
 	case b >= mib:
 		return fmt.Sprintf("%.1fM", float64(b)/mib)
 	default:
-		return fmt.Sprintf("%d", b)
+		return b
 	}
 }
 
