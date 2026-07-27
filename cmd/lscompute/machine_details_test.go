@@ -10,90 +10,92 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/device/usb"
 	"github.com/canonical/lscompute/pkg/machine/disk"
 	"github.com/canonical/lscompute/pkg/machine/memory"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
-func machineInfoForExamples() *machine.MachineInfo {
-	return &machine.MachineInfo{
-		Cpus: []cpu.CpuInfo{{
+func machineInfoForExamples() *machine.Machine {
+	return &machine.Machine{
+		CPUs: []cpu.CPU{{
 			Architecture:   "amd64",
 			ManufacturerId: "GenuineIntel",
 			Flags:          []string{"fpu", "vme", "de"},
 		}},
-		Memory: memory.MemoryInfo{
+		Memory: memory.Memory{
 			TotalRam:  67012501504,
 			TotalSwap: 0,
 		},
-		Disk: map[string]disk.DirInfo{
-			"/var/lib/snapd/snaps": {
-				Total: 1006451294208,
-				Avail: 943543738368,
-			},
-		},
-		Devices: []any{
-			pci.Device{
+		Disk: []disk.Disk{{
+			MountPoint: "/",
+			Total:      1006451294208,
+			Available:  943543738368,
+		}},
+		PCIDevices: []pci.PCIDevice{
+			pci.PCIDevice{
 				Bus:         pci.BusName,
 				Slot:        "0000:00:00.0",
 				BusNumber:   0x0,
 				DeviceClass: 0x600,
 				VendorId:    0x8086,
 				DeviceId:    0x4637,
-				SubvendorId: new(types.HexInt(0x103C)),
-				SubdeviceId: new(types.HexInt(0x89C6)),
+				SubvendorId: 0x103C,
+				SubdeviceId: 0x89C6,
 			},
-			pci.Device{
+			pci.PCIDevice{
 				Bus:         pci.BusName,
 				Slot:        "0000:00:02.0",
 				BusNumber:   0x0,
 				DeviceClass: 0x300,
 				VendorId:    0x8086,
 				DeviceId:    0x9B41,
-				SubvendorId: new(types.HexInt(0x1028)),
-				SubdeviceId: new(types.HexInt(0x962)),
+				SubvendorId: 0x1028,
+				SubdeviceId: 0x962,
 				AdditionalProperties: map[string]string{
 					"vram": "14477950976",
 				},
 			},
-			pci.Device{
+			pci.PCIDevice{
 				Bus:         pci.BusName,
 				Slot:        "0000:01:00.0",
 				BusNumber:   0x1,
 				DeviceClass: 0x300,
 				VendorId:    0x10DE,
 				DeviceId:    0x1B06,
-				SubvendorId: new(types.HexInt(0x10DE)),
-				SubdeviceId: new(types.HexInt(0x1B06)),
+				SubvendorId: 0x10DE,
+				SubdeviceId: 0x1B06,
 				AdditionalProperties: map[string]string{
 					"vram":               "11811160064",
 					"compute-capability": "6.1",
 				},
 			},
-			pci.Device{
+			pci.PCIDevice{
 				Bus:         pci.BusName,
 				Slot:        "0000:03:00.0",
 				BusNumber:   0x3,
 				DeviceClass: 0x300,
 				VendorId:    0x1002,
 				DeviceId:    0x73E1,
-				SubvendorId: new(types.HexInt(0x103C)),
-				SubdeviceId: new(types.HexInt(0x89C6)),
+				SubvendorId: 0x103C,
+				SubdeviceId: 0x89C6,
 				AdditionalProperties: map[string]string{
 					"microarchitecture": "gfx1032",
 					"vram":              "8573157376",
 				},
 			},
-			usb.Device{
+		},
+		USBDevices: []usb.USBDevice{
+			usb.USBDevice{
 				Bus:          usb.BusName,
 				BusNumber:    7,
 				DeviceNumber: 1,
 				VendorId:     0x1D6B,
 				ProductId:    0x2,
 				FriendlyNames: usb.FriendlyNames{
-					VendorName:  new("Linux Foundation"),
-					ProductName: new("2.0 root hub"),
+					VendorName:  "Linux Foundation",
+					ProductName: "2.0 root hub",
 				},
 			},
-			fastrpc.Device{
+		},
+		FastRPCDevices: []fastrpc.FastRPCDevice{
+			fastrpc.FastRPCDevice{
 				Bus:    fastrpc.BusName,
 				Domain: fastrpc.ADSPDomain,
 				Index:  0,
@@ -132,12 +134,13 @@ func Example_marshalJson() {
 	//     "total-ram": 67012501504,
 	//     "total-swap": 0
 	//   },
-	//   "disk": {
-	//     "/var/lib/snapd/snaps": {
+	//   "disk": [
+	//     {
+	//       "mount-point": "/",
 	//       "total": 1006451294208,
 	//       "avail": 943543738368
 	//     }
-	//   },
+	//   ],
 	//   "devices": [
 	//     {
 	//       "bus": "pci",
@@ -229,9 +232,9 @@ func Example_marshalPlain() {
 	//   total-ram: 62.4G
 	//   total-swap: 0
 	// disk:
-	//   /var/lib/snapd/snaps:
-	//     total: 937.3G
-	//     avail: 878.7G
+	//   - mount-point: "/"
+	//     total: 1006451294208
+	//     avail: 943543738368
 	// devices:
 	//   - bus: pci
 	//     slot: '0000:00:00.0'

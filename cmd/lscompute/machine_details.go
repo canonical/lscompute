@@ -280,23 +280,6 @@ func newPciAdditionalDeviceProperties(props map[string]string) *PciAdditionalDev
 	return ap
 }
 
-// derefString returns the pointed-to string, or "" when the pointer is nil.
-func derefString(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
-}
-
-// derefHexInt returns the pointed-to value, or the zero value when the
-// pointer is nil.
-func derefHexInt(h *HexInt) HexInt {
-	if h == nil {
-		return 0
-	}
-	return *h
-}
-
 // HexInt Custom type to handle hex values
 type HexInt int
 
