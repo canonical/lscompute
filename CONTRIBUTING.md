@@ -4,13 +4,13 @@
 
 Adding support for a new bus (e.g. I2C, MIPI CSI, AMBA) follows a fixed recipe.
 You only touch files inside your new package directory plus **one bus registration
-in `device/devices.go`** and **one decoder branch in `device/decode.go`**.
+in `device/devices.go`**.
 
 ### Step 1 — Create the bus package directory
 
 ```
 pkg/machine/device/<busname>/
-    <busname>.go    ← BusName constant, Device struct, Options, NewBus(), Devices(), Decode()
+    <busname>.go    ← BusName constant, Device struct, Options, NewBus(), Devices()
     <anything>      ← sysfs reader, ID lookup, vendor logic, tests, …
 ```
 
@@ -23,9 +23,6 @@ Add extra files (e.g. `sys<busname>.go`, `vendor.go`) when the implementation gr
 package <busname>
 
 import (
-    "encoding/json"
-    "fmt"
-
     "github.com/canonical/lscompute/pkg/machine/device/bus"
     "github.com/canonical/lscompute/pkg/machine/host"
 )
@@ -33,13 +30,17 @@ import (
 const BusName = "<busname>"
 
 // Device represents a single <busType> device detected on the system.
+//
+// Public device structs carry no serialization tags apart from the `Bus`
+// discriminator: the human-readable JSON/YAML rendering lives in
+// `cmd/lscompute` (see `MachineDetails`).
 type Device struct {
     Bus string `json:"bus"`
 
     // TODO: add bus-specific fields here
 
     // Optional: vendor-specific key-value pairs
-    AdditionalProperties map[string]string `json:"additional-properties,omitempty"`
+    AdditionalProperties map[string]string
 }
 
 // Options holds <busType>-specific bus configuration.
@@ -64,15 +65,6 @@ func (bus *<busType>) Devices() ([]any, []string, error) {
     //   device.Bus = BusName
     return nil, nil, nil
 }
-
-// Decode unmarshals a raw JSON object into a *Device.
-func Decode(data []byte) (*Device, error) {
-    var device Device
-    if err := json.Unmarshal(data, &device); err != nil {
-        return nil, fmt.Errorf("decoding <busname> device: %w", err)
-    }
-    return &device, nil
-}
 ```
 
 ### Step 3 — Register the bus in `device/devices.go`
@@ -83,13 +75,4 @@ Add your bus to the `buses` slice in `pkg/machine/device/devices.go`:
 <busname>.NewBus(h, <busname>.Options{}),
 ```
 
-### Step 4 — Register the decoder in `device/decode.go`
-
-Add one `case` to the `switch` in `pkg/machine/device/decode.go`:
-
-```go
-case <busname>.BusName:
-    return <busname>.Decode(data)
-```
-
-Also import `"github.com/canonical/lscompute/pkg/machine/device/<busname>"` in both files.
+Also import `"github.com/canonical/lscompute/pkg/machine/device/<busname>"` in `device/devices.go`.

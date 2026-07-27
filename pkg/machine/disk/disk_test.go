@@ -15,7 +15,7 @@ func TestDiskInfo(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Fixture JSON uses leading "/" keys, matching the host.Fake convention.
-	fixture := `{"/var/lib/snapd/snaps": {"total": 107374182400, "avail": 21474836480}}`
+	fixture := `{"/var/lib/snapd/snaps": {"mountpoint": "/", "total": 107374182400, "avail": 21474836480}}`
 	if err := os.WriteFile(filepath.Join(runDir, "disk-stats.json"), []byte(fixture), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -27,8 +27,8 @@ func TestDiskInfo(t *testing.T) {
 	}
 
 	for _, result := range results {
-		if result.MountPoint != "/var/lib/snapd/snaps" {
-			t.Errorf("unexpected mount point: got %q, want %q", result.MountPoint, "/var/lib/snapd/snaps")
+		if result.MountPoint != "/" {
+			t.Errorf("unexpected mount point: got %q, want %q", result.MountPoint, "/")
 		}
 		if result.Total != 107374182400 {
 			t.Errorf("Total = %d, want 107374182400", result.Total)
@@ -46,12 +46,4 @@ func TestDiskInfo_MissingStats(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for missing disk-stats.json, got nil")
 	}
-}
-
-func keysOf[K comparable, V any](m map[K]V) []K {
-	keys := make([]K, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	return keys
 }

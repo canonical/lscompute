@@ -169,36 +169,3 @@ func TestIsGpu(t *testing.T) {
 		})
 	}
 }
-
-func TestDecode(t *testing.T) {
-	t.Run("valid JSON round-trip", func(t *testing.T) {
-		raw := `{
-			"bus": "pci",
-			"slot": "0000:00:02.0",
-			"bus-number": "0x00",
-			"device-class": "0x0300",
-			"vendor-id": "0x8086",
-			"device-id": "0x1234"
-		}`
-		dev, err := Decode([]byte(raw))
-		if err != nil {
-			t.Fatalf("Decode() unexpected error: %v", err)
-		}
-		if dev.Bus != "pci" {
-			t.Errorf("Bus = %q, want %q", dev.Bus, "pci")
-		}
-		if dev.Slot != "0000:00:02.0" {
-			t.Errorf("Slot = %q, want %q", dev.Slot, "0000:00:02.0")
-		}
-		if dev.VendorId != uint64(0x8086) {
-			t.Errorf("VendorId = 0x%x, want 0x8086", uint64(dev.VendorId))
-		}
-	})
-
-	t.Run("invalid JSON returns error", func(t *testing.T) {
-		_, err := Decode([]byte(`{not valid json`))
-		if err == nil {
-			t.Fatal("Decode() expected error for invalid JSON, got nil")
-		}
-	})
-}

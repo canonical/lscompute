@@ -1,7 +1,6 @@
 package fastrpc
 
 import (
-	"encoding/json"
 	"errors"
 	"io/fs"
 	"strconv"
@@ -81,14 +80,6 @@ func (bus *fastRpc) Devices() ([]any, []string, error) {
 	}
 
 	return result, nil, nil
-}
-
-func Decode(bytes []byte) (FastRPCDevice, error) {
-	var device FastRPCDevice
-	if err := json.Unmarshal(bytes, &device); err != nil {
-		return FastRPCDevice{}, err
-	}
-	return device, nil
 }
 
 func parseFastRPCDeviceName(name string) (FastRPCDevice, bool) {

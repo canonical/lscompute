@@ -29,7 +29,7 @@ func machineInfoForExamples() *machine.Machine {
 			Available:  943543738368,
 		}},
 		PCIDevices: []pci.PCIDevice{
-			pci.PCIDevice{
+			{
 				Bus:         pci.BusName,
 				Slot:        "0000:00:00.0",
 				BusNumber:   0x0,
@@ -39,7 +39,7 @@ func machineInfoForExamples() *machine.Machine {
 				SubvendorId: 0x103C,
 				SubdeviceId: 0x89C6,
 			},
-			pci.PCIDevice{
+			{
 				Bus:         pci.BusName,
 				Slot:        "0000:00:02.0",
 				BusNumber:   0x0,
@@ -52,7 +52,7 @@ func machineInfoForExamples() *machine.Machine {
 					"vram": "14477950976",
 				},
 			},
-			pci.PCIDevice{
+			{
 				Bus:         pci.BusName,
 				Slot:        "0000:01:00.0",
 				BusNumber:   0x1,
@@ -66,7 +66,7 @@ func machineInfoForExamples() *machine.Machine {
 					"compute-capability": "6.1",
 				},
 			},
-			pci.PCIDevice{
+			{
 				Bus:         pci.BusName,
 				Slot:        "0000:03:00.0",
 				BusNumber:   0x3,
@@ -82,7 +82,7 @@ func machineInfoForExamples() *machine.Machine {
 			},
 		},
 		USBDevices: []usb.USBDevice{
-			usb.USBDevice{
+			{
 				Bus:          usb.BusName,
 				BusNumber:    7,
 				DeviceNumber: 1,
@@ -95,7 +95,7 @@ func machineInfoForExamples() *machine.Machine {
 			},
 		},
 		FastRPCDevices: []fastrpc.FastRPCDevice{
-			fastrpc.FastRPCDevice{
+			{
 				Bus:    fastrpc.BusName,
 				Domain: fastrpc.ADSPDomain,
 				Index:  0,
@@ -134,7 +134,7 @@ func Example_marshalJson() {
 	//     "total-ram": 67012501504,
 	//     "total-swap": 0
 	//   },
-	//   "disk": [
+	//   "disks": [
 	//     {
 	//       "mount-point": "/",
 	//       "total": 1006451294208,
@@ -195,7 +195,7 @@ func Example_marshalJson() {
 	//     },
 	//     {
 	//       "bus": "usb",
-	//       "bus-number": 7,
+	//       "bus-number": "0x7",
 	//       "device-number": 1,
 	//       "vendor-id": "0x1D6B",
 	//       "product-id": "0x2",
@@ -231,10 +231,10 @@ func Example_marshalPlain() {
 	// memory:
 	//   total-ram: 62.4G
 	//   total-swap: 0
-	// disk:
-	//   - mount-point: "/"
-	//     total: 1006451294208
-	//     avail: 943543738368
+	// disks:
+	//   - mount-point: /
+	//     total: 937.3G
+	//     avail: 878.7G
 	// devices:
 	//   - bus: pci
 	//     slot: '0000:00:00.0'
@@ -277,7 +277,7 @@ func Example_marshalPlain() {
 	//       microarchitecture: gfx1032
 	//       vram: 8.0G
 	//   - bus: usb
-	//     bus-number: 7
+	//     bus-number: "0x7"
 	//     device-number: 1
 	//     vendor-id: "0x1D6B"
 	//     product-id: "0x2"

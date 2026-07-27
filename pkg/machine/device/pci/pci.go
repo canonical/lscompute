@@ -1,7 +1,6 @@
 package pci
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/canonical/lscompute/pkg/machine/device/bus"
@@ -91,12 +90,4 @@ func (bus *pci) Devices() ([]any, []string, error) {
 		result = append(result, device)
 	}
 	return result, warnings, nil
-}
-
-func Decode(bytes []byte) (PCIDevice, error) {
-	var device PCIDevice
-	if err := json.Unmarshal(bytes, &device); err != nil {
-		return PCIDevice{}, err
-	}
-	return device, nil
 }

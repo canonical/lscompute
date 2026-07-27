@@ -1,7 +1,6 @@
 package usb
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/canonical/lscompute/pkg/machine/device/bus"
@@ -70,12 +69,4 @@ func (bus *usb) Devices() ([]any, []string, error) {
 		result = append(result, device)
 	}
 	return result, warnings, nil
-}
-
-func Decode(bytes []byte) (USBDevice, error) {
-	var device USBDevice
-	if err := json.Unmarshal(bytes, &device); err != nil {
-		return USBDevice{}, err
-	}
-	return device, nil
 }
