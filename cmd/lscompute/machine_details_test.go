@@ -30,7 +30,12 @@ func machineInfoForExamples() *machine.Machine {
 			MountPoint: "/",
 			Total:      1006451294208,
 			Available:  943543738368,
-		}},
+		},
+			{
+				MountPoint: "/home",
+				Total:      1000000000000000,
+				Available:  40000000,
+			}},
 		PCIDevices: []pci.PCIDevice{
 			{
 				Bus:         pci.BusName,
@@ -142,6 +147,11 @@ func Example_marshalJson() {
 	//       "mount-point": "/",
 	//       "total": 1006451294208,
 	//       "avail": 943543738368
+	//     },
+	//     {
+	//       "mount-point": "/home",
+	//       "total": 1000000000000000,
+	//       "avail": 40000000
 	//     }
 	//   ],
 	//   "devices": [
@@ -238,6 +248,9 @@ func Example_marshalPlain() {
 	//   - mount-point: /
 	//     total: 937.3G
 	//     avail: 878.7G
+	//   - mount-point: /home
+	//     total: 909.5T
+	//     avail: 38.1M
 	// devices:
 	//   - bus: pci
 	//     slot: '0000:00:00.0'
