@@ -82,6 +82,10 @@ func getMountpoint(path string) (string, error) {
 		}
 	}
 
+	if err := scanner.Err(); err != nil {
+		return "", err
+	}
+
 	if longestMatch == "" {
 		return "", fmt.Errorf("mountpoint not found for %s", path)
 	}

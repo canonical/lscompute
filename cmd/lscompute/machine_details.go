@@ -79,6 +79,7 @@ type PciDeviceDetails struct {
 	Slot                 string                         `json:"slot,omitempty" yaml:"slot,omitempty"`
 	BusNumber            any                            `json:"bus-number,omitempty" yaml:"bus-number,omitempty"`
 	DeviceClass          HexInt                         `json:"device-class,omitempty" yaml:"device-class,omitempty"`
+	ProgrammingInterface uint8                          `json:"programming-interface,omitempty" yaml:"programming-interface,omitempty"`
 	VendorId             HexInt                         `json:"vendor-id,omitempty" yaml:"vendor-id,omitempty"`
 	DeviceId             HexInt                         `json:"device-id,omitempty" yaml:"device-id,omitempty"`
 	SubvendorId          HexInt                         `json:"subvendor-id,omitempty" yaml:"subvendor-id,omitempty"`
@@ -147,6 +148,7 @@ func NewMachineDetails(info *machine.Machine) *MachineDetails {
 			Slot:                 d.Slot,
 			BusNumber:            HexInt(d.BusNumber),
 			DeviceClass:          HexInt(d.DeviceClass),
+			ProgrammingInterface: d.ProgrammingInterface,
 			VendorId:             HexInt(d.VendorId),
 			DeviceId:             HexInt(d.DeviceId),
 			SubvendorId:          HexInt(d.SubvendorId),
