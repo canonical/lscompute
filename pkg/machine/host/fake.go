@@ -108,7 +108,9 @@ func (h *fakeHost) StatFs(path string) (dirStats, error) {
 	var best dirStats
 	found := false
 	for _, entry := range stats {
-		if strings.HasPrefix(fullPath, entry.Mountpoint) && len(entry.Mountpoint) > len(best.Mountpoint) {
+		// Match only at a path-segment boundary so that e.g. mountpoint
+		// "/mnt/foo" does not match "/mnt/foobar", mirroring real.go.
+		if (entry.Mountpoint == "/" || fullPath == entry.Mountpoint || strings.HasPrefix(fullPath, entry.Mountpoint+"/")) && len(entry.Mountpoint) > len(best.Mountpoint) {
 			best = entry
 			found = true
 		}

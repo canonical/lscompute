@@ -7,9 +7,9 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
-// directories lists the absolute paths whose disk usage we report. The map
-// keys in the result preserve the leading slash for display; we strip it
-// internally to satisfy the host.Host io/fs path convention.
+// directories lists the absolute paths whose disk usage we report. Each path is
+// stripped of its leading slash internally to satisfy the host.Host io/fs path
+// convention; the resolved mountpoint is reported for each entry.
 var directories = []string{
 	snapStoragePath,
 }

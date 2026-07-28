@@ -10,7 +10,7 @@ in `device/devices.go`**.
 
 ```
 pkg/machine/device/<busname>/
-    <busname>.go    ← BusName constant, Device struct, Options, NewBus(), Devices()
+    <busname>.go    ← BusName constant, <BusType>Device struct, Options, NewBus(), Devices()
     <anything>      ← sysfs reader, ID lookup, vendor logic, tests, …
 ```
 
@@ -29,13 +29,12 @@ import (
 
 const BusName = "<busname>"
 
-// Device represents a single <busType> device detected on the system.
+// <BusType>Device represents a single <busType> device detected on the system.
 //
-// Public device structs carry no serialization tags apart from the `Bus`
-// discriminator: the human-readable JSON/YAML rendering lives in
-// `cmd/lscompute` (see `MachineDetails`).
-type Device struct {
-    Bus string `json:"bus"`
+// Public device structs carry no serialization tags: the human-readable
+// JSON/YAML rendering lives in `cmd/lscompute` (see `MachineDetails`).
+type <BusType>Device struct {
+    Bus string
 
     // TODO: add bus-specific fields here
 
