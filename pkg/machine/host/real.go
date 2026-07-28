@@ -76,8 +76,8 @@ func getMountpoint(path string) (string, error) {
 			continue
 		}
 		mountpoint := parts[1]
-		// Find the longest matching mountpoint (most specific)
-		if strings.HasPrefix(path, mountpoint) && len(mountpoint) > len(longestMatch) {
+		// Find the longest matching mountpoint (most specific). Ensure we match a full path segment.
+		if (mountpoint == "/" || path == mountpoint || strings.HasPrefix(path, mountpoint+"/")) && len(mountpoint) > len(longestMatch) {
 			longestMatch = mountpoint
 		}
 	}

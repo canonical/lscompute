@@ -11,7 +11,7 @@ const BusName = "usb"
 
 // Device represents a single USB device detected on the system.
 type USBDevice struct {
-	Bus string `json:"bus" yaml:"bus"`
+	Bus string
 
 	BusNumber    int
 	DeviceNumber int

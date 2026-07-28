@@ -17,7 +17,7 @@ const (
 
 // Device represents a single PCI device detected on the system.
 type PCIDevice struct {
-	Bus string `json:"bus" yaml:"bus"`
+	Bus string
 
 	Slot                 string
 	BusNumber            uint64
