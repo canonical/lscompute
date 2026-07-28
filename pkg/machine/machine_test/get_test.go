@@ -11,6 +11,18 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
+// expected maps each test_data/machines directory name to the machine.Machine
+// value that Get is expected to produce for that fake host. Entries are added
+// by register() from the per-machine fixture files.
+var expected = map[string]machine.Machine{}
+
+// register records m as the expected machine for the given test_data/machines
+// directory and returns m so it can initialise a package-level var.
+func register(dir string, m machine.Machine) machine.Machine {
+	expected[dir] = m
+	return m
+}
+
 // TestGet_AllFakeHosts iterates over every fake host in test_data/machines,
 // runs the full machine.Get pipeline against its machine-root, and verifies the
 // resulting struct exactly matches the expected machine.Machine fixture defined
@@ -45,7 +57,7 @@ func TestGet_AllFakeHosts(t *testing.T) {
 				t.Fatalf("Get() failed: %v", err)
 			}
 
-			want, ok := Expected[name]
+			want, ok := expected[name]
 			if !ok {
 				// No expected fixture defined for this machine: the Get call
 				// above still exercises the full pipeline, so a parse failure

@@ -9,7 +9,7 @@ import (
 )
 
 // HpProliantRl300Gen11AltraMax is the expected machine info for the "hp-proliant-rl300-gen11-altra-max" test fixture.
-var HpProliantRl300Gen11AltraMax = machine.Machine{
+var HpProliantRl300Gen11AltraMax = register("hp-proliant-rl300-gen11-altra-max", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:  "arm64",
@@ -401,4 +401,4 @@ var HpProliantRl300Gen11AltraMax = machine.Machine{
 			DeviceId:    0xE104,
 		},
 	},
-}
+})

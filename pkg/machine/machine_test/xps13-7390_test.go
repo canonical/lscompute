@@ -9,7 +9,7 @@ import (
 )
 
 // Xps137390 is the expected machine info for the "xps13-7390" test fixture.
-var Xps137390 = machine.Machine{
+var Xps137390 = register("xps13-7390", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:   "amd64",
@@ -336,4 +336,4 @@ var Xps137390 = machine.Machine{
 			FriendlyNames:        pci.FriendlyNames{VendorName: "Samsung Electronics Co Ltd", DeviceName: "NVMe SSD Controller SM981/PM981/PM983", SubvendorName: "Samsung Electronics Co Ltd", SubdeviceName: "SSD 970 EVO/PRO"},
 		},
 	},
-}
+})

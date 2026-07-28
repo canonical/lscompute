@@ -9,7 +9,7 @@ import (
 )
 
 // HpPavilion15Cs3037nl is the expected machine info for the "hp-pavilion-15-cs-3037nl" test fixture.
-var HpPavilion15Cs3037nl = machine.Machine{
+var HpPavilion15Cs3037nl = register("hp-pavilion-15-cs-3037nl", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:   "amd64",
@@ -266,4 +266,4 @@ var HpPavilion15Cs3037nl = machine.Machine{
 			SubdeviceId:          new(uint64(0x390D)),
 		},
 	},
-}
+})

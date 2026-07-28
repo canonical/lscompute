@@ -9,7 +9,7 @@ import (
 )
 
 // System76Addw4 is the expected machine info for the "system76-addw4" test fixture.
-var System76Addw4 = machine.Machine{
+var System76Addw4 = register("system76-addw4", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:   "amd64",
@@ -215,4 +215,4 @@ var System76Addw4 = machine.Machine{
 			SubdeviceId: new(uint64(0x353)),
 		},
 	},
-}
+})

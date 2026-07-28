@@ -9,7 +9,7 @@ import (
 )
 
 // IntelCoreUltra7256v is the expected machine info for the "intel-core-ultra-7-256v" test fixture.
-var IntelCoreUltra7256v = machine.Machine{
+var IntelCoreUltra7256v = register("intel-core-ultra-7-256v", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:   "amd64",
@@ -302,4 +302,4 @@ var IntelCoreUltra7256v = machine.Machine{
 			SubdeviceId:          new(uint64(0xA801)),
 		},
 	},
-}
+})

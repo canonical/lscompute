@@ -9,7 +9,7 @@ import (
 )
 
 // AsusUx301l is the expected machine info for the "asus-ux301l" test fixture.
-var AsusUx301l = machine.Machine{
+var AsusUx301l = register("asus-ux301l", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:   "amd64",
@@ -155,4 +155,4 @@ var AsusUx301l = machine.Machine{
 			SubdeviceId: new(uint64(0xC070)),
 		},
 	},
-}
+})

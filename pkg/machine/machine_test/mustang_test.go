@@ -9,7 +9,7 @@ import (
 )
 
 // Mustang is the expected machine info for the "mustang" test fixture.
-var Mustang = machine.Machine{
+var Mustang = register("mustang", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:   "amd64",
@@ -344,4 +344,4 @@ var Mustang = machine.Machine{
 			SubdeviceId:          new(uint64(0xA801)),
 		},
 	},
-}
+})

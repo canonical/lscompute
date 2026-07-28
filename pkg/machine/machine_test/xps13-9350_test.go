@@ -10,7 +10,7 @@ import (
 )
 
 // Xps139350 is the expected machine info for the "xps13-9350" test fixture.
-var Xps139350 = machine.Machine{
+var Xps139350 = register("xps13-9350", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:   "amd64",
@@ -432,4 +432,4 @@ var Xps139350 = machine.Machine{
 			FriendlyNames: usb.FriendlyNames{VendorName: "Linux Foundation", ProductName: "3.0 root hub"},
 		},
 	},
-}
+})

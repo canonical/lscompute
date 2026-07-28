@@ -9,7 +9,7 @@ import (
 )
 
 // AmpereOneSiryn is the expected machine info for the "ampere-one-siryn" test fixture.
-var AmpereOneSiryn = machine.Machine{
+var AmpereOneSiryn = register("ampere-one-siryn", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:  "arm64",
@@ -224,4 +224,4 @@ var AmpereOneSiryn = machine.Machine{
 			DeviceId:    0x11F,
 		},
 	},
-}
+})

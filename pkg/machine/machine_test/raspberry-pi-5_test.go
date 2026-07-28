@@ -9,7 +9,7 @@ import (
 )
 
 // RaspberryPi5 is the expected machine info for the "raspberry-pi-5" test fixture.
-var RaspberryPi5 = machine.Machine{
+var RaspberryPi5 = register("raspberry-pi-5", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:  "arm64",
@@ -42,4 +42,4 @@ var RaspberryPi5 = machine.Machine{
 			FriendlyNames: pci.FriendlyNames{VendorName: "Raspberry Pi Ltd", DeviceName: "RP1 PCIe 2.0 South Bridge"},
 		},
 	},
-}
+})

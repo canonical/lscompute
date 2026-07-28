@@ -9,7 +9,7 @@ import (
 )
 
 // I72600kArcA580 is the expected machine info for the "i7-2600k+arc-a580" test fixture.
-var I72600kArcA580 = machine.Machine{
+var I72600kArcA580 = register("i7-2600k+arc-a580", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:   "amd64",
@@ -370,4 +370,4 @@ var I72600kArcA580 = machine.Machine{
 			SubdeviceId: new(uint64(0x8432)),
 		},
 	},
-}
+})

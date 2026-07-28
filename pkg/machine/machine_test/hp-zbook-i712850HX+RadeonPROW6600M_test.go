@@ -9,7 +9,7 @@ import (
 )
 
 // HpZbookI712850HXRadeonPROW6600M is the expected machine info for the "hp-zbook-i712850HX+RadeonPROW6600M" test fixture.
-var HpZbookI712850HXRadeonPROW6600M = machine.Machine{
+var HpZbookI712850HXRadeonPROW6600M = register("hp-zbook-i712850HX+RadeonPROW6600M", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:   "amd64",
@@ -466,4 +466,4 @@ var HpZbookI712850HXRadeonPROW6600M = machine.Machine{
 			DeviceId:             0x1138,
 		},
 	},
-}
+})

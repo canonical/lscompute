@@ -9,7 +9,7 @@ import (
 )
 
 // OrangePiRv2 is the expected machine info for the "orange-pi-rv2" test fixture.
-var OrangePiRv2 = machine.Machine{
+var OrangePiRv2 = register("orange-pi-rv2", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture: "riscv64",
@@ -53,4 +53,4 @@ var OrangePiRv2 = machine.Machine{
 			SubdeviceId: new(uint64(0x0)),
 		},
 	},
-}
+})

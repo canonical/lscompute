@@ -9,7 +9,7 @@ import (
 )
 
 // DummyMachine is the expected machine info for the "dummy-machine" test fixture.
-var DummyMachine = machine.Machine{
+var DummyMachine = register("dummy-machine", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:   "amd64",
@@ -33,4 +33,4 @@ var DummyMachine = machine.Machine{
 			SubdeviceId: new(uint64(0x89C6)),
 		},
 	},
-}
+})

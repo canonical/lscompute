@@ -9,7 +9,7 @@ import (
 )
 
 // LenovoThinkpadP16s is the expected machine info for the "lenovo-thinkpad-p16s" test fixture.
-var LenovoThinkpadP16s = machine.Machine{
+var LenovoThinkpadP16s = register("lenovo-thinkpad-p16s", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:   "amd64",
@@ -407,4 +407,4 @@ var LenovoThinkpadP16s = machine.Machine{
 			SubdeviceId:          new(uint64(0x1121)),
 		},
 	},
-}
+})

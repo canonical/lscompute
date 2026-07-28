@@ -9,7 +9,7 @@ import (
 )
 
 // RaspberryPi5Hailo8 is the expected machine info for the "raspberry-pi-5+hailo-8" test fixture.
-var RaspberryPi5Hailo8 = machine.Machine{
+var RaspberryPi5Hailo8 = register("raspberry-pi-5+hailo-8", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:  "arm64",
@@ -62,4 +62,4 @@ var RaspberryPi5Hailo8 = machine.Machine{
 			FriendlyNames: pci.FriendlyNames{VendorName: "Raspberry Pi Ltd", DeviceName: "RP1 PCIe 2.0 South Bridge"},
 		},
 	},
-}
+})

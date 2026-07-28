@@ -9,7 +9,7 @@ import (
 )
 
 // HpZbookPower16InchG11 is the expected machine info for the "hp-zbook-power-16-inch-g11" test fixture.
-var HpZbookPower16InchG11 = machine.Machine{
+var HpZbookPower16InchG11 = register("hp-zbook-power-16-inch-g11", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:   "amd64",
@@ -344,4 +344,4 @@ var HpZbookPower16InchG11 = machine.Machine{
 			SubdeviceId: new(uint64(0x8CA0)),
 		},
 	},
-}
+})

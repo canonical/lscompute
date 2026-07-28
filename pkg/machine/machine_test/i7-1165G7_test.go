@@ -9,7 +9,7 @@ import (
 )
 
 // I71165G7 is the expected machine info for the "i7-1165G7" test fixture.
-var I71165G7 = machine.Machine{
+var I71165G7 = register("i7-1165G7", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:   "amd64",
@@ -242,4 +242,4 @@ var I71165G7 = machine.Machine{
 			SubdeviceId: new(uint64(0xB20)),
 		},
 	},
-}
+})

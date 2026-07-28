@@ -9,7 +9,7 @@ import (
 )
 
 // AmpereOneMBanshee12 is the expected machine info for the "ampere-one-m-banshee-12" test fixture.
-var AmpereOneMBanshee12 = machine.Machine{
+var AmpereOneMBanshee12 = register("ampere-one-m-banshee-12", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:  "arm64",
@@ -330,4 +330,4 @@ var AmpereOneMBanshee12 = machine.Machine{
 			DeviceId:    0x13F,
 		},
 	},
-}
+})

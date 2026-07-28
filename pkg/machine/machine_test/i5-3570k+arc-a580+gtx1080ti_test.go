@@ -9,7 +9,7 @@ import (
 )
 
 // I53570kArcA580Gtx1080ti is the expected machine info for the "i5-3570k+arc-a580+gtx1080ti" test fixture.
-var I53570kArcA580Gtx1080ti = machine.Machine{
+var I53570kArcA580Gtx1080ti = register("i5-3570k+arc-a580+gtx1080ti", machine.Machine{
 	CPUs: []cpu.CPU{
 		{
 			Architecture:   "amd64",
@@ -290,4 +290,4 @@ var I53570kArcA580Gtx1080ti = machine.Machine{
 			SubdeviceId:          new(uint64(0x5007)),
 		},
 	},
-}
+})
