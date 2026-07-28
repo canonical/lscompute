@@ -1,9 +1,10 @@
 package main
 
 import (
-	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/canonical/lscompute/pkg/machine"
 	"github.com/canonical/lscompute/pkg/machine/host"
@@ -11,6 +12,13 @@ import (
 
 func main() {
 	log.SetFlags(0) // no timestamps
+
+	format := flag.String("format", FormatPlain, "output serialization format: plain or json")
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage:\n\nOptions:\n")
+		flag.PrintDefaults()
+	}
+	flag.Parse()
 
 	output, warnings, err := machine.Get(host.Real(), true)
 	if err != nil {
@@ -21,10 +29,10 @@ func main() {
 		log.Printf("Warning: %s", warning)
 	}
 
-	jsonOutput, err := json.MarshalIndent(output, "", "  ")
+	machineDetails := NewMachineDetails(output)
+	b, err := machineDetails.Marshal(*format)
 	if err != nil {
-		log.Fatalf("Error: marshalling to JSON: %s", err)
+		log.Fatalf("Error: %s", err)
 	}
-
-	fmt.Println(string(jsonOutput))
+	fmt.Print(string(b))
 }
