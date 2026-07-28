@@ -86,10 +86,10 @@ func parseNvidiaSmiArgs(args []string) (slot, query string, err error) {
 	return slot, query, nil
 }
 
-// StatFs reads disk stats from <root>/run/disk-stats.json.
-// The JSON keys carry a leading "/" (human-readable absolute paths);
-// fakeHost prepends "/" to the API path before looking up, matching
-// what realHost does when building the unix.Statfs argument.
+// StatFs reads disk stats from <root>/run/disk-stats.json, a JSON array of
+// {mountpoint, total, avail} objects. It returns the entry whose mountpoint is
+// the longest prefix of the queried path, mirroring how the real host resolves
+// a path to the filesystem that backs it.
 func (h *fakeHost) StatFs(path string) (dirStats, error) {
 	filePath := filepath.Join(h.root, "run", "disk-stats.json")
 	data, err := os.ReadFile(filePath)
@@ -97,16 +97,24 @@ func (h *fakeHost) StatFs(path string) (dirStats, error) {
 		return dirStats{}, fmt.Errorf("fake StatFs: reading %s: %w", filePath, err)
 	}
 
-	var stats map[string]dirStats
+	var stats []dirStats
 	if err := json.Unmarshal(data, &stats); err != nil {
 		return dirStats{}, fmt.Errorf("fake StatFs: parsing %s: %w", filePath, err)
 	}
 
-	// JSON keys have leading "/" for readability; prepend "/" to match.
-	key := "/" + path
-	entry, ok := stats[key]
-	if !ok {
-		return dirStats{}, fmt.Errorf("fake StatFs: no entry for %q in %s", key, filePath)
+	// Real host prepends "/" before calling unix.Statfs(2); do the same, then
+	// pick the entry whose mountpoint is the longest matching prefix.
+	fullPath := "/" + path
+	var best dirStats
+	found := false
+	for _, entry := range stats {
+		if strings.HasPrefix(fullPath, entry.Mountpoint) && len(entry.Mountpoint) > len(best.Mountpoint) {
+			best = entry
+			found = true
+		}
 	}
-	return entry, nil
+	if !found {
+		return dirStats{}, fmt.Errorf("fake StatFs: no entry matching %q in %s", fullPath, filePath)
+	}
+	return best, nil
 }

@@ -60,17 +60,19 @@ for slot in /sys/bus/pci/devices/*/; do
 done
 ```
 ### Disk stats
-`run/disk-stats.json` is a JSON map of absolute path → `{"total": <bytes>,
-"avail": <bytes>}` for each directory that `disk.Info()` watches.  Currently
-only `/var/lib/snapd/snaps` is watched.
+`run/disk-stats.json` is a JSON array of `{"mountpoint": <path>, "total":
+<bytes>, "avail": <bytes>}` objects, one per mounted filesystem.  `StatFs`
+resolves a queried directory to the entry whose `mountpoint` is the longest
+matching prefix, mirroring the real host.  `disk.Info()` currently watches only
+`/var/lib/snapd/snaps`.
 ```bash
 mkdir -p "$ROOT/run"
 python3 -c "
 import os, json
-def statfs(p):
-    s = os.statvfs(p)
-    return {'total': s.f_blocks * s.f_frsize, 'avail': s.f_bavail * s.f_frsize}
-data = {'/var/lib/snapd/snaps': statfs('/var/lib/snapd/snaps')}
+def statfs(mp):
+    s = os.statvfs(mp)
+    return {'mountpoint': mp, 'total': s.f_blocks * s.f_frsize, 'avail': s.f_bavail * s.f_frsize}
+data = [statfs('/')]
 print(json.dumps(data, indent=2))
 " > "$ROOT/run/disk-stats.json"
 ```

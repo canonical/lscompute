@@ -151,7 +151,7 @@ func TestGet_DevicesError(t *testing.T) {
 	write("proc/cpuinfo", "processor\t: 0\nvendor_id\t: GenuineIntel\nflags\t\t: sse\n")
 	// run/disk-stats.json — satisfies disk.Info
 	write("run/disk-stats.json",
-		`{"/var/lib/snapd/snaps": {"total": 100000000000, "avail": 50000000000}}`)
+		`[{"mountpoint": "/", "total": 100000000000, "avail": 50000000000}]`)
 	// sys/bus/pci/devices as a file (not directory) → ReadDir fails with a real error
 	write("sys/bus/pci/devices", "not-a-dir")
 

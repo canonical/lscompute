@@ -1,10 +1,12 @@
-{
-  "/": {
+[
+  {
+    "mountpoint": "/",
     "total": 1005867986944,
     "avail": 862075604992
   },
-  "/var/lib/snapd/snaps": {
+  {
+    "mountpoint": "/var/lib/snapd/snaps",
     "total": 1005867986944,
     "avail": 862075604992
   }
-}
+]

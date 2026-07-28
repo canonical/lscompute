@@ -143,8 +143,8 @@ func TestFakeHostStatFs(t *testing.T) {
 	if err := os.MkdirAll(filepath.Join(dir, "run"), 0755); err != nil {
 		t.Fatal(err)
 	}
-	// JSON keys use leading "/" for human readability.
-	json := `{"/var/lib/snapd/snaps": {"total": 53687091200, "avail": 21474836480}}`
+	// disk-stats.json is an array of {mountpoint, total, avail} objects.
+	json := `[{"mountpoint": "/", "total": 53687091200, "avail": 21474836480}]`
 	if err := os.WriteFile(filepath.Join(dir, "run", "disk-stats.json"), []byte(json), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -163,20 +163,21 @@ func TestFakeHostStatFs(t *testing.T) {
 	}
 }
 
-// TestFakeHostStatFsMissingKey verifies that StatFs returns an error for a missing key.
+// TestFakeHostStatFsMissingKey verifies that StatFs returns an error when no
+// entry matches the queried path.
 func TestFakeHostStatFsMissingKey(t *testing.T) {
 	dir := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(dir, "run"), 0755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(dir, "run", "disk-stats.json"), []byte(`{}`), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "run", "disk-stats.json"), []byte(`[]`), 0644); err != nil {
 		t.Fatal(err)
 	}
 
 	h := host.Fake(dir)
 	_, err := h.StatFs("var/lib/snapd/snaps")
 	if err == nil {
-		t.Fatal("expected error for missing key, got nil")
+		t.Fatal("expected error for missing entry, got nil")
 	}
 }
 
@@ -197,4 +198,3 @@ func TestFakeHostStatFsMalformedJSON(t *testing.T) {
 		t.Fatal("expected error for malformed JSON, got nil")
 	}
 }
-

@@ -45,9 +45,9 @@ type Host interface {
 	// StatFs returns total and available bytes for a directory. Path follows
 	// io/fs convention at the API: no leading slash (e.g. "var/lib/snapd/snaps").
 	// Real() prepends "/" before calling unix.Statfs(2). Fake() reads canned
-	// values from <root>/run/disk-stats.json, whose keys *do* have a leading "/"
-	// (so the fixture reads like absolute paths on a real host); Fake() prepends
-	// "/" to the API path before looking up.
+	// values from <root>/run/disk-stats.json, a JSON array of {mountpoint,
+	// total, avail} objects, and returns the entry whose mountpoint is the
+	// longest prefix of the queried path.
 	StatFs(path string) (dirStats, error)
 }
 

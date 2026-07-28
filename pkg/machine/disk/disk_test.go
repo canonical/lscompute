@@ -14,8 +14,8 @@ func TestDiskInfo(t *testing.T) {
 	if err := os.MkdirAll(runDir, 0755); err != nil {
 		t.Fatal(err)
 	}
-	// Fixture JSON uses leading "/" keys, matching the host.Fake convention.
-	fixture := `{"/var/lib/snapd/snaps": {"mountpoint": "/", "total": 107374182400, "avail": 21474836480}}`
+	// disk-stats.json is an array of {mountpoint, total, avail} objects.
+	fixture := `[{"mountpoint": "/", "total": 107374182400, "avail": 21474836480}]`
 	if err := os.WriteFile(filepath.Join(runDir, "disk-stats.json"), []byte(fixture), 0644); err != nil {
 		t.Fatal(err)
 	}
