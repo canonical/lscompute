@@ -281,8 +281,8 @@ func TestLookupFriendlyNames(t *testing.T) {
 		dev := PCIDevice{
 			VendorId:    0x8086,
 			DeviceId:    0x1234,
-			SubvendorId: sv,
-			SubdeviceId: sd,
+			SubvendorId: &sv,
+			SubdeviceId: &sd,
 		}
 		names, err := lookupFriendlyNames(h, dev)
 		if err != nil {

@@ -34,11 +34,11 @@ func TestScannerScan_NoFriendlyNames(t *testing.T) {
 			t.Errorf("USBDevice.Bus = %q, want %q", dev.Bus, BusName)
 		}
 		// No friendly names requested — names must be absent.
-		if dev.VendorName != EMPTY_STRING {
+		if dev.VendorName != "" {
 			t.Errorf("device %04x:%04x: expected empty VendorName without FriendlyNames, got %q",
 				uint64(dev.VendorId), uint64(dev.ProductId), dev.VendorName)
 		}
-		if dev.ProductName != EMPTY_STRING {
+		if dev.ProductName != "" {
 			t.Errorf("device %04x:%04x: expected empty ProductName without FriendlyNames, got %q",
 				uint64(dev.VendorId), uint64(dev.ProductId), dev.ProductName)
 		}
@@ -127,7 +127,7 @@ func TestScannerScan_WithFriendlyNames(t *testing.T) {
 			t.Errorf("device %04x:%04x VendorName = %q, want %q",
 				uint64(tc.vendorId), uint64(tc.productId), dev.VendorName, tc.wantVendor)
 		}
-		if dev.ProductName != EMPTY_STRING {
+		if dev.ProductName != "" {
 			t.Errorf("device %04x:%04x: expected empty ProductName (not in db), got %q",
 				uint64(tc.vendorId), uint64(tc.productId), dev.ProductName)
 		}
@@ -135,10 +135,10 @@ func TestScannerScan_WithFriendlyNames(t *testing.T) {
 
 	// Unknown vendor (2ac1) — no names should be populated even with FriendlyNames on.
 	if dev, ok := byIds[key{0x2ac1, 0x20c9}]; ok {
-		if dev.VendorName != EMPTY_STRING {
+		if dev.VendorName != "" {
 			t.Errorf("unknown vendor 2ac1: expected empty VendorName, got %q", dev.VendorName)
 		}
-		if dev.ProductName != EMPTY_STRING {
+		if dev.ProductName != "" {
 			t.Errorf("unknown vendor 2ac1: expected empty ProductName, got %q", dev.ProductName)
 		}
 	} else {
@@ -198,10 +198,10 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 		if !ok {
 			t.Fatalf("item is not Device: %T", di)
 		}
-		if dev.VendorName != EMPTY_STRING {
+		if dev.VendorName != "" {
 			t.Errorf("expected empty VendorName on lookup failure, got %q", dev.VendorName)
 		}
-		if dev.ProductName != EMPTY_STRING {
+		if dev.ProductName != "" {
 			t.Errorf("expected empty ProductName on lookup failure, got %q", dev.ProductName)
 		}
 	}

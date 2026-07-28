@@ -143,16 +143,27 @@ func NewMachineDetails(info *machine.Machine) *MachineDetails {
 
 	// Add PCI devices
 	for _, d := range info.PCIDevices {
+		var programmingInterface uint8
+		if d.ProgrammingInterface != nil {
+			programmingInterface = *d.ProgrammingInterface
+		}
+		var subvendorId, subdeviceId uint64
+		if d.SubvendorId != nil {
+			subvendorId = *d.SubvendorId
+		}
+		if d.SubdeviceId != nil {
+			subdeviceId = *d.SubdeviceId
+		}
 		v.Devices = append(v.Devices, PciDeviceDetails{
 			Bus:                  d.Bus,
 			Slot:                 d.Slot,
 			BusNumber:            HexInt(d.BusNumber),
 			DeviceClass:          HexInt(d.DeviceClass),
-			ProgrammingInterface: d.ProgrammingInterface,
+			ProgrammingInterface: programmingInterface,
 			VendorId:             HexInt(d.VendorId),
 			DeviceId:             HexInt(d.DeviceId),
-			SubvendorId:          HexInt(d.SubvendorId),
-			SubdeviceId:          HexInt(d.SubdeviceId),
+			SubvendorId:          HexInt(subvendorId),
+			SubdeviceId:          HexInt(subdeviceId),
 			VendorName:           d.FriendlyNames.VendorName,
 			DeviceName:           d.FriendlyNames.DeviceName,
 			SubvendorName:        d.FriendlyNames.SubvendorName,

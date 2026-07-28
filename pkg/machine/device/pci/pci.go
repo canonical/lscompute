@@ -22,11 +22,11 @@ type PCIDevice struct {
 	Slot                 string
 	BusNumber            uint64
 	DeviceClass          uint64
-	ProgrammingInterface uint8
+	ProgrammingInterface *uint8
 	VendorId             uint64
 	DeviceId             uint64
-	SubvendorId          uint64
-	SubdeviceId          uint64
+	SubvendorId          *uint64
+	SubdeviceId          *uint64
 	FriendlyNames        FriendlyNames
 
 	// Vendor specific device key-value pairs

@@ -126,10 +126,10 @@ func lookupFriendlyNames(h host.Host, device USBDevice) (USBDevice, error) {
 	if err != nil {
 		return device, err
 	}
-	if entry.VendorName != EMPTY_STRING {
+	if entry.VendorName != "" {
 		device.VendorName = entry.VendorName
 	}
-	if entry.ProductName != EMPTY_STRING {
+	if entry.ProductName != "" {
 		device.ProductName = entry.ProductName
 	}
 	return device, nil

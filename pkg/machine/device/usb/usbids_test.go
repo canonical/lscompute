@@ -210,7 +210,7 @@ func TestLookupFriendlyNames_LookupError(t *testing.T) {
 		t.Fatal("expected error, got nil")
 	}
 	// The device should be returned unchanged.
-	if got.VendorName != EMPTY_STRING || got.ProductName != EMPTY_STRING {
+	if got.VendorName != "" || got.ProductName != "" {
 		t.Errorf("expected unchanged device on error, got VendorName=%v ProductName=%v",
 			got.VendorName, got.ProductName)
 	}

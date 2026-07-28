@@ -71,15 +71,15 @@ func readSysPciDevice(h host.Host, dir, slot string) (PCIDevice, error) {
 	}
 	device.DeviceClass = classVal >> 8
 	if progIf := uint8(classVal & 0xFF); progIf != 0 {
-		device.ProgrammingInterface = progIf
+		device.ProgrammingInterface = &progIf
 	}
 
 	if subVendor, err := readHexFSFile(h, filepath.Join(dir, "subsystem_vendor")); err == nil {
-		device.SubvendorId = subVendor
+		device.SubvendorId = &subVendor
 	}
 
 	if subDevice, err := readHexFSFile(h, filepath.Join(dir, "subsystem_device")); err == nil {
-		device.SubdeviceId = subDevice
+		device.SubdeviceId = &subDevice
 	}
 
 	return device, nil

@@ -44,8 +44,8 @@ func machineInfoForExamples() *machine.Machine {
 				DeviceClass: 0x600,
 				VendorId:    0x8086,
 				DeviceId:    0x4637,
-				SubvendorId: 0x103C,
-				SubdeviceId: 0x89C6,
+				SubvendorId: new(uint64(0x103C)),
+				SubdeviceId: new(uint64(0x89C6)),
 			},
 			{
 				Bus:         pci.BusName,
@@ -54,8 +54,8 @@ func machineInfoForExamples() *machine.Machine {
 				DeviceClass: 0x300,
 				VendorId:    0x8086,
 				DeviceId:    0x9B41,
-				SubvendorId: 0x1028,
-				SubdeviceId: 0x962,
+				SubvendorId: new(uint64(0x1028)),
+				SubdeviceId: new(uint64(0x962)),
 				AdditionalProperties: map[string]string{
 					"vram": "14477950976",
 				},
@@ -67,8 +67,8 @@ func machineInfoForExamples() *machine.Machine {
 				DeviceClass: 0x300,
 				VendorId:    0x10DE,
 				DeviceId:    0x1B06,
-				SubvendorId: 0x10DE,
-				SubdeviceId: 0x1B06,
+				SubvendorId: new(uint64(0x10DE)),
+				SubdeviceId: new(uint64(0x1B06)),
 				AdditionalProperties: map[string]string{
 					"vram":               "11811160064",
 					"compute-capability": "6.1",
@@ -81,8 +81,8 @@ func machineInfoForExamples() *machine.Machine {
 				DeviceClass: 0x300,
 				VendorId:    0x1002,
 				DeviceId:    0x73E1,
-				SubvendorId: 0x103C,
-				SubdeviceId: 0x89C6,
+				SubvendorId: new(uint64(0x103C)),
+				SubdeviceId: new(uint64(0x89C6)),
 				AdditionalProperties: map[string]string{
 					"microarchitecture": "gfx1032",
 					"vram":              "8573157376",

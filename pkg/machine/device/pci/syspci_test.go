@@ -117,13 +117,13 @@ func TestReadSysPciDevice(t *testing.T) {
 		if uint64(dev.DeviceClass) != 0x0300 {
 			t.Errorf("DeviceClass: got 0x%x, want 0x0300", uint64(dev.DeviceClass))
 		}
-		if dev.ProgrammingInterface != EMPTY_UINT8 {
-			t.Errorf("ProgrammingInterface: expected %v for prog-if 0x00, got %v", EMPTY_UINT8, dev.ProgrammingInterface)
+		if dev.ProgrammingInterface != nil {
+			t.Errorf("ProgrammingInterface: expected nil for prog-if 0x00, got %v", dev.ProgrammingInterface)
 		}
-		if dev.SubvendorId != 0x8086 {
+		if dev.SubvendorId == nil || *dev.SubvendorId != 0x8086 {
 			t.Errorf("SubvendorId: expected 0x8086, got 0x%x", dev.SubvendorId)
 		}
-		if dev.SubdeviceId != 0x5678 {
+		if dev.SubdeviceId == nil || *dev.SubdeviceId != 0x5678 {
 			t.Errorf("SubdeviceId: expected 0x5678, got 0x%x", dev.SubdeviceId)
 		}
 	})
@@ -139,11 +139,11 @@ func TestReadSysPciDevice(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if dev.ProgrammingInterface == EMPTY_UINT8 {
-			t.Fatal("ProgrammingInterface: expected non-zero for prog-if 0x01, got 0")
+		if dev.ProgrammingInterface == nil {
+			t.Fatal("ProgrammingInterface: expected non-zero for prog-if 0x01, got nil")
 		}
-		if dev.ProgrammingInterface != 0x01 {
-			t.Errorf("ProgrammingInterface: got 0x%02x, want 0x01", dev.ProgrammingInterface)
+		if *dev.ProgrammingInterface != 0x01 {
+			t.Errorf("ProgrammingInterface: got 0x%02x, want 0x01", *dev.ProgrammingInterface)
 		}
 	})
 
@@ -157,11 +157,11 @@ func TestReadSysPciDevice(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if dev.SubvendorId != EMPTY_UINT64 {
-			t.Errorf("SubvendorId: expected %v, got 0x%x", EMPTY_UINT64, dev.SubvendorId)
+		if dev.SubvendorId != nil {
+			t.Errorf("SubvendorId: expected nil, got 0x%x", *dev.SubvendorId)
 		}
-		if dev.SubdeviceId != EMPTY_UINT64 {
-			t.Errorf("SubdeviceId: expected %v, got 0x%x", EMPTY_UINT64, dev.SubdeviceId)
+		if dev.SubdeviceId != nil {
+			t.Errorf("SubdeviceId: expected nil, got 0x%x", *dev.SubdeviceId)
 		}
 	})
 
