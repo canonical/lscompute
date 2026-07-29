@@ -19,7 +19,7 @@ var I53570kArcA580Gtx1080ti = register("i5-3570k+arc-a580+gtx1080ti", machine.Ma
 	},
 	Memory: memory.Memory{TotalRam: 16652423168, TotalSwap: 8589930496},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 1005867986944, Available: 862075604992},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 1005867986944, Available: 862075604992},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

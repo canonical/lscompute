@@ -19,7 +19,7 @@ var Xps137390 = register("xps13-7390", machine.Machine{
 	},
 	Memory: memory.Memory{TotalRam: 15908761600, TotalSwap: 4294963200},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 1003736440832, Available: 732343107584},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 1003736440832, Available: 732343107584},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

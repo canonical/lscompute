@@ -20,7 +20,7 @@ var HpProliantRl300Gen11Altra = register("hp-proliant-rl300-gen11-altra", machin
 	},
 	Memory: memory.Memory{TotalRam: 33134252032, TotalSwap: 8589930496},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 470888099840, Available: 435367202816},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 470888099840, Available: 435367202816},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

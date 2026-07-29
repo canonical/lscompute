@@ -20,7 +20,7 @@ var RaspberryPi5 = register("raspberry-pi-5", machine.Machine{
 	},
 	Memory: memory.Memory{TotalRam: 8323276800, TotalSwap: 0},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 62270910464, Available: 40666140672},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 62270910464, Available: 40666140672},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

@@ -19,7 +19,7 @@ var AsusUx301l = register("asus-ux301l", machine.Machine{
 	},
 	Memory: memory.Memory{TotalRam: 7663951872, TotalSwap: 4294963200},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 124313583616, Available: 61499084800},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 124313583616, Available: 61499084800},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

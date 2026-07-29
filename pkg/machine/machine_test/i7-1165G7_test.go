@@ -19,7 +19,7 @@ var I71165G7 = register("i7-1165G7", machine.Machine{
 	},
 	Memory: memory.Memory{TotalRam: 16493559808, TotalSwap: 1027600384},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 500609097728, Available: 20873912320},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 500609097728, Available: 20873912320},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

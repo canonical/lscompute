@@ -19,7 +19,7 @@ var LenovoThinkpadP16s = register("lenovo-thinkpad-p16s", machine.Machine{
 	},
 	Memory: memory.Memory{TotalRam: 92413652992, TotalSwap: 8589930496},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 2011859927040, Available: 521356337152},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 2011859927040, Available: 521356337152},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

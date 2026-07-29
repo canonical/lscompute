@@ -20,7 +20,7 @@ var RaspberryPi5Hailo8 = register("raspberry-pi-5+hailo-8", machine.Machine{
 	},
 	Memory: memory.Memory{TotalRam: 8317198336, TotalSwap: 1073737728},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 30777720832, Available: 16953257984},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 30777720832, Available: 16953257984},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

@@ -57,18 +57,21 @@ func (m MemoryDetails) MarshalYAML() (any, error) {
 }
 
 type DiskDetails struct {
-	MountPoint string `json:"mount-point" yaml:"mount-point"`
-	Total      uint64 `json:"total" yaml:"total"`
-	Avail      uint64 `json:"avail" yaml:"avail"`
+	MountPoint *string `json:"mount-point,omitempty" yaml:"mount-point,omitempty"`
+	Path       string  `json:"path" yaml:"path"`
+	Total      uint64  `json:"total" yaml:"total"`
+	Avail      uint64  `json:"avail" yaml:"avail"`
 }
 
 func (d DiskDetails) MarshalYAML() (any, error) {
 	return struct {
-		MountPoint string `yaml:"mount-point"`
-		Total      any    `yaml:"total"`
-		Avail      any    `yaml:"avail"`
+		MountPoint *string `yaml:"mount-point,omitempty"`
+		Path       string  `yaml:"path"`
+		Total      any     `yaml:"total"`
+		Avail      any     `yaml:"avail"`
 	}{
 		MountPoint: d.MountPoint,
+		Path:       d.Path,
 		Total:      FormatBytes(d.Total),
 		Avail:      FormatBytes(d.Avail),
 	}, nil
@@ -217,6 +220,7 @@ func NewMachineDetails(info *machine.Machine) *MachineDetails {
 		for _, d := range info.Disk {
 			v.Disk = append(v.Disk, DiskDetails{
 				MountPoint: d.MountPoint,
+				Path:       d.Path,
 				Total:      d.Total,
 				Avail:      d.Available,
 			})

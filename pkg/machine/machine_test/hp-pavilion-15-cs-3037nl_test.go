@@ -19,7 +19,7 @@ var HpPavilion15Cs3037nl = register("hp-pavilion-15-cs-3037nl", machine.Machine{
 	},
 	Memory: memory.Memory{TotalRam: 16537874432, TotalSwap: 19327348736},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 498347700224, Available: 61093965824},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 498347700224, Available: 61093965824},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

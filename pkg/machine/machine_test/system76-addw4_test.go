@@ -19,7 +19,7 @@ var System76Addw4 = register("system76-addw4", machine.Machine{
 	},
 	Memory: memory.Memory{TotalRam: 32945307648, TotalSwap: 8589930496},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 980105256960, Available: 574739996672},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 980105256960, Available: 574739996672},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

@@ -19,7 +19,7 @@ var I72600kArcA580 = register("i7-2600k+arc-a580", machine.Machine{
 	},
 	Memory: memory.Memory{TotalRam: 11439935488, TotalSwap: 2147479552},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 58225459200, Available: 16706797568},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 58225459200, Available: 16706797568},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

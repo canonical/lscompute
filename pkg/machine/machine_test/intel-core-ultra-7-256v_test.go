@@ -24,7 +24,7 @@ var IntelCoreUltra7256v = register("intel-core-ultra-7-256v", machine.Machine{
 	},
 	Memory: memory.Memory{TotalRam: 16251994112, TotalSwap: 4294963200},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 489126993920, Available: 443212877824},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 489126993920, Available: 443212877824},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

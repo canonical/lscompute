@@ -19,7 +19,7 @@ var DummyMachine = register("dummy-machine", machine.Machine{
 	},
 	Memory: memory.Memory{TotalRam: 67012501504, TotalSwap: 0},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 1006451294208, Available: 943543738368},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 1006451294208, Available: 943543738368},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

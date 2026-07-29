@@ -18,7 +18,7 @@ var OrangePiRv2 = register("orange-pi-rv2", machine.Machine{
 	},
 	Memory: memory.Memory{TotalRam: 8323276800, TotalSwap: 0},
 	Disk: []disk.Disk{
-		{MountPoint: "/", Total: 62270910464, Available: 48009973760},
+		{MountPoint: new("/"), Path: "/var/lib/snapd/snaps", Total: 62270910464, Available: 48009973760},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

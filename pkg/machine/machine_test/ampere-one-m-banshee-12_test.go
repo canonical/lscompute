@@ -20,7 +20,7 @@ var AmpereOneMBanshee12 = register("ampere-one-m-banshee-12", machine.Machine{
 	},
 	Memory: memory.Memory{TotalRam: 32876765184, TotalSwap: 8589930496},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 502392942592, Available: 431927586816},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 502392942592, Available: 431927586816},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

@@ -106,16 +106,20 @@ func (h *fakeHost) StatFs(path string) (dirStats, error) {
 	// pick the entry whose mountpoint is the longest matching prefix.
 	fullPath := "/" + path
 	var best dirStats
-	found := false
+	bestLen := -1
 	for _, entry := range stats {
+		if entry.Mountpoint == nil {
+			continue
+		}
+		mp := *entry.Mountpoint
 		// Match only at a path-segment boundary so that e.g. mountpoint
 		// "/mnt/foo" does not match "/mnt/foobar", mirroring real.go.
-		if (entry.Mountpoint == "/" || fullPath == entry.Mountpoint || strings.HasPrefix(fullPath, entry.Mountpoint+"/")) && len(entry.Mountpoint) > len(best.Mountpoint) {
+		if (mp == "/" || fullPath == mp || strings.HasPrefix(fullPath, mp+"/")) && len(mp) > bestLen {
 			best = entry
-			found = true
+			bestLen = len(mp)
 		}
 	}
-	if !found {
+	if bestLen < 0 {
 		return dirStats{}, fmt.Errorf("fake StatFs: no entry matching %q in %s", fullPath, filePath)
 	}
 	return best, nil

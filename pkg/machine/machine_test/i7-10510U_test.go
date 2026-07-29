@@ -19,7 +19,7 @@ var I710510U = register("i7-10510U", machine.Machine{
 	},
 	Memory: memory.Memory{TotalRam: 15908761600, TotalSwap: 4294963200},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 1003736440832, Available: 732326371328},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 1003736440832, Available: 732326371328},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

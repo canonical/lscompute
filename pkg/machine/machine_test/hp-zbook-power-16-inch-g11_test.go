@@ -24,7 +24,7 @@ var HpZbookPower16InchG11 = register("hp-zbook-power-16-inch-g11", machine.Machi
 	},
 	Memory: memory.Memory{TotalRam: 33047601152, TotalSwap: 8589930496},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 1003736440832, Available: 876099534848},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 1003736440832, Available: 876099534848},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

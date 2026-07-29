@@ -19,7 +19,7 @@ var HpZbookI712850HXRadeonPROW6600M = register("hp-zbook-i712850HX+RadeonPROW660
 	},
 	Memory: memory.Memory{TotalRam: 67012501504, TotalSwap: 8589930496},
 	Disk: []disk.Disk{
-		{MountPoint: "/var/lib/snapd/snaps", Total: 1006451294208, Available: 943543738368},
+		{MountPoint: new("/var/lib/snapd/snaps"), Path: "/var/lib/snapd/snaps", Total: 1006451294208, Available: 943543738368},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

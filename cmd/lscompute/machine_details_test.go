@@ -27,14 +27,15 @@ func machineInfoForExamples() *machine.Machine {
 			TotalSwap: 0,
 		},
 		Disk: []disk.Disk{{
-			MountPoint: "/",
+			MountPoint: new("/"),
+			Path:       "/var/lib/snapd/snaps",
 			Total:      1006451294208,
 			Available:  943543738368,
 		},
 			{
-				MountPoint: "/home",
-				Total:      1000000000000000,
-				Available:  40000000,
+				Path:      "/home",
+				Total:     1000000000000000,
+				Available: 40000000,
 			}},
 		PCIDevices: []pci.PCIDevice{
 			{
@@ -145,11 +146,12 @@ func Example_marshalJson() {
 	//   "disks": [
 	//     {
 	//       "mount-point": "/",
+	//       "path": "/var/lib/snapd/snaps",
 	//       "total": 1006451294208,
 	//       "avail": 943543738368
 	//     },
 	//     {
-	//       "mount-point": "/home",
+	//       "path": "/home",
 	//       "total": 1000000000000000,
 	//       "avail": 40000000
 	//     }
@@ -246,9 +248,10 @@ func Example_marshalPlain() {
 	//   total-swap: 0
 	// disks:
 	//   - mount-point: /
+	//     path: /var/lib/snapd/snaps
 	//     total: 937.3G
 	//     avail: 878.7G
-	//   - mount-point: /home
+	//   - path: /home
 	//     total: 909.5T
 	//     avail: 38.1M
 	// devices:

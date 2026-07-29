@@ -27,8 +27,11 @@ func TestDiskInfo(t *testing.T) {
 	}
 
 	for _, result := range results {
-		if result.MountPoint != "/" {
-			t.Errorf("unexpected mount point: got %q, want %q", result.MountPoint, "/")
+		if result.MountPoint == nil || *result.MountPoint != "/" {
+			t.Errorf("unexpected mount point: got %v, want %q", result.MountPoint, "/")
+		}
+		if result.Path != snapStoragePath {
+			t.Errorf("unexpected path: got %q, want %q", result.Path, snapStoragePath)
 		}
 		if result.Total != 107374182400 {
 			t.Errorf("Total = %d, want 107374182400", result.Total)

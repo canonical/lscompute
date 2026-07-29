@@ -47,10 +47,10 @@ func (realHost) StatFs(path string) (dirStats, error) {
 		return dirStats{}, fmt.Errorf("statfs %s: %w", path, err)
 	}
 
-	mountpoint, err := getMountpoint(fullPath)
-	if err != nil {
-		// Fall back to the path itself if we can't determine the mountpoint
-		mountpoint = fullPath
+	// mountpoint is best-effort: when it cannot be determined it is left nil.
+	var mountpoint *string
+	if mp, err := getMountpoint(fullPath); err == nil {
+		mountpoint = &mp
 	}
 
 	return dirStats{
@@ -60,9 +60,20 @@ func (realHost) StatFs(path string) (dirStats, error) {
 	}, nil
 }
 
-// getMountpoint retrieves the actual mountpoint for a given path by parsing /proc/mounts.
+// getMountpoint retrieves the actual mountpoint for a given path by parsing the
+// host's mount table.
+//
+// It reads /proc/1/mounts (PID 1, the host init) rather than /proc/mounts
+// (a.k.a. /proc/self/mounts). When lscompute runs inside a strict snap, the
+// process has its own mount namespace in which the host root "/" is not present
+// and /var/lib/snapd/snaps appears as a bind mount; parsing /proc/self/mounts
+// there would report /var/lib/snapd/snaps instead of the real host mountpoint.
+// PID 1 lives in the host's root mount namespace, so its mount table reflects
+// the real filesystem layout. On a non-snap host /proc/1/mounts is equivalent
+// to /proc/self/mounts. Reading another PID's mount table requires the
+// mount-observe interface under confinement.
 func getMountpoint(path string) (string, error) {
-	file, err := os.Open("/proc/mounts")
+	file, err := os.Open("/proc/1/mounts")
 	if err != nil {
 		return "", err
 	}

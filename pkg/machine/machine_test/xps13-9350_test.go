@@ -20,7 +20,7 @@ var Xps139350 = register("xps13-9350", machine.Machine{
 	},
 	Memory: memory.Memory{TotalRam: 32653012992, TotalSwap: 8589930496},
 	Disk: []disk.Disk{
-		{MountPoint: "/", Total: 512773840896, Available: 106524712960},
+		{MountPoint: new("/"), Path: "/var/lib/snapd/snaps", Total: 512773840896, Available: 106524712960},
 	},
 	PCIDevices: []pci.PCIDevice{
 		{

@@ -26,6 +26,7 @@ func Info(h host.Host) ([]Disk, error) {
 
 		disks = append(disks, Disk{
 			MountPoint: hostDirInfo.Mountpoint,
+			Path:       dir,
 			Total:      hostDirInfo.Total,
 			Available:  hostDirInfo.Avail,
 		})
