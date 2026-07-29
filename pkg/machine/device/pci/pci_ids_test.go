@@ -48,8 +48,8 @@ func TestLookupPciIds(t *testing.T) {
 		name          string
 		vendorId      uint64
 		deviceId      uint64
-		subvendorId   uint64
-		subdeviceId   uint64
+		subvendorId   *uint64
+		subdeviceId   *uint64
 		wantVendor    string
 		wantDevice    string
 		wantSubvendor string
@@ -66,8 +66,8 @@ func TestLookupPciIds(t *testing.T) {
 			name:          "known vendor, device, subvendor and subdevice",
 			vendorId:      0x8086,
 			deviceId:      0x1234,
-			subvendorId:   sv,
-			subdeviceId:   sd,
+			subvendorId:   &sv,
+			subdeviceId:   &sd,
 			wantVendor:    "Intel Corporation",
 			wantDevice:    "Fake Display Device",
 			wantSubvendor: "Intel Corporation",
@@ -127,7 +127,7 @@ func TestLookupPciIds(t *testing.T) {
 
 func TestLookupPciIds_MissingFile(t *testing.T) {
 	h := host.Fake(t.TempDir()) // no pci.ids written
-	_, err := lookupPciIds(h, 0x8086, 0x1234, 0, 0)
+	_, err := lookupPciIds(h, 0x8086, 0x1234, nil, nil)
 	if err == nil {
 		t.Fatal("expected error when pci.ids is missing, got nil")
 	}

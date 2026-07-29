@@ -29,7 +29,7 @@ type pciIdEntry struct {
 // lookupPciIds looks up the human-readable vendor, device, subvendor and
 // subdevice names for the given IDs from the pci.ids database file.
 // Any name may be empty if the corresponding ID is not found.
-func lookupPciIds(h host.Host, vendorId uint64, deviceId uint64, subvendorId uint64, subdeviceId uint64) (pciIdEntry, error) {
+func lookupPciIds(h host.Host, vendorId uint64, deviceId uint64, subvendorId *uint64, subdeviceId *uint64) (pciIdEntry, error) {
 	path, err := findPciIdsFile(h)
 	if err != nil {
 		return pciIdEntry{}, err
@@ -45,11 +45,11 @@ func lookupPciIds(h host.Host, vendorId uint64, deviceId uint64, subvendorId uin
 
 	subvendorHex := ""
 	subdeviceHex := ""
-	if subvendorId != 0 {
-		subvendorHex = fmt.Sprintf("%04x", subvendorId)
+	if subvendorId != nil {
+		subvendorHex = fmt.Sprintf("%04x", *subvendorId)
 	}
-	if subdeviceId != 0 {
-		subdeviceHex = fmt.Sprintf("%04x", subdeviceId)
+	if subdeviceId != nil {
+		subdeviceHex = fmt.Sprintf("%04x", *subdeviceId)
 	}
 
 	var result pciIdEntry
@@ -77,7 +77,7 @@ func lookupPciIds(h host.Host, vendorId uint64, deviceId uint64, subvendorId uin
 		// Three-tab lines don't exist in pci.ids; two-tab lines are subsystems.
 		if strings.HasPrefix(line, "\t\t") {
 			// Subsystem line: "\t\tSSVV SSDD  Subsystem Name"
-			if inTargetDevice && subvendorId != 0 && subdeviceId != 0 {
+			if inTargetDevice && subvendorId != nil && subdeviceId != nil {
 				rest := strings.TrimPrefix(line, "\t\t")
 				sv, sd, name, ok := splitSubsystemLine(rest)
 				if ok && sv == subvendorHex && sd == subdeviceHex {
@@ -124,7 +124,7 @@ func lookupPciIds(h host.Host, vendorId uint64, deviceId uint64, subvendorId uin
 		}
 
 		// Check whether this vendor is also the subvendor we're looking for.
-		if subvendorId != 0 && currentVendorId == subvendorHex {
+		if subvendorId != nil && currentVendorId == subvendorHex {
 			result.SubvendorName = name
 		}
 	}
@@ -181,7 +181,7 @@ func lookupFriendlyNames(h host.Host, device PCIDevice) (FriendlyNames, error) {
 	if device.SubdeviceId != nil {
 		subdeviceId = *device.SubdeviceId
 	}
-	entry, err := lookupPciIds(h, device.VendorId, device.DeviceId, subvendorId, subdeviceId)
+	entry, err := lookupPciIds(h, device.VendorId, device.DeviceId, &subvendorId, &subdeviceId)
 	if err != nil {
 		return FriendlyNames{}, fmt.Errorf("pci ids lookup for %04x:%04x: %w", uint64(device.VendorId), uint64(device.DeviceId), err)
 	}

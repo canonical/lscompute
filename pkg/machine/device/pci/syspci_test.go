@@ -140,7 +140,7 @@ func TestReadSysPciDevice(t *testing.T) {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		if dev.ProgrammingInterface == nil {
-			t.Fatal("ProgrammingInterface: expected non-zero for prog-if 0x01, got nil")
+			t.Fatal("ProgrammingInterface: expected non-nil for prog-if 0x01, got nil")
 		}
 		if *dev.ProgrammingInterface != 0x01 {
 			t.Errorf("ProgrammingInterface: got 0x%02x, want 0x01", *dev.ProgrammingInterface)
