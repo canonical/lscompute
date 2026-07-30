@@ -12,13 +12,13 @@ import (
 
 const pciDevicesDir = "sys/bus/pci/devices" // io/fs path (no leading slash)
 
-func readSysPci(h host.Host) ([]PCIDevice, []string, error) {
+func readSysPci(h host.Host) ([]Device, []string, error) {
 	entries, err := fs.ReadDir(h.FS(), pciDevicesDir)
 	if err != nil {
 		return nil, nil, fmt.Errorf("reading %s: %w", pciDevicesDir, err)
 	}
 
-	var devices []PCIDevice
+	var devices []Device
 	var warnings []string
 
 	for _, entry := range entries {
@@ -36,8 +36,8 @@ func readSysPci(h host.Host) ([]PCIDevice, []string, error) {
 	return devices, warnings, nil
 }
 
-func readSysPciDevice(h host.Host, dir, slot string) (PCIDevice, error) {
-	var device PCIDevice
+func readSysPciDevice(h host.Host, dir, slot string) (Device, error) {
+	var device Device
 	device.Slot = slot
 
 	// slot format: "0000:3b:00.0" — index 1 is the bus number in hex
@@ -49,19 +49,19 @@ func readSysPciDevice(h host.Host, dir, slot string) (PCIDevice, error) {
 	if err != nil {
 		return device, fmt.Errorf("parsing bus number from %q: %w", slot, err)
 	}
-	device.BusNumber = busNum
+	device.BusNumber = uint8(busNum)
 
 	vendor, err := readHexFSFile(h, filepath.Join(dir, "vendor"))
 	if err != nil {
 		return device, fmt.Errorf("vendor: %w", err)
 	}
-	device.VendorId = vendor
+	device.VendorId = uint16(vendor)
 
 	deviceId, err := readHexFSFile(h, filepath.Join(dir, "device"))
 	if err != nil {
 		return device, fmt.Errorf("device: %w", err)
 	}
-	device.DeviceId = deviceId
+	device.DeviceId = uint16(deviceId)
 
 	// class is 24-bit 0xCCSSPP: upper 16 bits are the device class (class+subclass),
 	// lower 8 bits are the programming interface.
@@ -69,17 +69,19 @@ func readSysPciDevice(h host.Host, dir, slot string) (PCIDevice, error) {
 	if err != nil {
 		return device, fmt.Errorf("class: %w", err)
 	}
-	device.DeviceClass = classVal >> 8
+	device.DeviceClass = uint32(classVal >> 8)
 	if progIf := uint8(classVal & 0xFF); progIf != 0 {
 		device.ProgrammingInterface = &progIf
 	}
 
 	if subVendor, err := readHexFSFile(h, filepath.Join(dir, "subsystem_vendor")); err == nil {
-		device.SubvendorId = &subVendor
+		sv := uint16(subVendor)
+		device.SubvendorId = &sv
 	}
 
 	if subDevice, err := readHexFSFile(h, filepath.Join(dir, "subsystem_device")); err == nil {
-		device.SubdeviceId = &subDevice
+		sd := uint16(subDevice)
+		device.SubdeviceId = &sd
 	}
 
 	return device, nil

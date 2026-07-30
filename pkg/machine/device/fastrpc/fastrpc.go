@@ -28,7 +28,7 @@ const (
 )
 
 // Device represents a single FastRPC device detected on the system.
-type FastRPCDevice struct {
+type Device struct {
 	Bus string
 
 	Domain FastRPCDomain
@@ -82,7 +82,7 @@ func (bus *fastRpc) Devices() ([]any, []string, error) {
 	return result, nil, nil
 }
 
-func parseFastRPCDeviceName(name string) (FastRPCDevice, bool) {
+func parseFastRPCDeviceName(name string) (Device, bool) {
 	name = strings.TrimPrefix(strings.ToLower(name), fastRPCDeviceNamePrefix)
 
 	secure := strings.HasSuffix(name, "-secure")
@@ -99,7 +99,7 @@ func parseFastRPCDeviceName(name string) (FastRPCDevice, bool) {
 	if i < len(name) {
 		parsedIndex, err := strconv.Atoi(name[i:])
 		if err != nil {
-			return FastRPCDevice{}, false
+			return Device{}, false
 		}
 		index = parsedIndex
 	}
@@ -112,10 +112,10 @@ func parseFastRPCDeviceName(name string) (FastRPCDevice, bool) {
 	case CDSPDomain:
 	case GDSPDomain:
 	default:
-		return FastRPCDevice{}, false
+		return Device{}, false
 	}
 
-	return FastRPCDevice{
+	return Device{
 		Domain: domain,
 		Index:  index,
 		Secure: secure,

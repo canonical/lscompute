@@ -10,23 +10,23 @@ import (
 const (
 	BusName = "pci"
 
-	vendorAmd    = uint64(0x1002)
-	vendorIntel  = uint64(0x8086)
-	vendorNvidia = uint64(0x10de)
+	vendorAmd    = uint16(0x1002)
+	vendorIntel  = uint16(0x8086)
+	vendorNvidia = uint16(0x10de)
 )
 
 // Device represents a single PCI device detected on the system.
-type PCIDevice struct {
+type Device struct {
 	Bus string
 
 	Slot                 string
-	BusNumber            uint64
-	DeviceClass          uint64
+	BusNumber            uint8
+	DeviceClass          uint32
 	ProgrammingInterface *uint8
-	VendorId             uint64
-	DeviceId             uint64
-	SubvendorId          *uint64
-	SubdeviceId          *uint64
+	VendorId             uint16
+	DeviceId             uint16
+	SubvendorId          *uint16
+	SubdeviceId          *uint16
 	FriendlyNames        FriendlyNames
 
 	// Vendor specific device key-value pairs
@@ -43,7 +43,7 @@ type FriendlyNames struct {
 
 // IsGpu reports whether the device is a GPU or display controller by PCI class.
 // Covers legacy VGA (0x0001) and the full display-controller class (0x03xx).
-func (d PCIDevice) IsGpu() bool {
+func (d Device) IsGpu() bool {
 	return d.DeviceClass == 0x0001 || d.DeviceClass&0xFF00 == 0x0300
 }
 

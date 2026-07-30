@@ -37,7 +37,7 @@ func machineInfoForExamples() *machine.Machine {
 				Total:     1000000000000000,
 				Available: 40000000,
 			}},
-		PCIDevices: []pci.PCIDevice{
+		PCIDevices: []pci.Device{
 			{
 				Bus:         pci.BusName,
 				Slot:        "0000:00:00.0",
@@ -45,8 +45,8 @@ func machineInfoForExamples() *machine.Machine {
 				DeviceClass: 0x600,
 				VendorId:    0x8086,
 				DeviceId:    0x4637,
-				SubvendorId: new(uint64(0x103C)),
-				SubdeviceId: new(uint64(0x89C6)),
+				SubvendorId: new(uint16(0x103C)),
+				SubdeviceId: new(uint16(0x89C6)),
 			},
 			{
 				Bus:         pci.BusName,
@@ -55,8 +55,8 @@ func machineInfoForExamples() *machine.Machine {
 				DeviceClass: 0x300,
 				VendorId:    0x8086,
 				DeviceId:    0x9B41,
-				SubvendorId: new(uint64(0x1028)),
-				SubdeviceId: new(uint64(0x962)),
+				SubvendorId: new(uint16(0x1028)),
+				SubdeviceId: new(uint16(0x962)),
 				AdditionalProperties: map[string]string{
 					"vram": "14477950976",
 				},
@@ -68,8 +68,8 @@ func machineInfoForExamples() *machine.Machine {
 				DeviceClass: 0x300,
 				VendorId:    0x10DE,
 				DeviceId:    0x1B06,
-				SubvendorId: new(uint64(0x10DE)),
-				SubdeviceId: new(uint64(0x1B06)),
+				SubvendorId: new(uint16(0x10DE)),
+				SubdeviceId: new(uint16(0x1B06)),
 				AdditionalProperties: map[string]string{
 					"vram":               "11811160064",
 					"compute-capability": "6.1",
@@ -82,15 +82,15 @@ func machineInfoForExamples() *machine.Machine {
 				DeviceClass: 0x300,
 				VendorId:    0x1002,
 				DeviceId:    0x73E1,
-				SubvendorId: new(uint64(0x103C)),
-				SubdeviceId: new(uint64(0x89C6)),
+				SubvendorId: new(uint16(0x103C)),
+				SubdeviceId: new(uint16(0x89C6)),
 				AdditionalProperties: map[string]string{
 					"microarchitecture": "gfx1032",
 					"vram":              "8573157376",
 				},
 			},
 		},
-		USBDevices: []usb.USBDevice{
+		USBDevices: []usb.Device{
 			{
 				Bus:          usb.BusName,
 				BusNumber:    7,
@@ -103,7 +103,7 @@ func machineInfoForExamples() *machine.Machine {
 				},
 			},
 		},
-		FastRPCDevices: []fastrpc.FastRPCDevice{
+		FastRPCDevices: []fastrpc.Device{
 			{
 				Bus:    fastrpc.BusName,
 				Domain: fastrpc.ADSPDomain,

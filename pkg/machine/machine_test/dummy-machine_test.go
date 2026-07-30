@@ -21,7 +21,7 @@ func init() {
 		Disk: []disk.Disk{
 			{MountPoint: new("/"), Path: "/fakehost/var/lib/snapd/snaps", Total: 219902325555200, Available: 54975581388800},
 		},
-		PCIDevices: []pci.PCIDevice{
+		PCIDevices: []pci.Device{
 			{
 				Bus:         "pci",
 				Slot:        "0000:00:00.0",
@@ -29,8 +29,8 @@ func init() {
 				DeviceClass: 0x600,
 				VendorId:    0x8086,
 				DeviceId:    0x4637,
-				SubvendorId: new(uint64(0x103C)),
-				SubdeviceId: new(uint64(0x89C6)),
+				SubvendorId: new(uint16(0x103C)),
+				SubdeviceId: new(uint16(0x89C6)),
 			},
 		},
 	})

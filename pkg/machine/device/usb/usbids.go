@@ -27,7 +27,7 @@ type usbIdEntry struct {
 // lookupUsbIds looks up the human-readable vendor and product names for the
 // given IDs from the usb.ids database file.
 // Both names may be empty if the IDs are not found.
-func lookupUsbIds(h host.Host, vendorId uint64, productId uint64) (usbIdEntry, error) {
+func lookupUsbIds(h host.Host, vendorId uint16, productId uint16) (usbIdEntry, error) {
 	path, err := findUsbIdsFile(h)
 	if err != nil {
 		return usbIdEntry{}, err
@@ -38,8 +38,8 @@ func lookupUsbIds(h host.Host, vendorId uint64, productId uint64) (usbIdEntry, e
 		return usbIdEntry{}, fmt.Errorf("opening usb.ids: %w", err)
 	}
 
-	vendorHex := fmt.Sprintf("%04x", uint64(vendorId))
-	productHex := fmt.Sprintf("%04x", uint64(productId))
+	vendorHex := fmt.Sprintf("%04x", vendorId)
+	productHex := fmt.Sprintf("%04x", productId)
 
 	var result usbIdEntry
 	var inVendor bool
@@ -121,7 +121,7 @@ func findUsbIdsFile(h host.Host) (string, error) {
 // lookupFriendlyNames resolves human-readable vendor and product names for a
 // device from the usb.ids database and populates the device's FriendlyNames.
 // Errors are returned so the caller can emit them as warnings.
-func lookupFriendlyNames(h host.Host, device USBDevice) (USBDevice, error) {
+func lookupFriendlyNames(h host.Host, device Device) (Device, error) {
 	entry, err := lookupUsbIds(h, device.VendorId, device.ProductId)
 	if err != nil {
 		return device, err

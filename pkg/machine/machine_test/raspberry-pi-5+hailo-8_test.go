@@ -22,7 +22,7 @@ func init() {
 		Disk: []disk.Disk{
 			{MountPoint: new("/"), Path: "/fakehost/var/lib/snapd/snaps", Total: 219902325555200, Available: 54975581388800},
 		},
-		PCIDevices: []pci.PCIDevice{
+		PCIDevices: []pci.Device{
 			{
 				Bus:           "pci",
 				Slot:          "0001:00:00.0",
@@ -39,8 +39,8 @@ func init() {
 				DeviceClass:   0xB40,
 				VendorId:      0x1E60,
 				DeviceId:      0x2864,
-				SubvendorId:   new(uint64(0x1E60)),
-				SubdeviceId:   new(uint64(0x2864)),
+				SubvendorId:   new(uint16(0x1E60)),
+				SubdeviceId:   new(uint16(0x2864)),
 				FriendlyNames: pci.FriendlyNames{VendorName: "Hailo Technologies Ltd.", DeviceName: "Hailo-8 AI Processor", SubvendorName: "Hailo Technologies Ltd."},
 			},
 			{

@@ -21,7 +21,7 @@ func init() {
 		Disk: []disk.Disk{
 			{MountPoint: new("/"), Path: "/fakehost/var/lib/snapd/snaps", Total: 219902325555200, Available: 54975581388800},
 		},
-		PCIDevices: []pci.PCIDevice{
+		PCIDevices: []pci.Device{
 			{
 				Bus:         "pci",
 				Slot:        "0000:00:00.0",
@@ -29,8 +29,8 @@ func init() {
 				DeviceClass: 0x600,
 				VendorId:    0x8086,
 				DeviceId:    0xA04,
-				SubvendorId: new(uint64(0x1043)),
-				SubdeviceId: new(uint64(0x13BD)),
+				SubvendorId: new(uint16(0x1043)),
+				SubdeviceId: new(uint16(0x13BD)),
 			},
 			{
 				Bus:         "pci",
@@ -39,8 +39,8 @@ func init() {
 				DeviceClass: 0x300,
 				VendorId:    0x8086,
 				DeviceId:    0xA2E,
-				SubvendorId: new(uint64(0x1043)),
-				SubdeviceId: new(uint64(0x13BD)),
+				SubvendorId: new(uint16(0x1043)),
+				SubdeviceId: new(uint16(0x13BD)),
 			},
 			{
 				Bus:         "pci",
@@ -49,8 +49,8 @@ func init() {
 				DeviceClass: 0x403,
 				VendorId:    0x8086,
 				DeviceId:    0xA0C,
-				SubvendorId: new(uint64(0x8086)),
-				SubdeviceId: new(uint64(0x2010)),
+				SubvendorId: new(uint16(0x8086)),
+				SubdeviceId: new(uint16(0x2010)),
 			},
 			{
 				Bus:         "pci",
@@ -59,8 +59,8 @@ func init() {
 				DeviceClass: 0x1180,
 				VendorId:    0x8086,
 				DeviceId:    0xA03,
-				SubvendorId: new(uint64(0x8086)),
-				SubdeviceId: new(uint64(0x2010)),
+				SubvendorId: new(uint16(0x8086)),
+				SubdeviceId: new(uint16(0x2010)),
 			},
 			{
 				Bus:                  "pci",
@@ -70,8 +70,8 @@ func init() {
 				ProgrammingInterface: new(uint8(48)),
 				VendorId:             0x8086,
 				DeviceId:             0x9C31,
-				SubvendorId:          new(uint64(0x1043)),
-				SubdeviceId:          new(uint64(0x201F)),
+				SubvendorId:          new(uint16(0x1043)),
+				SubdeviceId:          new(uint16(0x201F)),
 			},
 			{
 				Bus:         "pci",
@@ -80,8 +80,8 @@ func init() {
 				DeviceClass: 0x780,
 				VendorId:    0x8086,
 				DeviceId:    0x9C3A,
-				SubvendorId: new(uint64(0x1043)),
-				SubdeviceId: new(uint64(0x13BD)),
+				SubvendorId: new(uint16(0x1043)),
+				SubdeviceId: new(uint16(0x13BD)),
 			},
 			{
 				Bus:         "pci",
@@ -90,8 +90,8 @@ func init() {
 				DeviceClass: 0x403,
 				VendorId:    0x8086,
 				DeviceId:    0x9C20,
-				SubvendorId: new(uint64(0x1043)),
-				SubdeviceId: new(uint64(0x13BD)),
+				SubvendorId: new(uint16(0x1043)),
+				SubdeviceId: new(uint16(0x13BD)),
 			},
 			{
 				Bus:         "pci",
@@ -100,8 +100,8 @@ func init() {
 				DeviceClass: 0x604,
 				VendorId:    0x8086,
 				DeviceId:    0x9C10,
-				SubvendorId: new(uint64(0x1043)),
-				SubdeviceId: new(uint64(0x13BD)),
+				SubvendorId: new(uint16(0x1043)),
+				SubdeviceId: new(uint16(0x13BD)),
 			},
 			{
 				Bus:         "pci",
@@ -110,8 +110,8 @@ func init() {
 				DeviceClass: 0x604,
 				VendorId:    0x8086,
 				DeviceId:    0x9C16,
-				SubvendorId: new(uint64(0x1043)),
-				SubdeviceId: new(uint64(0x13BD)),
+				SubvendorId: new(uint16(0x1043)),
+				SubdeviceId: new(uint16(0x13BD)),
 			},
 			{
 				Bus:         "pci",
@@ -120,8 +120,8 @@ func init() {
 				DeviceClass: 0x601,
 				VendorId:    0x8086,
 				DeviceId:    0x9C43,
-				SubvendorId: new(uint64(0x1043)),
-				SubdeviceId: new(uint64(0x13BD)),
+				SubvendorId: new(uint16(0x1043)),
+				SubdeviceId: new(uint16(0x13BD)),
 			},
 			{
 				Bus:                  "pci",
@@ -131,8 +131,8 @@ func init() {
 				ProgrammingInterface: new(uint8(1)),
 				VendorId:             0x8086,
 				DeviceId:             0x9C03,
-				SubvendorId:          new(uint64(0x1043)),
-				SubdeviceId:          new(uint64(0x13BD)),
+				SubvendorId:          new(uint16(0x1043)),
+				SubdeviceId:          new(uint16(0x13BD)),
 			},
 			{
 				Bus:         "pci",
@@ -141,8 +141,8 @@ func init() {
 				DeviceClass: 0xC05,
 				VendorId:    0x8086,
 				DeviceId:    0x9C22,
-				SubvendorId: new(uint64(0x1043)),
-				SubdeviceId: new(uint64(0x13BD)),
+				SubvendorId: new(uint16(0x1043)),
+				SubdeviceId: new(uint16(0x13BD)),
 			},
 			{
 				Bus:         "pci",
@@ -151,8 +151,8 @@ func init() {
 				DeviceClass: 0x280,
 				VendorId:    0x8086,
 				DeviceId:    0x8B1,
-				SubvendorId: new(uint64(0x8086)),
-				SubdeviceId: new(uint64(0xC070)),
+				SubvendorId: new(uint16(0x8086)),
+				SubdeviceId: new(uint16(0xC070)),
 			},
 		},
 	})

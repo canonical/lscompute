@@ -17,7 +17,7 @@ var ErrorVendorNotSupported = errors.New("vendor not supported")
 // addAdditionalProperties populates vendor-specific AdditionalProperties for
 // each device. Unsupported vendors are silently skipped; other errors are
 // collected as warnings.
-func addAdditionalProperties(h host.Host, devices []PCIDevice) ([]PCIDevice, []string) {
+func addAdditionalProperties(h host.Host, devices []Device) ([]Device, []string) {
 	var warnings []string
 
 	for i, device := range devices {
@@ -40,7 +40,7 @@ func addAdditionalProperties(h host.Host, devices []PCIDevice) ([]PCIDevice, []s
 
 // additionalProperties dispatches to the correct vendor package based on the
 // device's vendor ID. Add a new case here when a new vendor is supported.
-func additionalProperties(h host.Host, device PCIDevice) (map[string]string, error) {
+func additionalProperties(h host.Host, device Device) (map[string]string, error) {
 	switch device.VendorId {
 	case vendorAmd:
 		props, err := amd.AdditionalProperties(h, device.Slot, device.IsGpu())

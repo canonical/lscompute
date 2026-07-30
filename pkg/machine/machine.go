@@ -17,9 +17,9 @@ type Machine struct {
 	CPUs           []cpu.CPU
 	Memory         memory.Memory
 	Disk           []disk.Disk
-	PCIDevices     []pci.PCIDevice
-	USBDevices     []usb.USBDevice
-	FastRPCDevices []fastrpc.FastRPCDevice
+	PCIDevices     []pci.Device
+	USBDevices     []usb.Device
+	FastRPCDevices []fastrpc.Device
 }
 
 func Get(h host.Host, friendlyNames bool) (*Machine, []string, error) {
@@ -51,11 +51,11 @@ func Get(h host.Host, friendlyNames bool) (*Machine, []string, error) {
 	// Separate devices by type
 	for _, dev := range devices {
 		switch d := dev.(type) {
-		case pci.PCIDevice:
+		case pci.Device:
 			machineInfo.PCIDevices = append(machineInfo.PCIDevices, d)
-		case usb.USBDevice:
+		case usb.Device:
 			machineInfo.USBDevices = append(machineInfo.USBDevices, d)
-		case fastrpc.FastRPCDevice:
+		case fastrpc.Device:
 			machineInfo.FastRPCDevices = append(machineInfo.FastRPCDevices, d)
 		default:
 			return nil, nil, fmt.Errorf("unknown device type: %T", dev)

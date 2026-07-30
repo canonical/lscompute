@@ -201,7 +201,7 @@ func TestLookupUsbIds_InterfaceEntriesSkipped(t *testing.T) {
 // is missing.
 func TestLookupFriendlyNames_LookupError(t *testing.T) {
 	h := host.Fake(t.TempDir()) // no usb.ids
-	dev := USBDevice{}
+	dev := Device{}
 	dev.VendorId = 0x046d
 	dev.ProductId = 0xc52b
 

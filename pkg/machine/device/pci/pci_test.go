@@ -65,7 +65,7 @@ func TestScannerScan_NoFriendlyNames(t *testing.T) {
 		t.Errorf("expected 2 devices, got %d", len(result))
 	}
 	for _, di := range result {
-		dev, ok := di.(PCIDevice)
+		dev, ok := di.(Device)
 		if !ok {
 			t.Fatalf("item is not Device: %T", di)
 		}
@@ -99,9 +99,9 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 	}
 	// No friendly names should have been populated.
 	for _, di := range result {
-		dev, ok := di.(PCIDevice)
+		dev, ok := di.(Device)
 		if !ok {
-			t.Fatalf("item is not PCIDevice: %T", di)
+			t.Fatalf("item is not Device: %T", di)
 		}
 		if dev.FriendlyNames.VendorName != "" {
 			t.Errorf("expected empty VendorName on lookup failure, got %q", dev.FriendlyNames.VendorName)
@@ -131,9 +131,9 @@ func TestScannerScan_FriendlyNamesSuccess(t *testing.T) {
 	if len(result) != 1 {
 		t.Fatalf("expected 1 device, got %d", len(result))
 	}
-	dev, ok := result[0].(PCIDevice)
+	dev, ok := result[0].(Device)
 	if !ok {
-		t.Fatalf("item is not PCIDevice: %T", result[0])
+		t.Fatalf("item is not Device: %T", result[0])
 	}
 	if dev.FriendlyNames.VendorName != "Intel Corporation" {
 		t.Errorf("VendorName = %v, want %q", dev.FriendlyNames.VendorName, "Intel Corporation")
@@ -161,7 +161,7 @@ func TestIsGpu(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			d := PCIDevice{DeviceClass: tc.deviceClass}
+			d := Device{DeviceClass: uint32(tc.deviceClass)}
 			if got := d.IsGpu(); got != tc.want {
 				t.Errorf("Device{DeviceClass: 0x%04x}.IsGpu() = %v, want %v",
 					tc.deviceClass, got, tc.want)

@@ -10,13 +10,13 @@ import (
 const BusName = "usb"
 
 // Device represents a single USB device detected on the system.
-type USBDevice struct {
+type Device struct {
 	Bus string
 
-	BusNumber    int
-	DeviceNumber int
-	VendorId     uint64
-	ProductId    uint64
+	BusNumber    uint8
+	DeviceNumber uint8
+	VendorId     uint16
+	ProductId    uint16
 	FriendlyNames
 
 	// Vendor specific device key-value pairs

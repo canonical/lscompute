@@ -29,7 +29,7 @@ type pciIdEntry struct {
 // lookupPciIds looks up the human-readable vendor, device, subvendor and
 // subdevice names for the given IDs from the pci.ids database file.
 // Any name may be empty if the corresponding ID is not found.
-func lookupPciIds(h host.Host, vendorId uint64, deviceId uint64, subvendorId *uint64, subdeviceId *uint64) (pciIdEntry, error) {
+func lookupPciIds(h host.Host, vendorId uint16, deviceId uint16, subvendorId *uint16, subdeviceId *uint16) (pciIdEntry, error) {
 	path, err := findPciIdsFile(h)
 	if err != nil {
 		return pciIdEntry{}, err
@@ -173,8 +173,8 @@ func findPciIdsFile(h host.Host) (string, error) {
 
 // lookupFriendlyNames uses the numeric PCI ID fields to look up human-readable
 // names from the pci.ids database and converts them into a FriendlyNames value.
-func lookupFriendlyNames(h host.Host, device PCIDevice) (FriendlyNames, error) {
-	var subvendorId, subdeviceId uint64
+func lookupFriendlyNames(h host.Host, device Device) (FriendlyNames, error) {
+	var subvendorId, subdeviceId uint16
 	if device.SubvendorId != nil {
 		subvendorId = *device.SubvendorId
 	}
@@ -188,20 +188,16 @@ func lookupFriendlyNames(h host.Host, device PCIDevice) (FriendlyNames, error) {
 
 	var names FriendlyNames
 	if entry.VendorName != "" {
-		s := entry.VendorName
-		names.VendorName = s
+		names.VendorName = entry.VendorName
 	}
 	if entry.DeviceName != "" {
-		s := entry.DeviceName
-		names.DeviceName = s
+		names.DeviceName = entry.DeviceName
 	}
 	if entry.SubvendorName != "" {
-		s := entry.SubvendorName
-		names.SubvendorName = s
+		names.SubvendorName = entry.SubvendorName
 	}
 	if entry.SubdeviceName != "" {
-		s := entry.SubdeviceName
-		names.SubdeviceName = s
+		names.SubdeviceName = entry.SubdeviceName
 	}
 	return names, nil
 }

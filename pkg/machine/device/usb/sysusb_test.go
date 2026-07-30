@@ -223,11 +223,11 @@ func TestReadSysUsbDevice_ParseErrors(t *testing.T) {
 }
 
 // assertDevice fails the test if no device in the slice matches all four fields.
-func assertDevice(t *testing.T, devices []USBDevice, vendorId, productId uint64, busNum, devNum int) {
+func assertDevice(t *testing.T, devices []Device, vendorId, productId uint64, busNum, devNum int) {
 	t.Helper()
 	for _, d := range devices {
-		if d.VendorId == vendorId && d.ProductId == productId &&
-			d.BusNumber == busNum && d.DeviceNumber == devNum {
+		if d.VendorId == uint16(vendorId) && d.ProductId == uint16(productId) &&
+			d.BusNumber == uint8(busNum) && d.DeviceNumber == uint8(devNum) {
 			return
 		}
 	}

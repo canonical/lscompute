@@ -13,7 +13,7 @@ import (
 
 const usbDevicesDir = "sys/bus/usb/devices" // io/fs path (no leading slash)
 
-func readSysUsb(h host.Host) ([]USBDevice, []string, error) {
+func readSysUsb(h host.Host) ([]Device, []string, error) {
 	entries, err := fs.ReadDir(h.FS(), usbDevicesDir)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
@@ -22,7 +22,7 @@ func readSysUsb(h host.Host) ([]USBDevice, []string, error) {
 		return nil, nil, fmt.Errorf("reading %s: %w", usbDevicesDir, err)
 	}
 
-	var devices []USBDevice
+	var devices []Device
 	var warnings []string
 
 	for _, entry := range entries {
@@ -44,8 +44,8 @@ func readSysUsb(h host.Host) ([]USBDevice, []string, error) {
 	return devices, warnings, nil
 }
 
-func readSysUsbDevice(h host.Host, dir string) (USBDevice, error) {
-	var device USBDevice
+func readSysUsbDevice(h host.Host, dir string) (Device, error) {
+	var device Device
 
 	vendorStr, err := readTrimmedFSFile(h, filepath.Join(dir, "idVendor"))
 	if err != nil {
@@ -55,7 +55,7 @@ func readSysUsbDevice(h host.Host, dir string) (USBDevice, error) {
 	if err != nil {
 		return device, fmt.Errorf("parsing idVendor %q: %w", vendorStr, err)
 	}
-	device.VendorId = vendorId
+	device.VendorId = uint16(vendorId)
 
 	productStr, err := readTrimmedFSFile(h, filepath.Join(dir, "idProduct"))
 	if err != nil {
@@ -65,7 +65,7 @@ func readSysUsbDevice(h host.Host, dir string) (USBDevice, error) {
 	if err != nil {
 		return device, fmt.Errorf("parsing idProduct %q: %w", productStr, err)
 	}
-	device.ProductId = productId
+	device.ProductId = uint16(productId)
 
 	busStr, err := readTrimmedFSFile(h, filepath.Join(dir, "busnum"))
 	if err != nil {
@@ -75,7 +75,7 @@ func readSysUsbDevice(h host.Host, dir string) (USBDevice, error) {
 	if err != nil {
 		return device, fmt.Errorf("parsing busnum %q: %w", busStr, err)
 	}
-	device.BusNumber = busNum
+	device.BusNumber = uint8(busNum)
 
 	devStr, err := readTrimmedFSFile(h, filepath.Join(dir, "devnum"))
 	if err != nil {
@@ -85,7 +85,7 @@ func readSysUsbDevice(h host.Host, dir string) (USBDevice, error) {
 	if err != nil {
 		return device, fmt.Errorf("parsing devnum %q: %w", devStr, err)
 	}
-	device.DeviceNumber = devNum
+	device.DeviceNumber = uint8(devNum)
 
 	return device, nil
 }

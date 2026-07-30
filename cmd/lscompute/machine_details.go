@@ -97,7 +97,7 @@ type PciDeviceDetails struct {
 type UsbDeviceDetails struct {
 	Bus                  string            `json:"bus" yaml:"bus"`
 	BusNumber            any               `json:"bus-number,omitempty" yaml:"bus-number,omitempty"`
-	DeviceNumber         int               `json:"device-number,omitempty" yaml:"device-number,omitempty"`
+	DeviceNumber         uint8             `json:"device-number,omitempty" yaml:"device-number,omitempty"`
 	VendorId             HexInt            `json:"vendor-id,omitempty" yaml:"vendor-id,omitempty"`
 	ProductId            HexInt            `json:"product-id,omitempty" yaml:"product-id,omitempty"`
 	VendorName           string            `json:"vendor-name,omitempty" yaml:"vendor-name,omitempty"`
@@ -150,7 +150,7 @@ func NewMachineDetails(info *machine.Machine) *MachineDetails {
 		if d.ProgrammingInterface != nil {
 			programmingInterface = *d.ProgrammingInterface
 		}
-		var subvendorId, subdeviceId uint64
+		var subvendorId, subdeviceId uint16
 		if d.SubvendorId != nil {
 			subvendorId = *d.SubvendorId
 		}
