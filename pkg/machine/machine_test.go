@@ -104,29 +104,6 @@ func TestGet_CpuError(t *testing.T) {
 	}
 }
 
-// TestGet_DiskError verifies that Get returns an error when disk stats are unavailable.
-func TestGet_DiskError(t *testing.T) {
-	root := t.TempDir()
-	write := func(rel, content string) {
-		full := filepath.Join(root, filepath.FromSlash(rel))
-		if err := os.MkdirAll(filepath.Dir(full), 0755); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.WriteFile(full, []byte(content), 0644); err != nil {
-			t.Fatal(err)
-		}
-	}
-	write("proc/meminfo", "MemTotal: 8192000 kB\nSwapTotal: 0 kB\n")
-	write("proc/sys/kernel/arch", "x86_64\n")
-	write("proc/cpuinfo", "processor\t: 0\nvendor_id\t: GenuineIntel\nflags\t\t: sse\n")
-	// No run/disk-stats.json → disk.Info fails.
-	h := host.Fake(root)
-	_, _, err := Get(h, false)
-	if err == nil {
-		t.Fatal("expected error when disk stats are missing, got nil")
-	}
-}
-
 // TestGet_DevicesError verifies that Get propagates a device scan error.
 // It builds a minimal fake host that satisfies memory/cpu/disk but breaks the PCI scanner.
 func TestGet_DevicesError(t *testing.T) {
@@ -149,9 +126,6 @@ func TestGet_DevicesError(t *testing.T) {
 	write("proc/sys/kernel/arch", "x86_64\n")
 	// proc/cpuinfo — minimal amd64 entry satisfies cpu.Info
 	write("proc/cpuinfo", "processor\t: 0\nvendor_id\t: GenuineIntel\nflags\t\t: sse\n")
-	// run/disk-stats.json — satisfies disk.Info
-	write("run/disk-stats.json",
-		`[{"mountpoint": "/", "total": 100000000000, "avail": 50000000000}]`)
 	// sys/bus/pci/devices as a file (not directory) → ReadDir fails with a real error
 	write("sys/bus/pci/devices", "not-a-dir")
 

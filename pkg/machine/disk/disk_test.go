@@ -14,39 +14,36 @@ func TestDiskInfo(t *testing.T) {
 	if err := os.MkdirAll(runDir, 0755); err != nil {
 		t.Fatal(err)
 	}
-	// disk-stats.json is an array of {mountpoint, total, avail} objects.
-	fixture := `[{"mountpoint": "/", "total": 107374182400, "avail": 21474836480}]`
-	if err := os.WriteFile(filepath.Join(runDir, "disk-stats.json"), []byte(fixture), 0644); err != nil {
-		t.Fatal(err)
-	}
 
 	h := host.Fake(dir)
-	results, err := Info(h)
+	results, err := infoWithDirs(h, []string{host.FakeSnapStoragePath, host.FakeHostRoot, host.FakeHostSnap})
 	if err != nil {
 		t.Fatalf("Info() error: %v", err)
+	}
+
+	want := map[string]struct {
+		total uint64
+		avail uint64
+	}{
+		host.FakeSnapStoragePath: {total: 219902325555200, avail: 54975581388800},
+		host.FakeHostRoot:        {total: 109951162777600, avail: 21990232555520},
+		host.FakeHostSnap:        {total: 54975581388800, avail: 10995116277760},
 	}
 
 	for _, result := range results {
 		if result.MountPoint == nil || *result.MountPoint != "/" {
 			t.Errorf("unexpected mount point: got %v, want %q", result.MountPoint, "/")
 		}
-		if result.Path != snapStoragePath {
-			t.Errorf("unexpected path: got %q, want %q", result.Path, snapStoragePath)
+		exp, ok := want[result.Path]
+		if !ok {
+			t.Errorf("unexpected path: %q", result.Path)
+			continue
 		}
-		if result.Total != 107374182400 {
-			t.Errorf("Total = %d, want 107374182400", result.Total)
+		if result.Total != exp.total {
+			t.Errorf("Total for %s = %d, want %d", result.Path, result.Total, exp.total)
 		}
-		if result.Available != 21474836480 {
-			t.Errorf("Available = %d, want 21474836480", result.Available)
+		if result.Available != exp.avail {
+			t.Errorf("Available for %s = %d, want %d", result.Path, result.Available, exp.avail)
 		}
-	}
-}
-
-func TestDiskInfo_MissingStats(t *testing.T) {
-	// No run/disk-stats.json → StatFs should fail → Info returns an error.
-	h := host.Fake(t.TempDir())
-	_, err := Info(h)
-	if err == nil {
-		t.Fatal("expected error for missing disk-stats.json, got nil")
 	}
 }

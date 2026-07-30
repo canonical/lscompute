@@ -2,33 +2,40 @@ package disk
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
+	"golang.org/x/sys/unix"
 )
 
-// directories lists the absolute paths whose disk usage we report. Each path is
-// stripped of its leading slash internally to satisfy the host.Host io/fs path
-// convention; the resolved mountpoint is reported for each entry.
-var directories = []string{
-	snapStoragePath,
+func Info(h host.Host) ([]Disk, error) {
+	return infoWithDirs(h, h.GetDirectories())
 }
 
 // Info returns the total size and available size for configured directories,
 // using the host's StatFs implementation.
-func Info(h host.Host) ([]Disk, error) {
+func infoWithDirs(h host.Host, dirs []string) ([]Disk, error) {
 	disks := []Disk{}
-	for _, dir := range directories {
-		hostDirInfo, err := h.StatFs(strings.TrimPrefix(dir, "/"))
+	for _, dir := range dirs {
+		buf, err := h.DirStat(dir)
 		if err != nil {
 			return nil, fmt.Errorf("getting directory info for %s: %w", dir, err)
 		}
+		st := unix.Statfs_t{
+			Blocks: buf.Blocks * uint64(buf.Bsize),
+			Bavail: buf.Bavail * uint64(buf.Bsize),
+		}
+
+		// mountpoint is best-effort: when it cannot be determined it is left nil.
+		var mountpoint *string
+		if mp, err := h.GetMountpoint(dir); err == nil {
+			mountpoint = &mp
+		}
 
 		disks = append(disks, Disk{
-			MountPoint: hostDirInfo.Mountpoint,
+			MountPoint: mountpoint,
 			Path:       dir,
-			Total:      hostDirInfo.Total,
-			Available:  hostDirInfo.Avail,
+			Total:      st.Blocks,
+			Available:  st.Bavail,
 		})
 	}
 	return disks, nil

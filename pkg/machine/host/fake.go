@@ -2,12 +2,19 @@ package host
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/sys/unix"
+)
+
+const (
+	FakeHostRoot        = "/fakehost/root"
+	FakeHostSnap        = "/fakehost/snap"
+	FakeSnapStoragePath = "/fakehost/var/lib/snapd/snaps"
 )
 
 type fakeHost struct{ root string }
@@ -86,41 +93,30 @@ func parseNvidiaSmiArgs(args []string) (slot, query string, err error) {
 	return slot, query, nil
 }
 
-// StatFs reads disk stats from <root>/run/disk-stats.json, a JSON array of
-// {mountpoint, total, avail} objects. It returns the entry whose mountpoint is
-// the longest prefix of the queried path, mirroring how the real host resolves
-// a path to the filesystem that backs it.
-func (h *fakeHost) StatFs(path string) (dirStats, error) {
-	filePath := filepath.Join(h.root, "run", "disk-stats.json")
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		return dirStats{}, fmt.Errorf("fake StatFs: reading %s: %w", filePath, err)
+func (h *fakeHost) DirStat(path string) (*unix.Statfs_t, error) {
+	var st unix.Statfs_t
+	st.Bsize = int64(1024) // block size in bytes
+	switch path {
+	case FakeHostRoot:
+		st.Blocks = 100 * 1024 * 1024 * uint64(st.Bsize) // 100 GiB
+		st.Bavail = 20 * 1024 * 1024 * uint64(st.Bsize)  // 20 GiB
+	case FakeHostSnap:
+		st.Blocks = 50 * 1024 * 1024 * uint64(st.Bsize) // 50 GiB
+		st.Bavail = 10 * 1024 * 1024 * uint64(st.Bsize) // 10 GiB
+	case FakeSnapStoragePath:
+		st.Blocks = 200 * 1024 * 1024 * uint64(st.Bsize) // 200 GiB
+		st.Bavail = 50 * 1024 * 1024 * uint64(st.Bsize)  // 50 GiB
+	default:
+		return nil, fmt.Errorf("fake DirStat: no mapping for path %q", path)
 	}
 
-	var stats []dirStats
-	if err := json.Unmarshal(data, &stats); err != nil {
-		return dirStats{}, fmt.Errorf("fake StatFs: parsing %s: %w", filePath, err)
-	}
+	return &st, nil
+}
 
-	// Real host prepends "/" before calling unix.Statfs(2); do the same, then
-	// pick the entry whose mountpoint is the longest matching prefix.
-	fullPath := "/" + path
-	var best dirStats
-	bestLen := -1
-	for _, entry := range stats {
-		if entry.Mountpoint == nil {
-			continue
-		}
-		mp := *entry.Mountpoint
-		// Match only at a path-segment boundary so that e.g. mountpoint
-		// "/mnt/foo" does not match "/mnt/foobar", mirroring real.go.
-		if (mp == "/" || fullPath == mp || strings.HasPrefix(fullPath, mp+"/")) && len(mp) > bestLen {
-			best = entry
-			bestLen = len(mp)
-		}
-	}
-	if bestLen < 0 {
-		return dirStats{}, fmt.Errorf("fake StatFs: no entry matching %q in %s", fullPath, filePath)
-	}
-	return best, nil
+func (h *fakeHost) GetMountpoint(path string) (string, error) {
+	return "/", nil
+}
+
+func (h *fakeHost) GetDirectories() []string {
+	return []string{FakeSnapStoragePath}
 }

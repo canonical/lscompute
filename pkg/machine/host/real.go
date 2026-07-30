@@ -14,6 +14,10 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+const (
+	snapStoragePath = "/var/lib/snapd/snaps"
+)
+
 type realHost struct{}
 
 func (realHost) FS() fs.FS { return os.DirFS("/") }
@@ -40,27 +44,16 @@ func (realHost) RunCommand(ctx context.Context, name string, env []string, args 
 	return cmd.Output()
 }
 
-func (realHost) StatFs(path string) (dirStats, error) {
+func (realHost) DirStat(path string) (*unix.Statfs_t, error) {
 	var st unix.Statfs_t
 	fullPath := filepath.Join("/", path)
 	if err := unix.Statfs(fullPath, &st); err != nil {
-		return dirStats{}, fmt.Errorf("statfs %s: %w", path, err)
+		return nil, fmt.Errorf("statfs %s: %w", path, err)
 	}
-
-	// mountpoint is best-effort: when it cannot be determined it is left nil.
-	var mountpoint *string
-	if mp, err := getMountpoint(fullPath); err == nil {
-		mountpoint = &mp
-	}
-
-	return dirStats{
-		Mountpoint: mountpoint,
-		Total:      st.Blocks * uint64(st.Bsize),
-		Avail:      st.Bavail * uint64(st.Bsize),
-	}, nil
+	return &st, nil
 }
 
-// getMountpoint retrieves the actual mountpoint for a given path by parsing the
+// GetMountpoint retrieves the actual mountpoint for a given path by parsing the
 // host's mount table.
 //
 // It reads /proc/1/mounts (PID 1, the host init) rather than /proc/mounts
@@ -72,7 +65,7 @@ func (realHost) StatFs(path string) (dirStats, error) {
 // the real filesystem layout. On a non-snap host /proc/1/mounts is equivalent
 // to /proc/self/mounts. Reading another PID's mount table requires the
 // mount-observe interface under confinement.
-func getMountpoint(path string) (string, error) {
+func (realHost) GetMountpoint(path string) (string, error) {
 	file, err := os.Open("/proc/1/mounts")
 	if err != nil {
 		return "", err
@@ -101,4 +94,8 @@ func getMountpoint(path string) (string, error) {
 		return "", fmt.Errorf("mountpoint not found for %s", path)
 	}
 	return longestMatch, nil
+}
+
+func (realHost) GetDirectories() []string {
+	return []string{snapStoragePath}
 }
