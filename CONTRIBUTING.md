@@ -3,14 +3,13 @@
 ## How to add a new hardware bus
 
 Adding support for a new bus (e.g. I2C, MIPI CSI, AMBA) follows a fixed recipe.
-You only touch files inside your new package directory plus **one bus registration
-in `device/devices.go`**.
+You only add a new package inside `device` directory and load it in `machine.go`.
 
 ### Step 1 — Create the bus package directory
 
 ```
 pkg/machine/device/<busname>/
-    <busname>.go    ← BusName constant, <BusType>Device struct, Options, NewBus(), Devices()
+    <busname>.go    ← BusName constant, Device struct, Options, NewBus(), Devices()
     <anything>      ← sysfs reader, ID lookup, vendor logic, tests, …
 ```
 
@@ -23,17 +22,16 @@ Add extra files (e.g. `sys<busname>.go`, `vendor.go`) when the implementation gr
 package <busname>
 
 import (
-    "github.com/canonical/lscompute/pkg/machine/device/bus"
     "github.com/canonical/lscompute/pkg/machine/host"
 )
 
 const BusName = "<busname>"
 
-// <BusType>Device represents a single <busType> device detected on the system.
+// Device represents a single <busType> device detected on the system.
 //
 // Public device structs carry no serialization tags: the human-readable
 // JSON/YAML rendering lives in `cmd/lscompute` (see `MachineDetails`).
-type <BusType>Device struct {
+type Device struct {
     Bus string
 
     // TODO: add bus-specific fields here
@@ -45,33 +43,37 @@ type <BusType>Device struct {
 // Options holds <busType>-specific bus configuration.
 type Options struct{}
 
-// <busType> implements bus.Bus for the <busType> bus.
+// <busType> is the <busType> bus implementation.
 type <busType> struct {
     host host.Host
     opts Options
 }
 
 // NewBus returns a <busType> bus configured with the given options.
-func NewBus(h host.Host, opts Options) bus.Bus {
+func NewBus(h host.Host, opts Options) *<busType> {
     return &<busType>{host: h, opts: opts}
 }
 
-// Devices discovers all devices on the bus and returns them as a slice of any,
-// along with non-fatal warnings and a hard error if the bus could not be enumerated.
-func (bus *<busType>) Devices() ([]any, []string, error) {
-    // TODO: enumerate devices, e.g. via sysfs or ioctl
-    // For each discovered device, set the Bus field before appending:
-    //   device.Bus = BusName
+// Devices discovers all <busType> devices on the host and returns them along
+// with any warnings and a hard error if the bus could not be enumerated.
+func (bus *<busType>) Devices() ([]Device, []string, error) {
+    // TODO: enumerate devices; set device.Bus = BusName on each result
     return nil, nil, nil
 }
 ```
 
-### Step 3 — Register the bus in `device/devices.go`
+### Step 3 — Add the bus in `machine.go`
 
-Add your bus to the `buses` slice in `pkg/machine/device/devices.go`:
+Add your bus to the `Get()` method in `pkg/machine/machine.go`:
 
 ```go
-<busname>.NewBus(h, <busname>.Options{}),
+<busname> := <busname>.NewBus(h, <busname>.Options{})
+	if d, w, err := <busname>.Devices(); err != nil {
+		return nil, nil, fmt.Errorf("getting <busname> devices: %w", err)
+	} else {
+		machineInfo.<BusType>Devices = d
+		warnings = append(warnings, w...)
+	}
 ```
 
-Also import `"github.com/canonical/lscompute/pkg/machine/device/<busname>"` in `device/devices.go`.
+Also import `"github.com/canonical/lscompute/pkg/machine/device/<busname>"` in `pkg/machine/machine.go`.
