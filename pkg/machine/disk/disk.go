@@ -25,14 +25,14 @@ func infoWithDirs(h host.Host, dirs []string) ([]Disk, error) {
 			Bavail: buf.Bavail * uint64(buf.Bsize),
 		}
 
-		// mountpoint is best-effort: when it cannot be determined it is left nil.
-		var mountpoint *string
-		if mp, err := h.GetMountpoint(dir); err == nil {
-			mountpoint = &mp
+		// mountPoint is best-effort: when it cannot be determined it is left nil.
+		var mountPoint *string
+		if mp, err := h.GetMountPoint(dir); err == nil {
+			mountPoint = &mp
 		}
 
 		disks = append(disks, Disk{
-			MountPoint: mountpoint,
+			MountPoint: mountPoint,
 			Path:       dir,
 			Total:      st.Blocks,
 			Available:  st.Bavail,

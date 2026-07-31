@@ -53,7 +53,7 @@ func (realHost) DirStat(path string) (*unix.Statfs_t, error) {
 	return &st, nil
 }
 
-// GetMountpoint retrieves the actual mountpoint for a given path by parsing the
+// GetMountPoint retrieves the actual mountpoint for a given path by parsing the
 // host's mount table.
 //
 // It reads /proc/1/mounts (PID 1, the host init) rather than /proc/mounts
@@ -65,7 +65,7 @@ func (realHost) DirStat(path string) (*unix.Statfs_t, error) {
 // the real filesystem layout. On a non-snap host /proc/1/mounts is equivalent
 // to /proc/self/mounts. Reading another PID's mount table requires the
 // mount-observe interface under confinement.
-func (realHost) GetMountpoint(path string) (string, error) {
+func (realHost) GetMountPoint(path string) (string, error) {
 	file, err := os.Open("/proc/1/mounts")
 	if err != nil {
 		return "", err
@@ -79,10 +79,10 @@ func (realHost) GetMountpoint(path string) (string, error) {
 		if len(parts) < 2 {
 			continue
 		}
-		mountpoint := parts[1]
+		mountPoint := parts[1]
 		// Find the longest matching mountpoint (most specific). Ensure we match a full path segment.
-		if (mountpoint == "/" || path == mountpoint || strings.HasPrefix(path, mountpoint+"/")) && len(mountpoint) > len(longestMatch) {
-			longestMatch = mountpoint
+		if (mountPoint == "/" || path == mountPoint || strings.HasPrefix(path, mountPoint+"/")) && len(mountPoint) > len(longestMatch) {
+			longestMatch = mountPoint
 		}
 	}
 

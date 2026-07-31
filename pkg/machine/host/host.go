@@ -16,7 +16,7 @@ type Host interface {
 
 	DirStat(path string) (*unix.Statfs_t, error)
 
-	GetMountpoint(path string) (string, error)
+	GetMountPoint(path string) (string, error)
 
 	GetDirectories() []string
 }

@@ -113,7 +113,7 @@ func (h *fakeHost) DirStat(path string) (*unix.Statfs_t, error) {
 	return &st, nil
 }
 
-func (h *fakeHost) GetMountpoint(path string) (string, error) {
+func (h *fakeHost) GetMountPoint(path string) (string, error) {
 	return "/", nil
 }
 
