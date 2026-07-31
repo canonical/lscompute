@@ -167,10 +167,10 @@ func NewMachineDetails(info *machine.Machine) *MachineDetails {
 			DeviceId:             HexInt(d.DeviceId),
 			SubvendorId:          HexInt(subvendorId),
 			SubdeviceId:          HexInt(subdeviceId),
-			VendorName:           d.FriendlyNames.VendorName,
-			DeviceName:           d.FriendlyNames.DeviceName,
-			SubvendorName:        d.FriendlyNames.SubvendorName,
-			SubdeviceName:        d.FriendlyNames.SubdeviceName,
+			VendorName:           d.VendorName,
+			DeviceName:           d.DeviceName,
+			SubvendorName:        d.SubvendorName,
+			SubdeviceName:        d.SubdeviceName,
 			AdditionalProperties: newPciAdditionalDeviceProperties(d.AdditionalProperties),
 		})
 	}
@@ -183,8 +183,8 @@ func NewMachineDetails(info *machine.Machine) *MachineDetails {
 			DeviceNumber:         d.DeviceNumber,
 			VendorId:             HexInt(d.VendorId),
 			ProductId:            HexInt(d.ProductId),
-			VendorName:           d.FriendlyNames.VendorName,
-			ProductName:          d.FriendlyNames.ProductName,
+			VendorName:           d.VendorName,
+			ProductName:          d.ProductName,
 			AdditionalProperties: d.AdditionalProperties,
 		})
 	}
