@@ -12,8 +12,7 @@ import (
 )
 
 const (
-	FakeHostRoot        = "/fakehost/root"
-	FakeHostSnap        = "/fakehost/snap"
+	FakeHostRoot        = "/fakehost"
 	FakeSnapStoragePath = "/fakehost/var/lib/snapd/snaps"
 )
 
@@ -93,24 +92,32 @@ func parseNvidiaSmiArgs(args []string) (slot, query string, err error) {
 	return slot, query, nil
 }
 
-func (h *fakeHost) DirStat(path string) (*unix.Statfs_t, error) {
+func (h fakeHost) DirStat(path string) (*DirStat, error) {
 	var st unix.Statfs_t
-	st.Bsize = int64(1024) // block size in bytes
+	fullPath := filepath.Join("/", path)
+	if err := h.statfs(fullPath, &st); err != nil {
+		return nil, fmt.Errorf("statfs %s: %w", path, err)
+	}
+	return &DirStat{
+		Total:     st.Blocks * uint64(st.Bsize),
+		Available: st.Bavail * uint64(st.Bsize),
+	}, nil
+}
+
+func (h *fakeHost) statfs(path string, buf *unix.Statfs_t) (err error) {
+	buf.Bsize = int64(1024) // block size in bytes
 	switch path {
 	case FakeHostRoot:
-		st.Blocks = 100 * 1024 * 1024 * uint64(st.Bsize) // 100 GiB
-		st.Bavail = 20 * 1024 * 1024 * uint64(st.Bsize)  // 20 GiB
-	case FakeHostSnap:
-		st.Blocks = 50 * 1024 * 1024 * uint64(st.Bsize) // 50 GiB
-		st.Bavail = 10 * 1024 * 1024 * uint64(st.Bsize) // 10 GiB
+		buf.Blocks = 100 * 1024 * uint64(buf.Bsize) // 100 GiB
+		buf.Bavail = 20 * 1024 * uint64(buf.Bsize)  // 20 GiB
 	case FakeSnapStoragePath:
-		st.Blocks = 200 * 1024 * 1024 * uint64(st.Bsize) // 200 GiB
-		st.Bavail = 50 * 1024 * 1024 * uint64(st.Bsize)  // 50 GiB
+		buf.Blocks = 200 * 1024 * uint64(buf.Bsize) // 200 GiB
+		buf.Bavail = 50 * 1024 * uint64(buf.Bsize)  // 50 GiB
 	default:
-		return nil, fmt.Errorf("fake DirStat: no mapping for path %q", path)
+		return fmt.Errorf("fake DirStat: no mapping for path %q", path)
 	}
 
-	return &st, nil
+	return nil
 }
 
 func (h *fakeHost) GetMountPoint(path string) (string, error) {

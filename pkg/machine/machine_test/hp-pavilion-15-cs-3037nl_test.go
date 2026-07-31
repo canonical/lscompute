@@ -19,7 +19,7 @@ func init() {
 		},
 		Memory: memory.Memory{TotalRam: 16537874432, TotalSwap: 19327348736},
 		Disk: []disk.Disk{
-			{MountPoint: new("/"), Path: "/fakehost/var/lib/snapd/snaps", Total: 219902325555200, Available: 54975581388800},
+			{MountPoint: new("/"), Path: "/fakehost/var/lib/snapd/snaps", Total: 214748364800, Available: 53687091200},
 		},
 		PCIDevices: []pci.Device{
 			{

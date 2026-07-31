@@ -3,9 +3,12 @@ package host
 import (
 	"context"
 	"io/fs"
-
-	"golang.org/x/sys/unix"
 )
+
+type DirStat struct {
+	Total     uint64
+	Available uint64
+}
 
 type Host interface {
 	FS() fs.FS
@@ -14,7 +17,7 @@ type Host interface {
 
 	RunCommand(ctx context.Context, name string, env []string, args ...string) ([]byte, error)
 
-	DirStat(path string) (*unix.Statfs_t, error)
+	DirStat(path string) (*DirStat, error)
 
 	GetMountPoint(path string) (string, error)
 

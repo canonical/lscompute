@@ -44,13 +44,16 @@ func (realHost) RunCommand(ctx context.Context, name string, env []string, args 
 	return cmd.Output()
 }
 
-func (realHost) DirStat(path string) (*unix.Statfs_t, error) {
+func (realHost) DirStat(path string) (*DirStat, error) {
 	var st unix.Statfs_t
 	fullPath := filepath.Join("/", path)
 	if err := unix.Statfs(fullPath, &st); err != nil {
 		return nil, fmt.Errorf("statfs %s: %w", path, err)
 	}
-	return &st, nil
+	return &DirStat{
+		Total:     st.Blocks * uint64(st.Bsize),
+		Available: st.Bavail * uint64(st.Bsize),
+	}, nil
 }
 
 // GetMountPoint retrieves the actual mountpoint for a given path by parsing the

@@ -149,11 +149,11 @@ func TestFakeHostStatFs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("StatFs: %v", err)
 	}
-	if stats.Blocks != 214748364800 {
-		t.Errorf("expected total 214748364800, got %d", stats.Blocks)
+	if stats.Total != 214748364800 {
+		t.Errorf("expected total 214748364800, got %d", stats.Total)
 	}
-	if stats.Bavail != 53687091200 {
-		t.Errorf("expected avail 53687091200, got %d", stats.Bavail)
+	if stats.Available != 53687091200 {
+		t.Errorf("expected avail 53687091200, got %d", stats.Available)
 	}
 }
 

@@ -16,7 +16,7 @@ func TestDiskInfo(t *testing.T) {
 	}
 
 	h := host.Fake(dir)
-	results, err := infoWithDirs(h, []string{host.FakeSnapStoragePath, host.FakeHostRoot, host.FakeHostSnap})
+	results, err := infoWithDirs(h, []string{host.FakeSnapStoragePath, host.FakeHostRoot})
 	if err != nil {
 		t.Fatalf("Info() error: %v", err)
 	}
@@ -25,9 +25,8 @@ func TestDiskInfo(t *testing.T) {
 		total uint64
 		avail uint64
 	}{
-		host.FakeSnapStoragePath: {total: 219902325555200, avail: 54975581388800},
-		host.FakeHostRoot:        {total: 109951162777600, avail: 21990232555520},
-		host.FakeHostSnap:        {total: 54975581388800, avail: 10995116277760},
+		host.FakeSnapStoragePath: {total: 214748364800, avail: 53687091200},
+		host.FakeHostRoot:        {total: 107374182400, avail: 21474836480},
 	}
 
 	for _, result := range results {

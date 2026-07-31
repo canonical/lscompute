@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"golang.org/x/sys/unix"
 )
 
 func Info(h host.Host) ([]Disk, error) {
@@ -16,13 +15,9 @@ func Info(h host.Host) ([]Disk, error) {
 func infoWithDirs(h host.Host, dirs []string) ([]Disk, error) {
 	disks := []Disk{}
 	for _, dir := range dirs {
-		buf, err := h.DirStat(dir)
+		stat, err := h.DirStat(dir)
 		if err != nil {
 			return nil, fmt.Errorf("getting directory info for %s: %w", dir, err)
-		}
-		st := unix.Statfs_t{
-			Blocks: buf.Blocks * uint64(buf.Bsize),
-			Bavail: buf.Bavail * uint64(buf.Bsize),
 		}
 
 		// mountPoint is best-effort: when it cannot be determined it is left nil.
@@ -34,8 +29,8 @@ func infoWithDirs(h host.Host, dirs []string) ([]Disk, error) {
 		disks = append(disks, Disk{
 			MountPoint: mountPoint,
 			Path:       dir,
-			Total:      st.Blocks,
-			Available:  st.Bavail,
+			Total:      stat.Total,
+			Available:  stat.Available,
 		})
 	}
 	return disks, nil
