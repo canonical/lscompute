@@ -25,11 +25,7 @@ func TestScannerScan_NoFriendlyNames(t *testing.T) {
 		t.Errorf("expected %d DeviceInfo entries, got %d", wantCount, len(result))
 	}
 
-	for _, di := range result {
-		dev, ok := di.(Device)
-		if !ok {
-			t.Fatalf("item is not Device: %T", di)
-		}
+	for _, dev := range result {
 		if dev.Bus != BusName {
 			t.Errorf("Device.Bus = %q, want %q", dev.Bus, BusName)
 		}
@@ -66,10 +62,7 @@ func TestScannerScan_WithFriendlyNames(t *testing.T) {
 	type key struct{ vendorId, productId uint16 }
 	byIds := map[key]Device{}
 	for i := range result {
-		dev, ok := result[i].(Device)
-		if !ok {
-			t.Fatalf("item is not Device: %T", result[i])
-		}
+		dev := result[i]
 		byIds[key{dev.VendorId, dev.ProductId}] = dev
 	}
 
@@ -193,11 +186,7 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 	}
 
 	// Devices must still have no friendly names (lookup failed).
-	for _, di := range result {
-		dev, ok := di.(Device)
-		if !ok {
-			t.Fatalf("item is not Device: %T", di)
-		}
+	for _, dev := range result {
 		if dev.VendorName != "" {
 			t.Errorf("expected empty VendorName on lookup failure, got %q", dev.VendorName)
 		}
@@ -207,11 +196,7 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 	}
 
 	// Device.Bus must still be set correctly.
-	for _, di := range result {
-		dev, ok := di.(Device)
-		if !ok {
-			t.Fatalf("item is not Device: %T", di)
-		}
+	for _, dev := range result {
 		if dev.Bus != BusName {
 			t.Errorf("Device.Bus = %q, want %q", dev.Bus, BusName)
 		}

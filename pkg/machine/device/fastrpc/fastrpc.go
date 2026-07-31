@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
@@ -39,7 +38,7 @@ type Device struct {
 	AdditionalProperties map[string]string
 }
 
-// fastRpc implements bus.Bus for the FastRPC bus.
+// fastRpc is the FastRPC bus implementation.
 type fastRpc struct {
 	host host.Host
 	opts Options
@@ -51,12 +50,12 @@ type Options struct {
 }
 
 // NewBus returns a FastRPC bus configured with the given options.
-func NewBus(host host.Host, opts Options) bus.Bus {
+func NewBus(host host.Host, opts Options) *fastRpc {
 	return &fastRpc{host: host, opts: opts}
 }
 
 // Devices discovers all FastRPC devices on the host.
-func (bus *fastRpc) Devices() ([]any, []string, error) {
+func (bus *fastRpc) Devices() ([]Device, []string, error) {
 	entries, err := fs.ReadDir(bus.host.FS(), fastRPCDevDir)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
@@ -65,7 +64,7 @@ func (bus *fastRpc) Devices() ([]any, []string, error) {
 		return nil, nil, err
 	}
 
-	result := make([]any, 0, len(entries))
+	result := make([]Device, 0, len(entries))
 	for _, entry := range entries {
 		name := entry.Name()
 		if !strings.HasPrefix(name, fastRPCDeviceNamePrefix) {

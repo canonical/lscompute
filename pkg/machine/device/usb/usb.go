@@ -3,7 +3,6 @@ package usb
 import (
 	"fmt"
 
-	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
@@ -29,7 +28,7 @@ type FriendlyNames struct {
 	ProductName string
 }
 
-// usb implements bus.Bus for the USB bus.
+// usb is the USB bus implementation.
 type usb struct {
 	host host.Host
 	opts Options
@@ -41,12 +40,12 @@ type Options struct {
 }
 
 // NewBus returns a USB bus configured with the given options.
-func NewBus(host host.Host, opts Options) bus.Bus {
+func NewBus(host host.Host, opts Options) *usb {
 	return &usb{host: host, opts: opts}
 }
 
-// Devices discovers all USB devices on the host and returns them as DeviceInfo values.
-func (bus *usb) Devices() ([]any, []string, error) {
+// Devices discovers all USB devices on the host and returns them as Device values.
+func (bus *usb) Devices() ([]Device, []string, error) {
 	devices, warnings, err := readSysUsb(bus.host)
 	if err != nil {
 		return nil, nil, fmt.Errorf("reading sysfs usb devices: %w", err)
@@ -63,10 +62,9 @@ func (bus *usb) Devices() ([]any, []string, error) {
 		}
 	}
 
-	var result []any
-	for _, device := range devices {
-		device.Bus = BusName
-		result = append(result, device)
+	for i := range devices {
+		devices[i].Bus = BusName
 	}
-	return result, warnings, nil
+
+	return devices, warnings, nil
 }

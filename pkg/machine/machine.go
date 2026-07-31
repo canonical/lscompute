@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/canonical/lscompute/pkg/machine/cpu"
-	"github.com/canonical/lscompute/pkg/machine/device"
 	"github.com/canonical/lscompute/pkg/machine/device/fastrpc"
 	"github.com/canonical/lscompute/pkg/machine/device/pci"
 	"github.com/canonical/lscompute/pkg/machine/device/usb"
@@ -43,23 +42,30 @@ func Get(h host.Host, friendlyNames bool) (*Machine, []string, error) {
 	}
 	machineInfo.Disk = diskInfo
 
-	devices, warnings, err := device.Devices(h, friendlyNames)
-	if err != nil {
-		return nil, nil, fmt.Errorf("getting devices: %w", err)
+	var warnings []string
+
+	pciBus := pci.NewBus(h, pci.Options{FriendlyNames: friendlyNames})
+	if d, w, err := pciBus.Devices(); err != nil {
+		return nil, nil, fmt.Errorf("getting PCI devices: %w", err)
+	} else {
+		machineInfo.PCIDevices = d
+		warnings = append(warnings, w...)
 	}
 
-	// Separate devices by type
-	for _, dev := range devices {
-		switch d := dev.(type) {
-		case pci.Device:
-			machineInfo.PCIDevices = append(machineInfo.PCIDevices, d)
-		case usb.Device:
-			machineInfo.USBDevices = append(machineInfo.USBDevices, d)
-		case fastrpc.Device:
-			machineInfo.FastRPCDevices = append(machineInfo.FastRPCDevices, d)
-		default:
-			return nil, nil, fmt.Errorf("unknown device type: %T", dev)
-		}
+	usbBus := usb.NewBus(h, usb.Options{FriendlyNames: friendlyNames})
+	if d, w, err := usbBus.Devices(); err != nil {
+		return nil, nil, fmt.Errorf("getting USB devices: %w", err)
+	} else {
+		machineInfo.USBDevices = d
+		warnings = append(warnings, w...)
+	}
+
+	fastRPCBus := fastrpc.NewBus(h, fastrpc.Options{})
+	if d, w, err := fastRPCBus.Devices(); err != nil {
+		return nil, nil, fmt.Errorf("getting FastRPC devices: %w", err)
+	} else {
+		machineInfo.FastRPCDevices = d
+		warnings = append(warnings, w...)
 	}
 
 	return &machineInfo, warnings, nil

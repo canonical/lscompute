@@ -3,7 +3,6 @@ package pci
 import (
 	"fmt"
 
-	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
@@ -27,7 +26,7 @@ type Device struct {
 	DeviceId             uint16
 	SubvendorId          *uint16
 	SubdeviceId          *uint16
-	FriendlyNames        FriendlyNames
+	FriendlyNames
 
 	// Vendor specific device key-value pairs
 	AdditionalProperties map[string]string
@@ -47,7 +46,7 @@ func (d Device) IsGpu() bool {
 	return d.DeviceClass == 0x0001 || d.DeviceClass&0xFF00 == 0x0300
 }
 
-// pci implements bus.Bus for the PCI bus.
+// pci is the PCI bus implementation.
 type pci struct {
 	host host.Host
 	opts Options
@@ -59,12 +58,12 @@ type Options struct {
 }
 
 // NewBus returns a pci bus configured with the given options.
-func NewBus(targetHost host.Host, opts Options) bus.Bus {
+func NewBus(targetHost host.Host, opts Options) *pci {
 	return &pci{host: targetHost, opts: opts}
 }
 
-// Devices discovers all devices on the bus and returns them as a slice of any, along with any warnings and a hard error if the bus could not be enumerated.
-func (bus *pci) Devices() ([]any, []string, error) {
+// Devices discovers all devices on the bus and returns them as a slice of Device, along with any warnings and a hard error if the bus could not be enumerated.
+func (bus *pci) Devices() ([]Device, []string, error) {
 	devices, warnings, err := readSysPci(bus.host)
 	if err != nil {
 		return nil, nil, fmt.Errorf("reading sysfs pci devices: %w", err)
@@ -84,10 +83,8 @@ func (bus *pci) Devices() ([]any, []string, error) {
 	devices, additionalPropWarnings := addAdditionalProperties(bus.host, devices)
 	warnings = append(warnings, additionalPropWarnings...)
 
-	var result []any
-	for _, device := range devices {
-		device.Bus = BusName
-		result = append(result, device)
+	for i := range devices {
+		devices[i].Bus = BusName
 	}
-	return result, warnings, nil
+	return devices, warnings, nil
 }

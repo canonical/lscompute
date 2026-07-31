@@ -64,16 +64,12 @@ func TestScannerScan_NoFriendlyNames(t *testing.T) {
 	if len(result) != 2 {
 		t.Errorf("expected 2 devices, got %d", len(result))
 	}
-	for _, di := range result {
-		dev, ok := di.(Device)
-		if !ok {
-			t.Fatalf("item is not Device: %T", di)
-		}
+	for _, dev := range result {
 		if dev.Bus != BusName {
 			t.Errorf("Device.Bus = %q, want %q", dev.Bus, BusName)
 		}
-		if dev.FriendlyNames.VendorName != "" {
-			t.Errorf("expected empty VendorName without FriendlyNames, got %q", dev.FriendlyNames.VendorName)
+		if dev.VendorName != "" {
+			t.Errorf("expected empty VendorName without FriendlyNames, got %q", dev.VendorName)
 		}
 	}
 }
@@ -98,13 +94,9 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 		t.Error("expected warnings for missing pci.ids, got none")
 	}
 	// No friendly names should have been populated.
-	for _, di := range result {
-		dev, ok := di.(Device)
-		if !ok {
-			t.Fatalf("item is not Device: %T", di)
-		}
-		if dev.FriendlyNames.VendorName != "" {
-			t.Errorf("expected empty VendorName on lookup failure, got %q", dev.FriendlyNames.VendorName)
+	for _, dev := range result {
+		if dev.VendorName != "" {
+			t.Errorf("expected empty VendorName on lookup failure, got %q", dev.VendorName)
 		}
 	}
 }
@@ -131,15 +123,12 @@ func TestScannerScan_FriendlyNamesSuccess(t *testing.T) {
 	if len(result) != 1 {
 		t.Fatalf("expected 1 device, got %d", len(result))
 	}
-	dev, ok := result[0].(Device)
-	if !ok {
-		t.Fatalf("item is not Device: %T", result[0])
+	dev := result[0]
+	if dev.VendorName != "Intel Corporation" {
+		t.Errorf("VendorName = %v, want %q", dev.VendorName, "Intel Corporation")
 	}
-	if dev.FriendlyNames.VendorName != "Intel Corporation" {
-		t.Errorf("VendorName = %v, want %q", dev.FriendlyNames.VendorName, "Intel Corporation")
-	}
-	if dev.FriendlyNames.DeviceName != "Fake Display Device" {
-		t.Errorf("DeviceName = %v, want %q", dev.FriendlyNames.DeviceName, "Fake Display Device")
+	if dev.DeviceName != "Fake Display Device" {
+		t.Errorf("DeviceName = %v, want %q", dev.DeviceName, "Fake Display Device")
 	}
 }
 
