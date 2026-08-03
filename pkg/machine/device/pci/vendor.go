@@ -27,6 +27,11 @@ func addAdditionalProperties(h host.Host, devices []Device) ([]Device, []string)
 				warnings = append(warnings, fmt.Sprintf("unable to get additional properties for pci device: %s", err))
 			}
 		}
+		// Normalise an empty result to nil so that "no additional properties"
+		// has a single canonical representation.
+		if len(properties) == 0 {
+			properties = nil
+		}
 		devices[i].AdditionalProperties = properties
 	}
 

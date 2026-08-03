@@ -137,64 +137,37 @@ func TestFakeHostRunCommandNvidiaMissingQuery(t *testing.T) {
 	}
 }
 
-// TestFakeHostStatFs verifies that StatFs reads from run/disk-stats.json.
 func TestFakeHostStatFs(t *testing.T) {
 	dir := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(dir, "run"), 0755); err != nil {
 		t.Fatal(err)
 	}
-	// JSON keys use leading "/" for human readability.
-	json := `{"/var/lib/snapd/snaps": {"total": 53687091200, "avail": 21474836480}}`
-	if err := os.WriteFile(filepath.Join(dir, "run", "disk-stats.json"), []byte(json), 0644); err != nil {
-		t.Fatal(err)
-	}
 
 	h := host.Fake(dir)
 	// API uses io/fs path convention (no leading slash).
-	stats, err := h.StatFs("var/lib/snapd/snaps")
+	stats, err := h.DirStat("/fakehost/var/lib/snapd/snaps")
 	if err != nil {
 		t.Fatalf("StatFs: %v", err)
 	}
-	if stats.Total != 53687091200 {
-		t.Errorf("expected total 53687091200, got %d", stats.Total)
+	if stats.Total != 214748364800 {
+		t.Errorf("expected total 214748364800, got %d", stats.Total)
 	}
-	if stats.Avail != 21474836480 {
-		t.Errorf("expected avail 21474836480, got %d", stats.Avail)
+	if stats.Available != 53687091200 {
+		t.Errorf("expected avail 53687091200, got %d", stats.Available)
 	}
 }
 
-// TestFakeHostStatFsMissingKey verifies that StatFs returns an error for a missing key.
+// TestFakeHostStatFsMissingKey verifies that StatFs returns an error when no
+// entry matches the queried path.
 func TestFakeHostStatFsMissingKey(t *testing.T) {
 	dir := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(dir, "run"), 0755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(dir, "run", "disk-stats.json"), []byte(`{}`), 0644); err != nil {
-		t.Fatal(err)
-	}
 
 	h := host.Fake(dir)
-	_, err := h.StatFs("var/lib/snapd/snaps")
+	_, err := h.DirStat("/var/lib/snapd/snaps")
 	if err == nil {
-		t.Fatal("expected error for missing key, got nil")
+		t.Fatal("expected error for missing entry, got nil")
 	}
 }
-
-// TestFakeHostStatFsMalformedJSON verifies that StatFs returns an error when
-// disk-stats.json contains invalid JSON.
-func TestFakeHostStatFsMalformedJSON(t *testing.T) {
-	dir := t.TempDir()
-	if err := os.MkdirAll(filepath.Join(dir, "run"), 0755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(dir, "run", "disk-stats.json"), []byte(`not json`), 0644); err != nil {
-		t.Fatal(err)
-	}
-
-	h := host.Fake(dir)
-	_, err := h.StatFs("var/lib/snapd/snaps")
-	if err == nil {
-		t.Fatal("expected error for malformed JSON, got nil")
-	}
-}
-

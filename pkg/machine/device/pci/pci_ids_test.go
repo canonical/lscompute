@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 // pciIdsFixture is a curated subset of a real pci.ids database that exercises
@@ -42,15 +41,15 @@ func writePciIdsFixture(t *testing.T) host.Host {
 func TestLookupPciIds(t *testing.T) {
 	h := writePciIdsFixture(t)
 
-	sv := types.HexInt(0x8086)
-	sd := types.HexInt(0x5678)
+	sv := uint16(0x8086)
+	sd := uint16(0x5678)
 
 	tests := []struct {
 		name          string
-		vendorId      types.HexInt
-		deviceId      types.HexInt
-		subvendorId   *types.HexInt
-		subdeviceId   *types.HexInt
+		vendorId      uint16
+		deviceId      uint16
+		subvendorId   *uint16
+		subdeviceId   *uint16
 		wantVendor    string
 		wantDevice    string
 		wantSubvendor string
@@ -97,7 +96,7 @@ func TestLookupPciIds(t *testing.T) {
 		},
 		{
 			name:       "nvidia with known device",
-			vendorId:   0x10de,
+			vendorId:   uint16(0x10de),
 			deviceId:   0x2204,
 			wantVendor: "NVIDIA Corporation",
 			wantDevice: "GA102 [GeForce RTX 3090]",
@@ -258,8 +257,8 @@ func TestSplitSubsystemLine(t *testing.T) {
 func TestLookupFriendlyNames(t *testing.T) {
 	h := writePciIdsFixture(t)
 
-	sv := types.HexInt(0x8086)
-	sd := types.HexInt(0x5678)
+	sv := uint16(0x8086)
+	sd := uint16(0x5678)
 
 	t.Run("known vendor and device populate names", func(t *testing.T) {
 		dev := Device{VendorId: 0x8086, DeviceId: 0x1234}
@@ -267,14 +266,14 @@ func TestLookupFriendlyNames(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if names.VendorName == nil || *names.VendorName != "Intel Corporation" {
+		if names.VendorName != "Intel Corporation" {
 			t.Errorf("VendorName = %v, want %q", names.VendorName, "Intel Corporation")
 		}
-		if names.DeviceName == nil || *names.DeviceName != "Fake Display Device" {
+		if names.DeviceName != "Fake Display Device" {
 			t.Errorf("DeviceName = %v, want %q", names.DeviceName, "Fake Display Device")
 		}
-		if names.SubvendorName != nil {
-			t.Errorf("SubvendorName should be nil when not requested, got %q", *names.SubvendorName)
+		if names.SubvendorName != "" {
+			t.Errorf("SubvendorName should be empty when not requested, got %q", names.SubvendorName)
 		}
 	})
 
@@ -289,10 +288,10 @@ func TestLookupFriendlyNames(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if names.SubvendorName == nil || *names.SubvendorName != "Intel Corporation" {
+		if names.SubvendorName != "Intel Corporation" {
 			t.Errorf("SubvendorName = %v, want %q", names.SubvendorName, "Intel Corporation")
 		}
-		if names.SubdeviceName == nil || *names.SubdeviceName != "Intel Reference Subsystem" {
+		if names.SubdeviceName != "Intel Reference Subsystem" {
 			t.Errorf("SubdeviceName = %v, want %q", names.SubdeviceName, "Intel Reference Subsystem")
 		}
 	})
@@ -303,7 +302,7 @@ func TestLookupFriendlyNames(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if names.VendorName != nil || names.DeviceName != nil {
+		if names.VendorName != "" || names.DeviceName != "" {
 			t.Errorf("expected all-nil names for unknown vendor, got vendor=%v device=%v",
 				names.VendorName, names.DeviceName)
 		}

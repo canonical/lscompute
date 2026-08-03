@@ -1,6 +1,11 @@
 package disk
 
-type DirInfo struct {
-	Total uint64 `json:"total" yaml:"total"`
-	Avail uint64 `json:"avail" yaml:"avail"`
+type Disk struct {
+	// MountPoint is the filesystem mountpoint backing Path. It is nil when the
+	// mountpoint could not be determined.
+	MountPoint *string
+	// Path is the configured directory whose disk usage is reported.
+	Path      string
+	Total     uint64
+	Available uint64
 }

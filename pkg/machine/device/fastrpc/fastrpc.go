@@ -1,13 +1,11 @@
 package fastrpc
 
 import (
-	"encoding/json"
 	"errors"
 	"io/fs"
 	"strconv"
 	"strings"
 
-	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
@@ -30,17 +28,17 @@ const (
 
 // Device represents a single FastRPC device detected on the system.
 type Device struct {
-	Bus string `json:"bus" yaml:"bus"`
+	Bus string
 
-	Domain FastRPCDomain `json:"domain" yaml:"domain"`
-	Index  int           `json:"index" yaml:"index"`
-	Secure bool          `json:"secure" yaml:"secure"`
+	Domain FastRPCDomain
+	Index  int
+	Secure bool
 
 	// Vendor specific device key-value pairs
-	AdditionalProperties map[string]string `json:"additional-properties,omitempty" yaml:"additional-properties,omitempty"`
+	AdditionalProperties map[string]string
 }
 
-// fastRpc implements bus.Bus for the FastRPC bus.
+// fastRpc is the FastRPC bus implementation.
 type fastRpc struct {
 	host host.Host
 	opts Options
@@ -52,12 +50,12 @@ type Options struct {
 }
 
 // NewBus returns a FastRPC bus configured with the given options.
-func NewBus(host host.Host, opts Options) bus.Bus {
+func NewBus(host host.Host, opts Options) *fastRpc {
 	return &fastRpc{host: host, opts: opts}
 }
 
 // Devices discovers all FastRPC devices on the host.
-func (bus *fastRpc) Devices() ([]any, []string, error) {
+func (bus *fastRpc) Devices() ([]Device, []string, error) {
 	entries, err := fs.ReadDir(bus.host.FS(), fastRPCDevDir)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
@@ -66,7 +64,7 @@ func (bus *fastRpc) Devices() ([]any, []string, error) {
 		return nil, nil, err
 	}
 
-	result := make([]any, 0, len(entries))
+	result := make([]Device, 0, len(entries))
 	for _, entry := range entries {
 		name := entry.Name()
 		if !strings.HasPrefix(name, fastRPCDeviceNamePrefix) {
@@ -81,14 +79,6 @@ func (bus *fastRpc) Devices() ([]any, []string, error) {
 	}
 
 	return result, nil, nil
-}
-
-func Decode(bytes []byte) (Device, error) {
-	var device Device
-	if err := json.Unmarshal(bytes, &device); err != nil {
-		return Device{}, err
-	}
-	return device, nil
 }
 
 func parseFastRPCDeviceName(name string) (Device, bool) {

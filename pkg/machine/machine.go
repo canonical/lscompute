@@ -4,21 +4,25 @@ import (
 	"fmt"
 
 	"github.com/canonical/lscompute/pkg/machine/cpu"
-	"github.com/canonical/lscompute/pkg/machine/device"
+	"github.com/canonical/lscompute/pkg/machine/device/fastrpc"
+	"github.com/canonical/lscompute/pkg/machine/device/pci"
+	"github.com/canonical/lscompute/pkg/machine/device/usb"
 	"github.com/canonical/lscompute/pkg/machine/disk"
 	"github.com/canonical/lscompute/pkg/machine/host"
 	"github.com/canonical/lscompute/pkg/machine/memory"
 )
 
-type MachineInfo struct {
-	Cpus    []cpu.CpuInfo           `json:"cpus,omitempty" yaml:"cpus,omitempty"`
-	Memory  memory.MemoryInfo       `json:"memory,omitempty" yaml:"memory,omitempty"`
-	Disk    map[string]disk.DirInfo `json:"disk,omitempty" yaml:"disk,omitempty"`
-	Devices []any                   `json:"devices,omitempty" yaml:"devices,omitempty"`
+type Machine struct {
+	CPUs           []cpu.CPU
+	Memory         memory.Memory
+	Disk           []disk.Disk
+	PCIDevices     []pci.Device
+	USBDevices     []usb.Device
+	FastRPCDevices []fastrpc.Device
 }
 
-func Get(h host.Host, friendlyNames bool) (*MachineInfo, []string, error) {
-	var machineInfo MachineInfo
+func Get(h host.Host, friendlyNames bool) (*Machine, []string, error) {
+	var machineInfo Machine
 
 	memoryInfo, err := memory.Info(h)
 	if err != nil {
@@ -30,7 +34,7 @@ func Get(h host.Host, friendlyNames bool) (*MachineInfo, []string, error) {
 	if err != nil {
 		return nil, nil, fmt.Errorf("getting cpu info: %w", err)
 	}
-	machineInfo.Cpus = cpus
+	machineInfo.CPUs = cpus
 
 	diskInfo, err := disk.Info(h)
 	if err != nil {
@@ -38,11 +42,31 @@ func Get(h host.Host, friendlyNames bool) (*MachineInfo, []string, error) {
 	}
 	machineInfo.Disk = diskInfo
 
-	devices, warnings, err := device.Devices(h, friendlyNames)
-	if err != nil {
-		return nil, nil, fmt.Errorf("getting devices: %w", err)
+	var warnings []string
+
+	pciBus := pci.NewBus(h, pci.Options{FriendlyNames: friendlyNames})
+	if d, w, err := pciBus.Devices(); err != nil {
+		return nil, nil, fmt.Errorf("getting PCI devices: %w", err)
+	} else {
+		machineInfo.PCIDevices = d
+		warnings = append(warnings, w...)
 	}
-	machineInfo.Devices = devices
+
+	usbBus := usb.NewBus(h, usb.Options{FriendlyNames: friendlyNames})
+	if d, w, err := usbBus.Devices(); err != nil {
+		return nil, nil, fmt.Errorf("getting USB devices: %w", err)
+	} else {
+		machineInfo.USBDevices = d
+		warnings = append(warnings, w...)
+	}
+
+	fastRPCBus := fastrpc.NewBus(h, fastrpc.Options{})
+	if d, w, err := fastRPCBus.Devices(); err != nil {
+		return nil, nil, fmt.Errorf("getting FastRPC devices: %w", err)
+	} else {
+		machineInfo.FastRPCDevices = d
+		warnings = append(warnings, w...)
+	}
 
 	return &machineInfo, warnings, nil
 }

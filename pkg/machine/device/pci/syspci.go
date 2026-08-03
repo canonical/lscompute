@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 const pciDevicesDir = "sys/bus/pci/devices" // io/fs path (no leading slash)
@@ -50,19 +49,19 @@ func readSysPciDevice(h host.Host, dir, slot string) (Device, error) {
 	if err != nil {
 		return device, fmt.Errorf("parsing bus number from %q: %w", slot, err)
 	}
-	device.BusNumber = types.HexInt(busNum)
+	device.BusNumber = uint8(busNum)
 
 	vendor, err := readHexFSFile(h, filepath.Join(dir, "vendor"))
 	if err != nil {
 		return device, fmt.Errorf("vendor: %w", err)
 	}
-	device.VendorId = types.HexInt(vendor)
+	device.VendorId = uint16(vendor)
 
 	deviceId, err := readHexFSFile(h, filepath.Join(dir, "device"))
 	if err != nil {
 		return device, fmt.Errorf("device: %w", err)
 	}
-	device.DeviceId = types.HexInt(deviceId)
+	device.DeviceId = uint16(deviceId)
 
 	// class is 24-bit 0xCCSSPP: upper 16 bits are the device class (class+subclass),
 	// lower 8 bits are the programming interface.
@@ -70,18 +69,18 @@ func readSysPciDevice(h host.Host, dir, slot string) (Device, error) {
 	if err != nil {
 		return device, fmt.Errorf("class: %w", err)
 	}
-	device.DeviceClass = types.HexInt(classVal >> 8)
+	device.DeviceClass = uint32(classVal >> 8)
 	if progIf := uint8(classVal & 0xFF); progIf != 0 {
 		device.ProgrammingInterface = &progIf
 	}
 
 	if subVendor, err := readHexFSFile(h, filepath.Join(dir, "subsystem_vendor")); err == nil {
-		sv := types.HexInt(subVendor)
+		sv := uint16(subVendor)
 		device.SubvendorId = &sv
 	}
 
 	if subDevice, err := readHexFSFile(h, filepath.Join(dir, "subsystem_device")); err == nil {
-		sd := types.HexInt(subDevice)
+		sd := uint16(subDevice)
 		device.SubdeviceId = &sd
 	}
 

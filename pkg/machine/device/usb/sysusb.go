@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 const usbDevicesDir = "sys/bus/usb/devices" // io/fs path (no leading slash)
@@ -56,7 +55,7 @@ func readSysUsbDevice(h host.Host, dir string) (Device, error) {
 	if err != nil {
 		return device, fmt.Errorf("parsing idVendor %q: %w", vendorStr, err)
 	}
-	device.VendorId = types.HexInt(vendorId)
+	device.VendorId = uint16(vendorId)
 
 	productStr, err := readTrimmedFSFile(h, filepath.Join(dir, "idProduct"))
 	if err != nil {
@@ -66,7 +65,7 @@ func readSysUsbDevice(h host.Host, dir string) (Device, error) {
 	if err != nil {
 		return device, fmt.Errorf("parsing idProduct %q: %w", productStr, err)
 	}
-	device.ProductId = types.HexInt(productId)
+	device.ProductId = uint16(productId)
 
 	busStr, err := readTrimmedFSFile(h, filepath.Join(dir, "busnum"))
 	if err != nil {
@@ -76,7 +75,7 @@ func readSysUsbDevice(h host.Host, dir string) (Device, error) {
 	if err != nil {
 		return device, fmt.Errorf("parsing busnum %q: %w", busStr, err)
 	}
-	device.BusNumber = busNum
+	device.BusNumber = uint8(busNum)
 
 	devStr, err := readTrimmedFSFile(h, filepath.Join(dir, "devnum"))
 	if err != nil {
@@ -86,7 +85,7 @@ func readSysUsbDevice(h host.Host, dir string) (Device, error) {
 	if err != nil {
 		return device, fmt.Errorf("parsing devnum %q: %w", devStr, err)
 	}
-	device.DeviceNumber = devNum
+	device.DeviceNumber = uint8(devNum)
 
 	return device, nil
 }

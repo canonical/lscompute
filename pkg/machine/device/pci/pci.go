@@ -1,46 +1,43 @@
 package pci
 
 import (
-	"encoding/json"
 	"fmt"
 
-	"github.com/canonical/lscompute/pkg/machine/device/bus"
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 const (
 	BusName = "pci"
 
-	vendorAmd    = 0x1002
-	vendorIntel  = 0x8086
-	vendorNvidia = 0x10de
+	vendorAmd    = uint16(0x1002)
+	vendorIntel  = uint16(0x8086)
+	vendorNvidia = uint16(0x10de)
 )
 
 // Device represents a single PCI device detected on the system.
 type Device struct {
-	Bus string `json:"bus" yaml:"bus"`
+	Bus string
 
-	Slot                 string        `json:"slot" yaml:"slot"`
-	BusNumber            types.HexInt  `json:"bus-number" yaml:"bus-number"`
-	DeviceClass          types.HexInt  `json:"device-class" yaml:"device-class"`
-	ProgrammingInterface *uint8        `json:"programming-interface,omitempty" yaml:"programming-interface,omitempty"`
-	VendorId             types.HexInt  `json:"vendor-id" yaml:"vendor-id"`
-	DeviceId             types.HexInt  `json:"device-id" yaml:"device-id"`
-	SubvendorId          *types.HexInt `json:"subvendor-id,omitempty" yaml:"subvendor-id,omitempty"`
-	SubdeviceId          *types.HexInt `json:"subdevice-id,omitempty" yaml:"subdevice-id,omitempty"`
-	FriendlyNames        `json:",inline" yaml:",inline"`
+	Slot                 string
+	BusNumber            uint8
+	DeviceClass          uint32
+	ProgrammingInterface *uint8
+	VendorId             uint16
+	DeviceId             uint16
+	SubvendorId          *uint16
+	SubdeviceId          *uint16
+	FriendlyNames
 
 	// Vendor specific device key-value pairs
-	AdditionalProperties map[string]string `json:"additional-properties,omitempty" yaml:"additional-properties,omitempty"`
+	AdditionalProperties map[string]string
 }
 
 // FriendlyNames holds human-readable names resolved from the pci.ids database.
 type FriendlyNames struct {
-	VendorName    *string `json:"vendor-name,omitempty" yaml:"vendor-name,omitempty"`
-	DeviceName    *string `json:"device-name,omitempty" yaml:"device-name,omitempty"`
-	SubvendorName *string `json:"subvendor-name,omitempty" yaml:"subvendor-name,omitempty"`
-	SubdeviceName *string `json:"subdevice-name,omitempty" yaml:"subdevice-name,omitempty"`
+	VendorName    string
+	DeviceName    string
+	SubvendorName string
+	SubdeviceName string
 }
 
 // IsGpu reports whether the device is a GPU or display controller by PCI class.
@@ -49,7 +46,7 @@ func (d Device) IsGpu() bool {
 	return d.DeviceClass == 0x0001 || d.DeviceClass&0xFF00 == 0x0300
 }
 
-// pci implements bus.Bus for the PCI bus.
+// pci is the PCI bus implementation.
 type pci struct {
 	host host.Host
 	opts Options
@@ -61,12 +58,12 @@ type Options struct {
 }
 
 // NewBus returns a pci bus configured with the given options.
-func NewBus(targetHost host.Host, opts Options) bus.Bus {
+func NewBus(targetHost host.Host, opts Options) *pci {
 	return &pci{host: targetHost, opts: opts}
 }
 
-// Devices discovers all devices on the bus and returns them as a slice of any, along with any warnings and a hard error if the bus could not be enumerated.
-func (bus *pci) Devices() ([]any, []string, error) {
+// Devices discovers all devices on the bus and returns them as a slice of Device, along with any warnings and a hard error if the bus could not be enumerated.
+func (bus *pci) Devices() ([]Device, []string, error) {
 	devices, warnings, err := readSysPci(bus.host)
 	if err != nil {
 		return nil, nil, fmt.Errorf("reading sysfs pci devices: %w", err)
@@ -86,18 +83,8 @@ func (bus *pci) Devices() ([]any, []string, error) {
 	devices, additionalPropWarnings := addAdditionalProperties(bus.host, devices)
 	warnings = append(warnings, additionalPropWarnings...)
 
-	var result []any
-	for _, device := range devices {
-		device.Bus = BusName
-		result = append(result, device)
+	for i := range devices {
+		devices[i].Bus = BusName
 	}
-	return result, warnings, nil
-}
-
-func Decode(bytes []byte) (Device, error) {
-	var device Device
-	if err := json.Unmarshal(bytes, &device); err != nil {
-		return Device{}, err
-	}
-	return device, nil
+	return devices, warnings, nil
 }

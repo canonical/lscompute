@@ -118,13 +118,13 @@ func TestReadSysPciDevice(t *testing.T) {
 			t.Errorf("DeviceClass: got 0x%x, want 0x0300", uint64(dev.DeviceClass))
 		}
 		if dev.ProgrammingInterface != nil {
-			t.Errorf("ProgrammingInterface: expected nil for prog-if 0x00, got %v", *dev.ProgrammingInterface)
+			t.Errorf("ProgrammingInterface: expected nil for prog-if 0x00, got %v", dev.ProgrammingInterface)
 		}
-		if dev.SubvendorId == nil || uint64(*dev.SubvendorId) != 0x8086 {
-			t.Errorf("SubvendorId: expected 0x8086, got %v", dev.SubvendorId)
+		if dev.SubvendorId == nil || *dev.SubvendorId != 0x8086 {
+			t.Errorf("SubvendorId: expected 0x8086, got 0x%x", dev.SubvendorId)
 		}
-		if dev.SubdeviceId == nil || uint64(*dev.SubdeviceId) != 0x5678 {
-			t.Errorf("SubdeviceId: expected 0x5678, got %v", dev.SubdeviceId)
+		if dev.SubdeviceId == nil || *dev.SubdeviceId != 0x5678 {
+			t.Errorf("SubdeviceId: expected 0x5678, got 0x%x", dev.SubdeviceId)
 		}
 	})
 
@@ -158,10 +158,10 @@ func TestReadSysPciDevice(t *testing.T) {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		if dev.SubvendorId != nil {
-			t.Errorf("SubvendorId: expected nil, got 0x%x", uint64(*dev.SubvendorId))
+			t.Errorf("SubvendorId: expected nil, got 0x%x", *dev.SubvendorId)
 		}
 		if dev.SubdeviceId != nil {
-			t.Errorf("SubdeviceId: expected nil, got 0x%x", uint64(*dev.SubdeviceId))
+			t.Errorf("SubdeviceId: expected nil, got 0x%x", *dev.SubdeviceId)
 		}
 	})
 

@@ -5,14 +5,13 @@ import (
 	"testing"
 
 	"github.com/canonical/lscompute/pkg/machine/host"
-	"github.com/canonical/lscompute/pkg/machine/types"
 )
 
 // TestAdditionalProperties_UnknownVendor verifies that an unrecognised vendor
 // returns ErrorVendorNotSupported.
 func TestAdditionalProperties_UnknownVendor(t *testing.T) {
 	h := host.Fake(t.TempDir())
-	dev := Device{VendorId: types.HexInt(0xffff), DeviceClass: types.HexInt(0x0300)}
+	dev := Device{VendorId: uint16(0xffff), DeviceClass: uint32(0x0300)}
 	_, err := additionalProperties(h, dev)
 	if !errors.Is(err, ErrorVendorNotSupported) {
 		t.Errorf("expected ErrorVendorNotSupported, got %v", err)
@@ -24,8 +23,8 @@ func TestAdditionalProperties_UnknownVendor(t *testing.T) {
 func TestAdditionalProperties_NvidiaNotGpu(t *testing.T) {
 	h := host.Fake(t.TempDir())
 	dev := Device{
-		VendorId:    types.HexInt(vendorNvidia),
-		DeviceClass: types.HexInt(0x0200), // network — not a GPU
+		VendorId:    vendorNvidia,
+		DeviceClass: uint32(0x0200), // network — not a GPU
 	}
 	props, err := additionalProperties(h, dev)
 	if err != nil {
@@ -41,8 +40,8 @@ func TestAdditionalProperties_NvidiaNotGpu(t *testing.T) {
 func TestAdditionalProperties_IntelNotGpu(t *testing.T) {
 	h := host.Fake(t.TempDir())
 	dev := Device{
-		VendorId:    types.HexInt(vendorIntel),
-		DeviceClass: types.HexInt(0x0c03), // USB host — not a GPU
+		VendorId:    vendorIntel,
+		DeviceClass: uint32(0x0c03), // USB host — not a GPU
 	}
 	props, err := additionalProperties(h, dev)
 	if err != nil {
@@ -58,8 +57,8 @@ func TestAdditionalProperties_IntelNotGpu(t *testing.T) {
 func TestAdditionalProperties_AmdNotGpu(t *testing.T) {
 	h := host.Fake(t.TempDir())
 	dev := Device{
-		VendorId:    types.HexInt(vendorAmd),
-		DeviceClass: types.HexInt(0x0200), // network — not a GPU
+		VendorId:    vendorAmd,
+		DeviceClass: uint32(0x0200), // network — not a GPU
 	}
 	props, err := additionalProperties(h, dev)
 	if err != nil {
@@ -75,8 +74,8 @@ func TestAdditionalProperties_AmdNotGpu(t *testing.T) {
 func TestAddAdditionalProperties_UnknownVendorSilent(t *testing.T) {
 	h := host.Fake(t.TempDir())
 	devices := []Device{
-		{VendorId: types.HexInt(0xffff), DeviceClass: types.HexInt(0x0300)},
-		{VendorId: types.HexInt(0x1234), DeviceClass: types.HexInt(0x0200)},
+		{VendorId: uint16(0xffff), DeviceClass: uint32(0x0300)},
+		{VendorId: uint16(0x1234), DeviceClass: uint32(0x0200)},
 	}
 	_, warnings := addAdditionalProperties(h, devices)
 	if len(warnings) != 0 {
@@ -92,8 +91,8 @@ func TestAddAdditionalProperties_GpuError(t *testing.T) {
 	h := host.Fake(t.TempDir())
 	devices := []Device{
 		{
-			VendorId:    types.HexInt(vendorNvidia),
-			DeviceClass: types.HexInt(0x0300), // GPU
+			VendorId:    vendorNvidia,
+			DeviceClass: uint32(0x0300), // GPU
 			Slot:        "0000:01:00.0",
 		},
 	}

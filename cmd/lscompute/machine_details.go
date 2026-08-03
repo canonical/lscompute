@@ -5,12 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/canonical/lscompute/pkg/machine"
-	"github.com/canonical/lscompute/pkg/machine/device/fastrpc"
-	"github.com/canonical/lscompute/pkg/machine/device/pci"
-	"github.com/canonical/lscompute/pkg/machine/device/usb"
-	"github.com/canonical/lscompute/pkg/machine/types"
 	"go.yaml.in/yaml/v4"
 )
 
@@ -22,10 +19,10 @@ const (
 )
 
 type MachineDetails struct {
-	Cpus    []CpuDetails          `json:"cpus,omitempty" yaml:"cpus,omitempty"`
-	Memory  MemoryDetails         `json:"memory,omitempty" yaml:"memory,omitempty"`
-	Disk    map[string]DirDetails `json:"disk,omitempty" yaml:"disk,omitempty"`
-	Devices []any                 `json:"devices,omitempty" yaml:"devices,omitempty"`
+	Cpus    []CpuDetails  `json:"cpus,omitempty" yaml:"cpus,omitempty"`
+	Memory  MemoryDetails `json:"memory,omitempty" yaml:"memory,omitempty"`
+	Disk    []DiskDetails `json:"disks,omitempty" yaml:"disks,omitempty"`
+	Devices []any         `json:"devices,omitempty" yaml:"devices,omitempty"`
 }
 
 type CpuDetails struct {
@@ -36,9 +33,9 @@ type CpuDetails struct {
 	Flags          []string `json:"flags,omitempty" yaml:"flags,flow,omitempty"`
 
 	// arm64
-	ImplementerId types.HexInt `json:"implementer-id,omitempty" yaml:"implementer-id,omitempty"`
-	PartNumber    types.HexInt `json:"part-number,omitempty" yaml:"part-number,omitempty"`
-	Features      []string     `json:"features,omitempty" yaml:"features,omitempty"`
+	ImplementerId HexInt   `json:"implementer-id,omitempty" yaml:"implementer-id,omitempty"`
+	PartNumber    HexInt   `json:"part-number,omitempty" yaml:"part-number,omitempty"`
+	Features      []string `json:"features,omitempty" yaml:"features,omitempty"`
 
 	// riscv64
 	Isa []string `json:"isa,omitempty" yaml:"isa,omitempty"`
@@ -59,18 +56,24 @@ func (m MemoryDetails) MarshalYAML() (any, error) {
 	}, nil
 }
 
-type DirDetails struct {
-	Total uint64 `json:"total" yaml:"total"`
-	Avail uint64 `json:"avail" yaml:"avail"`
+type DiskDetails struct {
+	MountPoint *string `json:"mount-point,omitempty" yaml:"mount-point,omitempty"`
+	Path       string  `json:"path" yaml:"path"`
+	Total      uint64  `json:"total" yaml:"total"`
+	Avail      uint64  `json:"avail" yaml:"avail"`
 }
 
-func (d DirDetails) MarshalYAML() (any, error) {
+func (d DiskDetails) MarshalYAML() (any, error) {
 	return struct {
-		Total any `yaml:"total"`
-		Avail any `yaml:"avail"`
+		MountPoint *string `yaml:"mount-point,omitempty"`
+		Path       string  `yaml:"path"`
+		Total      any     `yaml:"total"`
+		Avail      any     `yaml:"avail"`
 	}{
-		Total: FormatBytes(d.Total),
-		Avail: FormatBytes(d.Avail),
+		MountPoint: d.MountPoint,
+		Path:       d.Path,
+		Total:      FormatBytes(d.Total),
+		Avail:      FormatBytes(d.Avail),
 	}, nil
 }
 
@@ -78,11 +81,12 @@ type PciDeviceDetails struct {
 	Bus                  string                         `json:"bus" yaml:"bus"`
 	Slot                 string                         `json:"slot,omitempty" yaml:"slot,omitempty"`
 	BusNumber            any                            `json:"bus-number,omitempty" yaml:"bus-number,omitempty"`
-	DeviceClass          types.HexInt                   `json:"device-class,omitempty" yaml:"device-class,omitempty"`
-	VendorId             types.HexInt                   `json:"vendor-id,omitempty" yaml:"vendor-id,omitempty"`
-	DeviceId             types.HexInt                   `json:"device-id,omitempty" yaml:"device-id,omitempty"`
-	SubvendorId          types.HexInt                   `json:"subvendor-id,omitempty" yaml:"subvendor-id,omitempty"`
-	SubdeviceId          types.HexInt                   `json:"subdevice-id,omitempty" yaml:"subdevice-id,omitempty"`
+	DeviceClass          HexInt                         `json:"device-class,omitempty" yaml:"device-class,omitempty"`
+	ProgrammingInterface uint8                          `json:"programming-interface,omitempty" yaml:"programming-interface,omitempty"`
+	VendorId             HexInt                         `json:"vendor-id,omitempty" yaml:"vendor-id,omitempty"`
+	DeviceId             HexInt                         `json:"device-id,omitempty" yaml:"device-id,omitempty"`
+	SubvendorId          HexInt                         `json:"subvendor-id,omitempty" yaml:"subvendor-id,omitempty"`
+	SubdeviceId          HexInt                         `json:"subdevice-id,omitempty" yaml:"subdevice-id,omitempty"`
 	VendorName           string                         `json:"vendor-name,omitempty" yaml:"vendor-name,omitempty"`
 	DeviceName           string                         `json:"device-name,omitempty" yaml:"device-name,omitempty"`
 	SubvendorName        string                         `json:"subvendor-name,omitempty" yaml:"subvendor-name,omitempty"`
@@ -93,9 +97,9 @@ type PciDeviceDetails struct {
 type UsbDeviceDetails struct {
 	Bus                  string            `json:"bus" yaml:"bus"`
 	BusNumber            any               `json:"bus-number,omitempty" yaml:"bus-number,omitempty"`
-	DeviceNumber         int               `json:"device-number,omitempty" yaml:"device-number,omitempty"`
-	VendorId             types.HexInt      `json:"vendor-id,omitempty" yaml:"vendor-id,omitempty"`
-	ProductId            types.HexInt      `json:"product-id,omitempty" yaml:"product-id,omitempty"`
+	DeviceNumber         uint8             `json:"device-number,omitempty" yaml:"device-number,omitempty"`
+	VendorId             HexInt            `json:"vendor-id,omitempty" yaml:"vendor-id,omitempty"`
+	ProductId            HexInt            `json:"product-id,omitempty" yaml:"product-id,omitempty"`
 	VendorName           string            `json:"vendor-name,omitempty" yaml:"vendor-name,omitempty"`
 	ProductName          string            `json:"product-name,omitempty" yaml:"product-name,omitempty"`
 	AdditionalProperties map[string]string `json:"additional-properties,omitempty" yaml:"additional-properties,omitempty"`
@@ -127,7 +131,7 @@ func (a PciAdditionalDeviceProperties) MarshalYAML() (any, error) {
 	}, nil
 }
 
-func NewMachineDetails(info *machine.MachineInfo) *MachineDetails {
+func NewMachineDetails(info *machine.Machine) *MachineDetails {
 	if info == nil {
 		return nil
 	}
@@ -136,62 +140,90 @@ func NewMachineDetails(info *machine.MachineInfo) *MachineDetails {
 		Memory: MemoryDetails(info.Memory),
 	}
 
-	if info.Devices != nil {
-		v.Devices = make([]any, len(info.Devices))
-		for i, d := range info.Devices {
-			switch typed := d.(type) {
-			case pci.Device:
-				v.Devices[i] = PciDeviceDetails{
-					Bus:                  typed.Bus,
-					Slot:                 typed.Slot,
-					BusNumber:            typed.BusNumber,
-					DeviceClass:          typed.DeviceClass,
-					VendorId:             typed.VendorId,
-					DeviceId:             typed.DeviceId,
-					SubvendorId:          derefHexInt(typed.SubvendorId),
-					SubdeviceId:          derefHexInt(typed.SubdeviceId),
-					VendorName:           derefString(typed.VendorName),
-					DeviceName:           derefString(typed.DeviceName),
-					SubvendorName:        derefString(typed.SubvendorName),
-					SubdeviceName:        derefString(typed.SubdeviceName),
-					AdditionalProperties: newPciAdditionalDeviceProperties(typed.AdditionalProperties),
-				}
-			case usb.Device:
-				v.Devices[i] = UsbDeviceDetails{
-					Bus:                  typed.Bus,
-					BusNumber:            typed.BusNumber,
-					DeviceNumber:         typed.DeviceNumber,
-					VendorId:             typed.VendorId,
-					ProductId:            typed.ProductId,
-					VendorName:           derefString(typed.VendorName),
-					ProductName:          derefString(typed.ProductName),
-					AdditionalProperties: typed.AdditionalProperties,
-				}
-			case fastrpc.Device:
-				v.Devices[i] = FastRPCDeviceDetails{
-					Bus:                  typed.Bus,
-					Domain:               string(typed.Domain),
-					Index:                typed.Index,
-					Secure:               typed.Secure,
-					AdditionalProperties: typed.AdditionalProperties,
-				}
-			default:
-				continue
+	// Combine all devices into a single slice
+	totalDevices := len(info.PCIDevices) + len(info.USBDevices) + len(info.FastRPCDevices)
+	v.Devices = make([]any, 0, totalDevices)
+
+	// Add PCI devices
+	for _, d := range info.PCIDevices {
+		var programmingInterface uint8
+		if d.ProgrammingInterface != nil {
+			programmingInterface = *d.ProgrammingInterface
+		}
+		var subvendorId, subdeviceId uint16
+		if d.SubvendorId != nil {
+			subvendorId = *d.SubvendorId
+		}
+		if d.SubdeviceId != nil {
+			subdeviceId = *d.SubdeviceId
+		}
+		v.Devices = append(v.Devices, PciDeviceDetails{
+			Bus:                  d.Bus,
+			Slot:                 d.Slot,
+			BusNumber:            HexInt(d.BusNumber),
+			DeviceClass:          HexInt(d.DeviceClass),
+			ProgrammingInterface: programmingInterface,
+			VendorId:             HexInt(d.VendorId),
+			DeviceId:             HexInt(d.DeviceId),
+			SubvendorId:          HexInt(subvendorId),
+			SubdeviceId:          HexInt(subdeviceId),
+			VendorName:           d.VendorName,
+			DeviceName:           d.DeviceName,
+			SubvendorName:        d.SubvendorName,
+			SubdeviceName:        d.SubdeviceName,
+			AdditionalProperties: newPciAdditionalDeviceProperties(d.AdditionalProperties),
+		})
+	}
+
+	// Add USB devices
+	for _, d := range info.USBDevices {
+		v.Devices = append(v.Devices, UsbDeviceDetails{
+			Bus:                  d.Bus,
+			BusNumber:            HexInt(d.BusNumber),
+			DeviceNumber:         d.DeviceNumber,
+			VendorId:             HexInt(d.VendorId),
+			ProductId:            HexInt(d.ProductId),
+			VendorName:           d.VendorName,
+			ProductName:          d.ProductName,
+			AdditionalProperties: d.AdditionalProperties,
+		})
+	}
+
+	// Add FastRPC devices
+	for _, d := range info.FastRPCDevices {
+		v.Devices = append(v.Devices, FastRPCDeviceDetails{
+			Bus:                  d.Bus,
+			Domain:               string(d.Domain),
+			Index:                d.Index,
+			Secure:               d.Secure,
+			AdditionalProperties: d.AdditionalProperties,
+		})
+	}
+
+	if info.CPUs != nil {
+		v.Cpus = make([]CpuDetails, len(info.CPUs))
+		for i, c := range info.CPUs {
+			v.Cpus[i] = CpuDetails{
+				Architecture:   c.Architecture,
+				ManufacturerId: c.ManufacturerId,
+				Flags:          c.Flags,
+				ImplementerId:  HexInt(c.ImplementerId),
+				PartNumber:     HexInt(c.PartNumber),
+				Features:       c.Features,
+				Isa:            c.Isa,
 			}
 		}
 	}
 
-	if info.Cpus != nil {
-		v.Cpus = make([]CpuDetails, len(info.Cpus))
-		for i, c := range info.Cpus {
-			v.Cpus[i] = CpuDetails(c)
-		}
-	}
-
 	if info.Disk != nil {
-		v.Disk = make(map[string]DirDetails, len(info.Disk))
-		for path, d := range info.Disk {
-			v.Disk[path] = DirDetails(d)
+		v.Disk = make([]DiskDetails, 0, len(info.Disk))
+		for _, d := range info.Disk {
+			v.Disk = append(v.Disk, DiskDetails{
+				MountPoint: d.MountPoint,
+				Path:       d.Path,
+				Total:      d.Total,
+				Avail:      d.Available,
+			})
 		}
 	}
 
@@ -265,19 +297,59 @@ func newPciAdditionalDeviceProperties(props map[string]string) *PciAdditionalDev
 	return ap
 }
 
-// derefString returns the pointed-to string, or "" when the pointer is nil.
-func derefString(s *string) string {
-	if s == nil {
-		return ""
+// HexInt Custom type to handle hex values
+type HexInt int
+
+// UnmarshalYAML parses a hex string into an int
+func (hi *HexInt) UnmarshalYAML(value *yaml.Node) error {
+	// Ignore empty string
+	if value.Value == "" {
+		return nil
 	}
-	return *s
+
+	if value.Kind != yaml.ScalarNode {
+		return fmt.Errorf("expected a scalar node, got %v", value.LongTag())
+	}
+
+	// Strip 0x prefix if it exists
+	hexString := strings.TrimPrefix(value.Value, "0x")
+
+	// Parse the hex string to int
+	parsed, err := strconv.ParseInt(hexString, 16, 64)
+	if err != nil {
+		return fmt.Errorf("failed to parse hex value %s: %w", value.Value, err)
+	}
+
+	*hi = HexInt(parsed)
+	return nil
 }
 
-// derefHexInt returns the pointed-to value, or the zero value when the
-// pointer is nil.
-func derefHexInt(h *types.HexInt) types.HexInt {
-	if h == nil {
-		return 0
+func (hi HexInt) MarshalYAML() (interface{}, error) {
+	return fmt.Sprintf("0x%X", hi), nil
+}
+
+func (hi *HexInt) UnmarshalJSON(data []byte) error {
+	// Remove quotes
+	hexString := strings.Trim(string(data), "\"")
+
+	// Ignore empty string
+	if hexString == "" {
+		return nil
 	}
-	return *h
+
+	// Remove "0x" prefix if present
+	hexString = strings.TrimPrefix(hexString, "0x")
+
+	// Parse as base 16 integer
+	val, err := strconv.ParseInt(hexString, 16, 64)
+	if err != nil {
+		return fmt.Errorf("failed to parse hex value %s: %w", hexString, err)
+	}
+	*hi = HexInt(val)
+	return nil
+}
+
+func (hi HexInt) MarshalJSON() ([]byte, error) {
+	hexString := fmt.Sprintf("\"0x%X\"", int(hi))
+	return []byte(hexString), nil
 }

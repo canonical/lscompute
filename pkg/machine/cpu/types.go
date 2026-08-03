@@ -1,21 +1,19 @@
 package cpu
 
-import "github.com/canonical/lscompute/pkg/machine/types"
-
-type CpuInfo struct {
-	Architecture string `json:"architecture" yaml:"architecture"`
+type CPU struct {
+	Architecture string
 
 	// amd64
-	ManufacturerId string   `json:"manufacturer-id,omitempty" yaml:"manufacturer-id,omitempty"`
-	Flags          []string `json:"flags,omitempty" yaml:"flags,omitempty"`
+	ManufacturerId string
+	Flags          []string
 
 	// arm64
-	ImplementerId types.HexInt `json:"implementer-id,omitempty" yaml:"implementer-id,omitempty"`
-	PartNumber    types.HexInt `json:"part-number,omitempty" yaml:"part-number,omitempty"`
-	Features      []string     `json:"features,omitempty" yaml:"features,omitempty"`
+	ImplementerId uint64
+	PartNumber    uint64
+	Features      []string
 
 	// riscv64
-	Isa           []string `json:"isa,omitempty" yaml:"isa,omitempty"`
+	Isa []string
 }
 
 // procCpuInfo contains general information about a system CPU found in /proc/cpuinfo.
@@ -39,5 +37,5 @@ type procCpuInfo struct {
 	Revision   uint64 // %d
 
 	// riscv64
-	Isa           []string // underscore separated strings
+	Isa []string // underscore separated strings
 }

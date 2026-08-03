@@ -1,6 +1,7 @@
 package host
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"io/fs"
@@ -11,6 +12,10 @@ import (
 	"syscall"
 
 	"golang.org/x/sys/unix"
+)
+
+const (
+	snapStoragePath = "/var/lib/snapd/snaps"
 )
 
 type realHost struct{}
@@ -39,13 +44,61 @@ func (realHost) RunCommand(ctx context.Context, name string, env []string, args 
 	return cmd.Output()
 }
 
-func (realHost) StatFs(path string) (dirStats, error) {
+func (realHost) DirStat(path string) (*DirStat, error) {
 	var st unix.Statfs_t
-	if err := unix.Statfs(filepath.Join("/", path), &st); err != nil {
-		return dirStats{}, fmt.Errorf("statfs %s: %w", path, err)
+	fullPath := filepath.Join("/", path)
+	if err := unix.Statfs(fullPath, &st); err != nil {
+		return nil, fmt.Errorf("statfs %s: %w", path, err)
 	}
-	return dirStats{
-		Total: st.Blocks * uint64(st.Bsize),
-		Avail: st.Bavail * uint64(st.Bsize),
+	return &DirStat{
+		Total:     st.Blocks * uint64(st.Bsize),
+		Available: st.Bavail * uint64(st.Bsize),
 	}, nil
+}
+
+// GetMountPoint retrieves the actual mountpoint for a given path by parsing the
+// host's mount table.
+//
+// It reads /proc/1/mounts (PID 1, the host init) rather than /proc/mounts
+// (a.k.a. /proc/self/mounts). When lscompute runs inside a strict snap, the
+// process has its own mount namespace in which the host root "/" is not present
+// and /var/lib/snapd/snaps appears as a bind mount; parsing /proc/self/mounts
+// there would report /var/lib/snapd/snaps instead of the real host mountpoint.
+// PID 1 lives in the host's root mount namespace, so its mount table reflects
+// the real filesystem layout. On a non-snap host /proc/1/mounts is equivalent
+// to /proc/self/mounts. Reading another PID's mount table requires the
+// mount-observe interface under confinement.
+func (realHost) GetMountPoint(path string) (string, error) {
+	file, err := os.Open("/proc/1/mounts")
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var longestMatch string
+	for scanner.Scan() {
+		parts := strings.Fields(scanner.Text())
+		if len(parts) < 2 {
+			continue
+		}
+		mountPoint := parts[1]
+		// Find the longest matching mountpoint (most specific). Ensure we match a full path segment.
+		if (mountPoint == "/" || path == mountPoint || strings.HasPrefix(path, mountPoint+"/")) && len(mountPoint) > len(longestMatch) {
+			longestMatch = mountPoint
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return "", err
+	}
+
+	if longestMatch == "" {
+		return "", fmt.Errorf("mountpoint not found for %s", path)
+	}
+	return longestMatch, nil
+}
+
+func (realHost) GetDirectories() []string {
+	return []string{snapStoragePath}
 }

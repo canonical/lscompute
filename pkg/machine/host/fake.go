@@ -2,12 +2,18 @@ package host
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/sys/unix"
+)
+
+const (
+	FakeHostRoot        = "/fakehost"
+	FakeSnapStoragePath = "/fakehost/var/lib/snapd/snaps"
 )
 
 type fakeHost struct{ root string }
@@ -86,27 +92,38 @@ func parseNvidiaSmiArgs(args []string) (slot, query string, err error) {
 	return slot, query, nil
 }
 
-// StatFs reads disk stats from <root>/run/disk-stats.json.
-// The JSON keys carry a leading "/" (human-readable absolute paths);
-// fakeHost prepends "/" to the API path before looking up, matching
-// what realHost does when building the unix.Statfs argument.
-func (h *fakeHost) StatFs(path string) (dirStats, error) {
-	filePath := filepath.Join(h.root, "run", "disk-stats.json")
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		return dirStats{}, fmt.Errorf("fake StatFs: reading %s: %w", filePath, err)
+func (h fakeHost) DirStat(path string) (*DirStat, error) {
+	var st unix.Statfs_t
+	fullPath := filepath.Join("/", path)
+	if err := h.statfs(fullPath, &st); err != nil {
+		return nil, fmt.Errorf("statfs %s: %w", path, err)
+	}
+	return &DirStat{
+		Total:     st.Blocks * uint64(st.Bsize),
+		Available: st.Bavail * uint64(st.Bsize),
+	}, nil
+}
+
+func (h *fakeHost) statfs(path string, buf *unix.Statfs_t) (err error) {
+	buf.Bsize = int64(1024) // block size in bytes
+	switch path {
+	case FakeHostRoot:
+		buf.Blocks = 100 * 1024 * uint64(buf.Bsize) // 100 GiB
+		buf.Bavail = 20 * 1024 * uint64(buf.Bsize)  // 20 GiB
+	case FakeSnapStoragePath:
+		buf.Blocks = 200 * 1024 * uint64(buf.Bsize) // 200 GiB
+		buf.Bavail = 50 * 1024 * uint64(buf.Bsize)  // 50 GiB
+	default:
+		return fmt.Errorf("fake DirStat: no mapping for path %q", path)
 	}
 
-	var stats map[string]dirStats
-	if err := json.Unmarshal(data, &stats); err != nil {
-		return dirStats{}, fmt.Errorf("fake StatFs: parsing %s: %w", filePath, err)
-	}
+	return nil
+}
 
-	// JSON keys have leading "/" for readability; prepend "/" to match.
-	key := "/" + path
-	entry, ok := stats[key]
-	if !ok {
-		return dirStats{}, fmt.Errorf("fake StatFs: no entry for %q in %s", key, filePath)
-	}
-	return entry, nil
+func (h *fakeHost) GetMountPoint(path string) (string, error) {
+	return "/", nil
+}
+
+func (h *fakeHost) GetDirectories() []string {
+	return []string{FakeSnapStoragePath}
 }

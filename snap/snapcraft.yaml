@@ -109,6 +109,7 @@ apps:
     command: bin/lscompute
     plugs:
       - hardware-observe
+      - mount-observe
       - opengl
 
   clinfo:
