@@ -21,14 +21,9 @@ type Machine struct {
 	FastRPCDevices []fastrpc.Device
 }
 
-func Get(h host.Host, friendlyNames bool) (*Machine, []string, error) {
+func Get(h host.Host, friendlyNames bool, retrieveAllDevices bool) (*Machine, []string, error) {
 	var machineInfo Machine
-
-	memoryInfo, err := memory.Info(h)
-	if err != nil {
-		return nil, nil, fmt.Errorf("getting memory info: %w", err)
-	}
-	machineInfo.Memory = memoryInfo
+	var warnings []string
 
 	cpus, err := cpu.Info(h)
 	if err != nil {
@@ -36,27 +31,11 @@ func Get(h host.Host, friendlyNames bool) (*Machine, []string, error) {
 	}
 	machineInfo.CPUs = cpus
 
-	diskInfo, err := disk.Info(h)
-	if err != nil {
-		return nil, nil, fmt.Errorf("getting disk info: %w", err)
-	}
-	machineInfo.Disk = diskInfo
-
-	var warnings []string
-
 	pciBus := pci.NewBus(h, pci.Options{FriendlyNames: friendlyNames})
-	if d, w, err := pciBus.Devices(); err != nil {
+	if d, w, err := pciBus.Devices(retrieveAllDevices); err != nil {
 		return nil, nil, fmt.Errorf("getting PCI devices: %w", err)
 	} else {
 		machineInfo.PCIDevices = d
-		warnings = append(warnings, w...)
-	}
-
-	usbBus := usb.NewBus(h, usb.Options{FriendlyNames: friendlyNames})
-	if d, w, err := usbBus.Devices(); err != nil {
-		return nil, nil, fmt.Errorf("getting USB devices: %w", err)
-	} else {
-		machineInfo.USBDevices = d
 		warnings = append(warnings, w...)
 	}
 
@@ -66,6 +45,30 @@ func Get(h host.Host, friendlyNames bool) (*Machine, []string, error) {
 	} else {
 		machineInfo.FastRPCDevices = d
 		warnings = append(warnings, w...)
+	}
+
+	memoryInfo, err := memory.Info(h)
+	if err != nil {
+		return nil, nil, fmt.Errorf("getting memory info: %w", err)
+	}
+	machineInfo.Memory = memoryInfo
+
+	diskInfo, err := disk.Info(h)
+	if err != nil {
+		return nil, nil, fmt.Errorf("getting disk info: %w", err)
+	}
+	machineInfo.Disk = diskInfo
+
+	if retrieveAllDevices {
+		usbBus := usb.NewBus(h, usb.Options{FriendlyNames: friendlyNames})
+		if d, w, err := usbBus.Devices(); err != nil {
+			return nil, nil, fmt.Errorf("getting USB devices: %w", err)
+		} else {
+			machineInfo.USBDevices = d
+			warnings = append(warnings, w...)
+		}
+	} else {
+
 	}
 
 	return &machineInfo, warnings, nil

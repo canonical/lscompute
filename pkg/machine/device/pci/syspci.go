@@ -12,7 +12,7 @@ import (
 
 const pciDevicesDir = "sys/bus/pci/devices" // io/fs path (no leading slash)
 
-func readSysPci(h host.Host) ([]Device, []string, error) {
+func readSysPci(h host.Host, retrieveAllDevices bool) ([]Device, []string, error) {
 	entries, err := fs.ReadDir(h.FS(), pciDevicesDir)
 	if err != nil {
 		return nil, nil, fmt.Errorf("reading %s: %w", pciDevicesDir, err)
@@ -28,6 +28,9 @@ func readSysPci(h host.Host) ([]Device, []string, error) {
 		device, err := readSysPciDevice(h, dir, slot)
 		if err != nil {
 			warnings = append(warnings, fmt.Sprintf("reading pci device %s: %v", slot, err))
+			continue
+		}
+		if !retrieveAllDevices && !device.IsGpu() {
 			continue
 		}
 		devices = append(devices, device)

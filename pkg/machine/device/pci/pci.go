@@ -42,6 +42,7 @@ type FriendlyNames struct {
 
 // IsGpu reports whether the device is a GPU or display controller by PCI class.
 // Covers legacy VGA (0x0001) and the full display-controller class (0x03xx).
+// TODO: Consider adding a more comprehensive check for GPU devices, including vendor-specific device IDs.
 func (d Device) IsGpu() bool {
 	return d.DeviceClass == 0x0001 || d.DeviceClass&0xFF00 == 0x0300
 }
@@ -63,8 +64,8 @@ func NewBus(targetHost host.Host, opts Options) *pci {
 }
 
 // Devices discovers all devices on the bus and returns them as a slice of Device, along with any warnings and a hard error if the bus could not be enumerated.
-func (bus *pci) Devices() ([]Device, []string, error) {
-	devices, warnings, err := readSysPci(bus.host)
+func (bus *pci) Devices(retrieveAllDevices bool) ([]Device, []string, error) {
+	devices, warnings, err := readSysPci(bus.host, retrieveAllDevices)
 	if err != nil {
 		return nil, nil, fmt.Errorf("reading sysfs pci devices: %w", err)
 	}
