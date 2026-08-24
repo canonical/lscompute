@@ -25,6 +25,12 @@ func Get(h host.Host, friendlyNames bool, retrieveAllDevices bool) (*Machine, []
 	var machineInfo Machine
 	var warnings []string
 
+	memoryInfo, err := memory.Info(h)
+	if err != nil {
+		return nil, nil, fmt.Errorf("getting memory info: %w", err)
+	}
+	machineInfo.Memory = memoryInfo
+
 	cpus, err := cpu.Info(h)
 	if err != nil {
 		return nil, nil, fmt.Errorf("getting cpu info: %w", err)
@@ -47,12 +53,6 @@ func Get(h host.Host, friendlyNames bool, retrieveAllDevices bool) (*Machine, []
 		warnings = append(warnings, w...)
 	}
 
-	memoryInfo, err := memory.Info(h)
-	if err != nil {
-		return nil, nil, fmt.Errorf("getting memory info: %w", err)
-	}
-	machineInfo.Memory = memoryInfo
-
 	diskInfo, err := disk.Info(h)
 	if err != nil {
 		return nil, nil, fmt.Errorf("getting disk info: %w", err)
@@ -67,8 +67,6 @@ func Get(h host.Host, friendlyNames bool, retrieveAllDevices bool) (*Machine, []
 			machineInfo.USBDevices = d
 			warnings = append(warnings, w...)
 		}
-	} else {
-
 	}
 
 	return &machineInfo, warnings, nil
