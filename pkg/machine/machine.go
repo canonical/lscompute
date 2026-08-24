@@ -23,7 +23,6 @@ type Machine struct {
 
 func Get(h host.Host, friendlyNames bool, retrieveAllDevices bool) (*Machine, []string, error) {
 	var machineInfo Machine
-	var warnings []string
 
 	memoryInfo, err := memory.Info(h)
 	if err != nil {
@@ -36,6 +35,14 @@ func Get(h host.Host, friendlyNames bool, retrieveAllDevices bool) (*Machine, []
 		return nil, nil, fmt.Errorf("getting cpu info: %w", err)
 	}
 	machineInfo.CPUs = cpus
+
+	diskInfo, err := disk.Info(h)
+	if err != nil {
+		return nil, nil, fmt.Errorf("getting disk info: %w", err)
+	}
+	machineInfo.Disk = diskInfo
+
+	var warnings []string
 
 	pciBus := pci.NewBus(h, pci.Options{FriendlyNames: friendlyNames})
 	if d, w, err := pciBus.Devices(retrieveAllDevices); err != nil {
@@ -52,12 +59,6 @@ func Get(h host.Host, friendlyNames bool, retrieveAllDevices bool) (*Machine, []
 		machineInfo.FastRPCDevices = d
 		warnings = append(warnings, w...)
 	}
-
-	diskInfo, err := disk.Info(h)
-	if err != nil {
-		return nil, nil, fmt.Errorf("getting disk info: %w", err)
-	}
-	machineInfo.Disk = diskInfo
 
 	if retrieveAllDevices {
 		usbBus := usb.NewBus(h, usb.Options{FriendlyNames: friendlyNames})
