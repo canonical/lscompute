@@ -30,7 +30,7 @@ func readSysPci(h host.Host, retrieveAllDevices bool) ([]Device, []string, error
 			warnings = append(warnings, fmt.Sprintf("reading pci device %s: %v", slot, err))
 			continue
 		}
-		if !retrieveAllDevices && !device.IsGpu() {
+		if !retrieveAllDevices && !device.IsAccelerator() {
 			continue
 		}
 		devices = append(devices, device)

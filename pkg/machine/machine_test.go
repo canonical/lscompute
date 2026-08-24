@@ -13,7 +13,7 @@ func TestGet_WithFakeHost(t *testing.T) {
 	machineRoot := filepath.Join("..", "..", "test_data", "machines", "xps13-9350", "machine-root")
 	h := host.Fake(machineRoot)
 
-	info, _, err := Get(h, false)
+	info, _, err := Get(h, false, true)
 	if err != nil {
 		t.Fatalf("Get() failed: %v", err)
 	}
@@ -77,7 +77,7 @@ func TestGet_WithFakeHost(t *testing.T) {
 func TestGet_MemoryError(t *testing.T) {
 	// Empty host — no proc/meminfo → memory.Info fails → Get must return an error.
 	h := host.Fake(t.TempDir())
-	_, _, err := Get(h, false)
+	_, _, err := Get(h, false, true)
 	if err == nil {
 		t.Fatal("expected error when proc/meminfo is missing, got nil")
 	}
@@ -98,7 +98,7 @@ func TestGet_CpuError(t *testing.T) {
 	write("proc/meminfo", "MemTotal: 8192000 kB\nSwapTotal: 0 kB\n")
 	// No proc/cpuinfo → cpu.Info fails.
 	h := host.Fake(root)
-	_, _, err := Get(h, false)
+	_, _, err := Get(h, false, true)
 	if err == nil {
 		t.Fatal("expected error when proc/cpuinfo is missing, got nil")
 	}
@@ -130,7 +130,7 @@ func TestGet_DevicesError(t *testing.T) {
 	write("sys/bus/pci/devices", "not-a-dir")
 
 	h := host.Fake(root)
-	_, _, err := Get(h, false)
+	_, _, err := Get(h, false, true)
 	if err == nil {
 		t.Fatal("expected error when PCI devices path is a file, got nil")
 	}

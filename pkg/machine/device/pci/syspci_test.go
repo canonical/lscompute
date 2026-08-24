@@ -237,7 +237,7 @@ func TestReadSysPci(t *testing.T) {
 		writePciDevice(t, dir, "0000:01:00.0", "0x10de", "0x2204", "0x030200", "0x1458", "0x4024")
 		h := host.Fake(dir)
 
-		devices, warnings, err := readSysPci(h)
+		devices, warnings, err := readSysPci(h, true)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -260,7 +260,7 @@ func TestReadSysPci(t *testing.T) {
 		}
 		h := host.Fake(dir)
 
-		devices, warnings, err := readSysPci(h)
+		devices, warnings, err := readSysPci(h, true)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}

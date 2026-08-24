@@ -47,6 +47,10 @@ func (d Device) IsGpu() bool {
 	return d.DeviceClass == 0x0001 || d.DeviceClass&0xFF00 == 0x0300
 }
 
+func (d Device) IsAccelerator() bool {
+	return d.IsGpu() || d.DeviceClass&0xFF00 == 0x1200
+}
+
 // pci is the PCI bus implementation.
 type pci struct {
 	host host.Host

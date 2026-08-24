@@ -17,7 +17,7 @@ func TestScannerScan_EmptyHost(t *testing.T) {
 	}
 
 	bus := NewBus(host.Fake(root), Options{})
-	result, warnings, err := bus.Devices()
+	result, warnings, err := bus.Devices(true)
 	if err != nil {
 		t.Fatalf("Scan() unexpected error: %v", err)
 	}
@@ -41,7 +41,7 @@ func TestScannerScan_SysFsError(t *testing.T) {
 	}
 
 	bus := NewBus(host.Fake(root), Options{})
-	_, _, err := bus.Devices()
+	_, _, err := bus.Devices(true)
 	if err == nil {
 		t.Fatal("expected Scan to return an error when devices path is a file, got nil")
 	}
@@ -53,7 +53,7 @@ func TestScannerScan_NoFriendlyNames(t *testing.T) {
 	writePciDevice(t, root, "0000:01:00.0", "0x10de", "0x2204", "0x030200", "", "")
 
 	bus := NewBus(host.Fake(root), Options{FriendlyNames: false})
-	result, warnings, err := bus.Devices()
+	result, warnings, err := bus.Devices(true)
 	if err != nil {
 		t.Fatalf("Scan() error: %v", err)
 	}
@@ -81,7 +81,7 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 	writePciDevice(t, root, "0000:01:00.0", "0x10de", "0x2204", "0x030200", "", "")
 
 	bus := NewBus(host.Fake(root), Options{FriendlyNames: true})
-	result, warnings, err := bus.Devices()
+	result, warnings, err := bus.Devices(true)
 	if err != nil {
 		t.Fatalf("Scan() unexpected error: %v", err)
 	}
@@ -116,7 +116,7 @@ func TestScannerScan_FriendlyNamesSuccess(t *testing.T) {
 	}
 
 	bus := NewBus(host.Fake(root), Options{FriendlyNames: true})
-	result, _, err := bus.Devices()
+	result, _, err := bus.Devices(true)
 	if err != nil {
 		t.Fatalf("Devices() unexpected error: %v", err)
 	}
@@ -156,5 +156,61 @@ func TestIsGpu(t *testing.T) {
 					tc.deviceClass, got, tc.want)
 			}
 		})
+	}
+}
+
+func TestIsAccelerator(t *testing.T) {
+	cases := []struct {
+		name        string
+		deviceClass uint64
+		want        bool
+	}{
+		{"VGA legacy (0x0001)", 0x0001, true},
+		{"display controller (0x0300)", 0x0300, true},
+		{"3D controller (0x0302)", 0x0302, true},
+		{"processing accelerator (0x1200)", 0x1200, true},
+		{"processing accelerator subclass (0x1201)", 0x1201, true},
+		{"network controller (0x0200)", 0x0200, false},
+		{"storage controller (0x0100)", 0x0100, false},
+		{"zero / unclassified (0x0000)", 0x0000, false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			d := Device{DeviceClass: uint32(tc.deviceClass)}
+			if got := d.IsAccelerator(); got != tc.want {
+				t.Errorf("Device{DeviceClass: 0x%04x}.IsAccelerator() = %v, want %v",
+					tc.deviceClass, got, tc.want)
+			}
+		})
+	}
+}
+
+func Test_FilterNonAccelerators(t *testing.T) {
+	root := t.TempDir()
+	writePciDevice(t, root, "0000:00:02.0", "0x8086", "0x1234", "0x030000", "", "") // GPU
+	writePciDevice(t, root, "0000:01:00.0", "0x1234", "0x5678", "0x120000", "", "") // processing accelerator
+	writePciDevice(t, root, "0000:02:00.0", "0x8086", "0x9abc", "0x020000", "", "") // network controller
+
+	bus := NewBus(host.Fake(root), Options{})
+
+	filtered, _, err := bus.Devices(false)
+	if err != nil {
+		t.Fatalf("Devices(false) unexpected error: %v", err)
+	}
+	if len(filtered) != 2 {
+		t.Errorf("Devices(false) returned %d devices, want 2 (accelerators only)", len(filtered))
+	}
+	for _, dev := range filtered {
+		if !dev.IsAccelerator() {
+			t.Errorf("Devices(false) returned non-accelerator device with class 0x%06x", dev.DeviceClass)
+		}
+	}
+
+	all, _, err := bus.Devices(true)
+	if err != nil {
+		t.Fatalf("Devices(true) unexpected error: %v", err)
+	}
+	if len(all) != 3 {
+		t.Errorf("Devices(true) returned %d devices, want 3 (all)", len(all))
 	}
 }
