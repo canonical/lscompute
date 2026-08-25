@@ -113,6 +113,13 @@ type FastRPCDeviceDetails struct {
 	AdditionalProperties map[string]string `json:"additional-properties,omitempty" yaml:"additional-properties,omitempty"`
 }
 
+type ApusysDeviceDetails struct {
+	Bus        string `json:"bus" yaml:"bus"`
+	Type       string `json:"type" yaml:"type"`
+	SocID      string `json:"soc-id,omitempty" yaml:"soc-id,omitempty"`
+	VendorName string `json:"vendor-name,omitempty" yaml:"vendor-name,omitempty"`
+}
+
 type PciAdditionalDeviceProperties struct {
 	Microarchitecture string `json:"microarchitecture,omitempty" yaml:"microarchitecture,omitempty"`
 	Vram              uint64 `json:"vram,omitempty" yaml:"vram,omitempty"`
@@ -141,7 +148,7 @@ func NewMachineDetails(info *machine.Machine) *MachineDetails {
 	}
 
 	// Combine all devices into a single slice
-	totalDevices := len(info.PCIDevices) + len(info.USBDevices) + len(info.FastRPCDevices)
+	totalDevices := len(info.PCIDevices) + len(info.USBDevices) + len(info.FastRPCDevices) + len(info.APUSYSDevices)
 	v.Devices = make([]any, 0, totalDevices)
 
 	// Add PCI devices
@@ -197,6 +204,16 @@ func NewMachineDetails(info *machine.Machine) *MachineDetails {
 			Index:                d.Index,
 			Secure:               d.Secure,
 			AdditionalProperties: d.AdditionalProperties,
+		})
+	}
+
+	// Add APUSYS devices
+	for _, d := range info.APUSYSDevices {
+		v.Devices = append(v.Devices, ApusysDeviceDetails{
+			Bus:        d.Bus,
+			Type:       d.Type,
+			SocID:      d.SocID,
+			VendorName: d.VendorName,
 		})
 	}
 

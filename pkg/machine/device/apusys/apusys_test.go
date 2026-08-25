@@ -9,16 +9,10 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
-func TestDevicesDetectsMDLADevfreq(t *testing.T) {
+func TestDevicesDetectsAPUSYSDevice(t *testing.T) {
 	root := t.TempDir()
-	path := filepath.Join(root, mdlaDevfreqDir)
-	if err := os.MkdirAll(filepath.Join(path, "power"), 0o755); err != nil {
-		t.Fatalf("MkdirAll() error: %v", err)
-	}
-	writeFile(t, filepath.Join(path, "cur_freq"), "700000000\n")
-	writeFile(t, filepath.Join(path, "available_frequencies"), "273000000 550000000 700000000\n")
-	writeFile(t, filepath.Join(path, "power/runtime_status"), "active\n")
-	writeFile(t, filepath.Join(root, socIDPath), "jep106:0426:8195\n")
+	writeFile(t, filepath.Join(root, "dev", "apusys"), "")
+	writeFile(t, filepath.Join(root, compatiblePath), "mediatek,mt8195-evb\x00mediatek,mt8195\x00")
 
 	bus := NewBus(host.Fake(root), Options{})
 	got, warnings, err := bus.Devices()
@@ -29,16 +23,12 @@ func TestDevicesDetectsMDLADevfreq(t *testing.T) {
 		t.Fatalf("Devices() warnings = %v, want none", warnings)
 	}
 
-	want := []any{
-		Device{
-			Bus:             BusName,
-			Type:            "mdla",
-			SocID:           "jep106:0426:8195",
-			SocInfo: SocInfo{
-				ChipModel:       "MT8195 / MT8395",
-				ProductFamily:   "Kompanio 1200 / Genio 1200",
-				NPUArchitecture: "4.0 TOPS (Dual-core APU)",
-			},
+	want := []Device{
+		{
+			Bus:        BusName,
+			Type:       "mdla",
+			SocID:      "mt8195",
+			VendorName: "mediatek",
 		},
 	}
 	if !reflect.DeepEqual(got, want) {
@@ -46,11 +36,9 @@ func TestDevicesDetectsMDLADevfreq(t *testing.T) {
 	}
 }
 
-func TestDevicesDetectsMDLADevfreqWithoutSoCID(t *testing.T) {
+func TestDevicesDetectsAPUSYSDeviceWithoutCompatible(t *testing.T) {
 	root := t.TempDir()
-	if err := os.MkdirAll(filepath.Join(root, mdlaDevfreqDir), 0o755); err != nil {
-		t.Fatalf("MkdirAll() error: %v", err)
-	}
+	writeFile(t, filepath.Join(root, "dev", "apusys0"), "")
 
 	bus := NewBus(host.Fake(root), Options{})
 	got, warnings, err := bus.Devices()
@@ -61,15 +49,15 @@ func TestDevicesDetectsMDLADevfreqWithoutSoCID(t *testing.T) {
 		t.Fatalf("Devices() warnings = %v, want none", warnings)
 	}
 
-	want := []any{
-		Device{Bus: BusName, Type: "mdla"},
+	want := []Device{
+		{Bus: BusName, Type: "mdla"},
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("Devices() = %#v, want %#v", got, want)
 	}
 }
 
-func TestDevicesMissingMDLADevfreq(t *testing.T) {
+func TestDevicesMissingAPUSYSDevice(t *testing.T) {
 	bus := NewBus(host.Fake(t.TempDir()), Options{})
 	got, warnings, err := bus.Devices()
 	if err != nil {
@@ -83,9 +71,9 @@ func TestDevicesMissingMDLADevfreq(t *testing.T) {
 	}
 }
 
-func TestDevicesIgnoresNonDirectoryMDLADevfreq(t *testing.T) {
+func TestDevicesIgnoresLegacyMDLADevfreqNode(t *testing.T) {
 	root := t.TempDir()
-	writeFile(t, filepath.Join(root, mdlaDevfreqDir), "not a directory\n")
+	writeFile(t, filepath.Join(root, "sys", "devices", "platform", "soc", "soc:mdla_devfreq", "devfreq", "soc:mdla_devfreq"), "")
 
 	bus := NewBus(host.Fake(root), Options{})
 	got, warnings, err := bus.Devices()
@@ -100,97 +88,42 @@ func TestDevicesIgnoresNonDirectoryMDLADevfreq(t *testing.T) {
 	}
 }
 
-func TestSoCIDInfo(t *testing.T) {
+func TestParseCompatible(t *testing.T) {
 	tests := []struct {
-		name string
-		raw  string
-		want Device
+		name       string
+		raw        string
+		wantVendor string
+		wantSocID  string
 	}{
 		{
-			name: "jep106 mt8195",
-			raw:  "jep106:0426:8195",
-			want: Device{
-				SocID:           "jep106:0426:8195",
-				SocInfo: SocInfo{
-					ChipModel:       "MT8195 / MT8395",
-					ProductFamily:   "Kompanio 1200 / Genio 1200",
-					NPUArchitecture: "4.0 TOPS (Dual-core APU)",
-				},
-			},
+			name:       "board and soc compatibles",
+			raw:        "mediatek,mt8195-evb\x00mediatek,mt8195\x00",
+			wantVendor: "mediatek",
+			wantSocID:  "mt8195",
 		},
 		{
-			name: "mt8188",
-			raw:  "8188",
-			want: Device{
-				SocID:           "8188",
-				SocInfo: SocInfo{
-					ChipModel:       "MT8188 / MT8390",
-					ProductFamily:   "Kompanio 520 / Genio 700",
-					NPUArchitecture: "2.0 TOPS (Single-core APU)",
-				},
-			},
+			name:       "uppercase model",
+			raw:        "mediatek,MT8188\x00",
+			wantVendor: "mediatek",
+			wantSocID:  "mt8188",
 		},
 		{
-			name: "mt8370",
-			raw:  "0x8370",
-			want: Device{
-				SocID:           "0x8370",
-				SocInfo: SocInfo{
-					ChipModel:       "MT8370",
-					ProductFamily:   "Genio 510",
-					NPUArchitecture: "1.0 TOPS (Single-core APU)",
-				},
-			},
+			name:       "ignores malformed entries",
+			raw:        "not-a-compatible\x00mediatek,mt8370\x00",
+			wantVendor: "mediatek",
+			wantSocID:  "mt8370",
 		},
 		{
-			name: "mt8365",
-			raw:  "mt8365",
-			want: Device{
-				SocID:           "mt8365",
-				SocInfo: SocInfo{
-					ChipModel:       "MT8365",
-					ProductFamily:   "Genio 350",
-					NPUArchitecture: "0.5 TOPS (Single-core APU)",
-				},
-			},
-		},
-		{
-			name: "mt8192",
-			raw:  "8192",
-			want: Device{
-				SocID:           "8192",
-				SocInfo: SocInfo{
-					ChipModel:       "MT8192",
-					ProductFamily:   "Kompanio 828",
-					NPUArchitecture: "Similar to MT8195 (NPU present)",
-				},
-			},
-		},
-		{
-			name: "mt8186",
-			raw:  "8186",
-			want: Device{
-				SocID:           "8186",
-				SocInfo: SocInfo{
-					ChipModel:       "MT8186",
-					ProductFamily:   "Kompanio 528",
-					NPUArchitecture: "Entry-level NPU",
-				},
-			},
-		},
-		{
-			name: "unknown",
-			raw:  "jep106:0426:9999",
-			want: Device{SocID: "jep106:0426:9999"},
+			name: "empty",
+			raw:  "\x00",
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got := Device{SocID: tc.raw}
-			addSoCInfo(&got)
-			if !reflect.DeepEqual(got, tc.want) {
-				t.Fatalf("addSoCInfo() = %#v, want %#v", got, tc.want)
+			gotVendor, gotSocID := parseCompatible([]byte(tc.raw))
+			if gotVendor != tc.wantVendor || gotSocID != tc.wantSocID {
+				t.Fatalf("parseCompatible() = (%q, %q), want (%q, %q)", gotVendor, gotSocID, tc.wantVendor, tc.wantSocID)
 			}
 		})
 	}
