@@ -60,6 +60,7 @@ type pci struct {
 // Options holds PCI-specific bus configuration.
 type Options struct {
 	FriendlyNames bool
+	All           bool
 }
 
 // NewBus returns a pci bus configured with the given options.
@@ -68,10 +69,21 @@ func NewBus(targetHost host.Host, opts Options) *pci {
 }
 
 // Devices discovers all devices on the bus and returns them as a slice of Device, along with any warnings and a hard error if the bus could not be enumerated.
-func (bus *pci) Devices(retrieveAllDevices bool) ([]Device, []string, error) {
-	devices, warnings, err := readSysPci(bus.host, retrieveAllDevices)
+func (bus *pci) Devices() ([]Device, []string, error) {
+	devices := make([]Device, 0)
+	retrievedDevices, warnings, err := readSysPci(bus.host)
 	if err != nil {
 		return nil, nil, fmt.Errorf("reading sysfs pci devices: %w", err)
+	}
+
+	if !bus.opts.All {
+		for _, device := range retrievedDevices {
+			if device.IsAccelerator() {
+				devices = append(devices, device)
+			}
+		}
+	} else {
+		devices = retrievedDevices
 	}
 
 	if bus.opts.FriendlyNames {

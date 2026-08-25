@@ -16,8 +16,8 @@ func TestScannerScan_EmptyHost(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	bus := NewBus(host.Fake(root), Options{})
-	result, warnings, err := bus.Devices(true)
+	bus := NewBus(host.Fake(root), Options{All: true})
+	result, warnings, err := bus.Devices()
 	if err != nil {
 		t.Fatalf("Scan() unexpected error: %v", err)
 	}
@@ -40,8 +40,8 @@ func TestScannerScan_SysFsError(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	bus := NewBus(host.Fake(root), Options{})
-	_, _, err := bus.Devices(true)
+	bus := NewBus(host.Fake(root), Options{All: true})
+	_, _, err := bus.Devices()
 	if err == nil {
 		t.Fatal("expected Scan to return an error when devices path is a file, got nil")
 	}
@@ -52,8 +52,8 @@ func TestScannerScan_NoFriendlyNames(t *testing.T) {
 	writePciDevice(t, root, "0000:00:02.0", "0x8086", "0x1234", "0x030000", "", "")
 	writePciDevice(t, root, "0000:01:00.0", "0x10de", "0x2204", "0x030200", "", "")
 
-	bus := NewBus(host.Fake(root), Options{FriendlyNames: false})
-	result, warnings, err := bus.Devices(true)
+	bus := NewBus(host.Fake(root), Options{FriendlyNames: false, All: true})
+	result, warnings, err := bus.Devices()
 	if err != nil {
 		t.Fatalf("Scan() error: %v", err)
 	}
@@ -80,8 +80,8 @@ func TestScannerScan_FriendlyNamesWarning(t *testing.T) {
 	writePciDevice(t, root, "0000:00:02.0", "0x8086", "0x1234", "0x030000", "", "")
 	writePciDevice(t, root, "0000:01:00.0", "0x10de", "0x2204", "0x030200", "", "")
 
-	bus := NewBus(host.Fake(root), Options{FriendlyNames: true})
-	result, warnings, err := bus.Devices(true)
+	bus := NewBus(host.Fake(root), Options{FriendlyNames: true, All: true})
+	result, warnings, err := bus.Devices()
 	if err != nil {
 		t.Fatalf("Scan() unexpected error: %v", err)
 	}
@@ -115,8 +115,8 @@ func TestScannerScan_FriendlyNamesSuccess(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	bus := NewBus(host.Fake(root), Options{FriendlyNames: true})
-	result, _, err := bus.Devices(true)
+	bus := NewBus(host.Fake(root), Options{FriendlyNames: true, All: true})
+	result, _, err := bus.Devices()
 	if err != nil {
 		t.Fatalf("Devices() unexpected error: %v", err)
 	}
@@ -191,9 +191,9 @@ func Test_FilterNonAccelerators(t *testing.T) {
 	writePciDevice(t, root, "0000:01:00.0", "0x1234", "0x5678", "0x120000", "", "") // processing accelerator
 	writePciDevice(t, root, "0000:02:00.0", "0x8086", "0x9abc", "0x020000", "", "") // network controller
 
-	bus := NewBus(host.Fake(root), Options{})
+	bus := NewBus(host.Fake(root), Options{All: false})
 
-	filtered, _, err := bus.Devices(false)
+	filtered, _, err := bus.Devices()
 	if err != nil {
 		t.Fatalf("Devices(false) unexpected error: %v", err)
 	}
@@ -205,8 +205,8 @@ func Test_FilterNonAccelerators(t *testing.T) {
 			t.Errorf("Devices(false) returned non-accelerator device with class 0x%06x", dev.DeviceClass)
 		}
 	}
-
-	all, _, err := bus.Devices(true)
+	bus.opts.All = true
+	all, _, err := bus.Devices()
 	if err != nil {
 		t.Fatalf("Devices(true) unexpected error: %v", err)
 	}

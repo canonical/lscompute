@@ -21,7 +21,7 @@ type Machine struct {
 	FastRPCDevices []fastrpc.Device
 }
 
-func Get(h host.Host, friendlyNames bool, retrieveAllDevices bool) (*Machine, []string, error) {
+func Get(h host.Host, friendlyNames bool, all bool) (*Machine, []string, error) {
 	var machineInfo Machine
 
 	memoryInfo, err := memory.Info(h)
@@ -44,8 +44,8 @@ func Get(h host.Host, friendlyNames bool, retrieveAllDevices bool) (*Machine, []
 
 	var warnings []string
 
-	pciBus := pci.NewBus(h, pci.Options{FriendlyNames: friendlyNames})
-	if d, w, err := pciBus.Devices(retrieveAllDevices); err != nil {
+	pciBus := pci.NewBus(h, pci.Options{FriendlyNames: friendlyNames, All: all})
+	if d, w, err := pciBus.Devices(); err != nil {
 		return nil, nil, fmt.Errorf("getting PCI devices: %w", err)
 	} else {
 		machineInfo.PCIDevices = d
@@ -60,7 +60,7 @@ func Get(h host.Host, friendlyNames bool, retrieveAllDevices bool) (*Machine, []
 		warnings = append(warnings, w...)
 	}
 
-	if retrieveAllDevices {
+	if all {
 		usbBus := usb.NewBus(h, usb.Options{FriendlyNames: friendlyNames})
 		if d, w, err := usbBus.Devices(); err != nil {
 			return nil, nil, fmt.Errorf("getting USB devices: %w", err)
