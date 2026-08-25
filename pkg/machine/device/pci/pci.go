@@ -42,7 +42,6 @@ type FriendlyNames struct {
 
 // IsGpu reports whether the device is a GPU or display controller by PCI class.
 // Covers legacy VGA (0x0001) and the full display-controller class (0x03xx).
-// TODO: Consider adding a more comprehensive check for GPU devices, including vendor-specific device IDs.
 func (d Device) IsGpu() bool {
 	return d.DeviceClass == 0x0001 || d.DeviceClass&0xFF00 == 0x0300
 }
