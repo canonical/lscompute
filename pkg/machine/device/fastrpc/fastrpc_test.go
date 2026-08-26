@@ -12,7 +12,7 @@ import (
 func TestDevicesDetectsFastRPCNodes(t *testing.T) {
 	root := t.TempDir()
 	for _, name := range []string{
-		"fastrpc-adsp",
+		"FASTRPC-adsp",
 		"fastrpc-cdsp1",
 		"fastrpc-cdsp1-secure",
 		"fastrpc-gdsp2-secure",

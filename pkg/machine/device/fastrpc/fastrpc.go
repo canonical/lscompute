@@ -66,11 +66,7 @@ func (bus *fastRpc) Devices() ([]Device, []string, error) {
 
 	result := make([]Device, 0, len(entries))
 	for _, entry := range entries {
-		name := entry.Name()
-		if !strings.HasPrefix(name, fastRPCDeviceNamePrefix) {
-			continue
-		}
-		device, ok := parseFastRPCDeviceName(name)
+		device, ok := parseFastRPCDeviceName(entry.Name())
 		if !ok {
 			continue
 		}
