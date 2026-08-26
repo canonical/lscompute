@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/canonical/lscompute/pkg/machine/cpu"
+	"github.com/canonical/lscompute/pkg/machine/device/apusys"
 	"github.com/canonical/lscompute/pkg/machine/device/fastrpc"
 	"github.com/canonical/lscompute/pkg/machine/device/pci"
 	"github.com/canonical/lscompute/pkg/machine/device/usb"
@@ -19,6 +20,7 @@ type Machine struct {
 	PCIDevices     []pci.Device
 	USBDevices     []usb.Device
 	FastRPCDevices []fastrpc.Device
+	APUSYSDevices  []apusys.Device
 }
 
 func Get(h host.Host, friendlyNames bool, all bool) (*Machine, []string, error) {
@@ -57,6 +59,14 @@ func Get(h host.Host, friendlyNames bool, all bool) (*Machine, []string, error) 
 		return nil, nil, fmt.Errorf("getting FastRPC devices: %w", err)
 	} else {
 		machineInfo.FastRPCDevices = d
+		warnings = append(warnings, w...)
+	}
+
+	apusysBus := apusys.NewBus(h, apusys.Options{})
+	if d, w, err := apusysBus.Devices(); err != nil {
+		return nil, nil, fmt.Errorf("getting APUSYS devices: %w", err)
+	} else {
+		machineInfo.APUSYSDevices = d
 		warnings = append(warnings, w...)
 	}
 

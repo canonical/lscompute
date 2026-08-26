@@ -7,6 +7,7 @@ import (
 
 	"github.com/canonical/lscompute/pkg/machine"
 	"github.com/canonical/lscompute/pkg/machine/cpu"
+	"github.com/canonical/lscompute/pkg/machine/device/apusys"
 	"github.com/canonical/lscompute/pkg/machine/device/fastrpc"
 	"github.com/canonical/lscompute/pkg/machine/device/pci"
 	"github.com/canonical/lscompute/pkg/machine/device/usb"
@@ -115,6 +116,55 @@ func machineInfoForExamples() *machine.Machine {
 				},
 			},
 		},
+	}
+}
+
+func TestNewMachineDetailsIncludesAPUSYS(t *testing.T) {
+	info := &machine.Machine{
+		APUSYSDevices: []apusys.Device{
+			{
+				Bus:        apusys.BusName,
+				Type:       "mdla",
+				SocID:      "mt8395",
+				VendorName: "mediatek",
+			},
+		},
+	}
+
+	data, err := NewMachineDetails(info).Marshal(FormatJSON)
+	if err != nil {
+		t.Fatalf("Marshal() error: %v", err)
+	}
+
+	var got struct {
+		Devices []struct {
+			Bus        string `json:"bus"`
+			Type       string `json:"type"`
+			SocID      string `json:"soc-id"`
+			VendorName string `json:"vendor-name"`
+		} `json:"devices"`
+	}
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatalf("json.Unmarshal() error: %v", err)
+	}
+	if len(got.Devices) != 1 {
+		t.Fatalf("len(devices) = %d, want 1", len(got.Devices))
+	}
+
+	want := struct {
+		Bus        string
+		Type       string
+		SocID      string
+		VendorName string
+	}{
+		Bus:        "apusys",
+		Type:       "mdla",
+		SocID:      "mt8395",
+		VendorName: "mediatek",
+	}
+	device := got.Devices[0]
+	if device.Bus != want.Bus || device.Type != want.Type || device.SocID != want.SocID || device.VendorName != want.VendorName {
+		t.Fatalf("APUSYS device = %#v, want %#v", device, want)
 	}
 }
 
