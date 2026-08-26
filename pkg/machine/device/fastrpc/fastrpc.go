@@ -82,7 +82,11 @@ func (bus *fastRpc) Devices() ([]Device, []string, error) {
 }
 
 func parseFastRPCDeviceName(name string) (Device, bool) {
-	name = strings.TrimPrefix(strings.ToLower(name), fastRPCDeviceNamePrefix)
+	name = strings.ToLower(name)
+	if !strings.HasPrefix(name, fastRPCDeviceNamePrefix) {
+		return Device{}, false
+	}
+	name = strings.TrimPrefix(name, fastRPCDeviceNamePrefix)
 
 	secure := strings.HasSuffix(name, "-secure")
 	if secure {
