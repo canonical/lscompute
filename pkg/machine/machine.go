@@ -23,7 +23,7 @@ type Machine struct {
 	APUSYSDevices  []apusys.Device
 }
 
-func Get(h host.Host, friendlyNames bool) (*Machine, []string, error) {
+func Get(h host.Host, friendlyNames bool, all bool) (*Machine, []string, error) {
 	var machineInfo Machine
 
 	memoryInfo, err := memory.Info(h)
@@ -46,19 +46,11 @@ func Get(h host.Host, friendlyNames bool) (*Machine, []string, error) {
 
 	var warnings []string
 
-	pciBus := pci.NewBus(h, pci.Options{FriendlyNames: friendlyNames})
+	pciBus := pci.NewBus(h, pci.Options{FriendlyNames: friendlyNames, All: all})
 	if d, w, err := pciBus.Devices(); err != nil {
 		return nil, nil, fmt.Errorf("getting PCI devices: %w", err)
 	} else {
 		machineInfo.PCIDevices = d
-		warnings = append(warnings, w...)
-	}
-
-	usbBus := usb.NewBus(h, usb.Options{FriendlyNames: friendlyNames})
-	if d, w, err := usbBus.Devices(); err != nil {
-		return nil, nil, fmt.Errorf("getting USB devices: %w", err)
-	} else {
-		machineInfo.USBDevices = d
 		warnings = append(warnings, w...)
 	}
 
@@ -76,6 +68,16 @@ func Get(h host.Host, friendlyNames bool) (*Machine, []string, error) {
 	} else {
 		machineInfo.APUSYSDevices = d
 		warnings = append(warnings, w...)
+	}
+
+	if all {
+		usbBus := usb.NewBus(h, usb.Options{FriendlyNames: friendlyNames})
+		if d, w, err := usbBus.Devices(); err != nil {
+			return nil, nil, fmt.Errorf("getting USB devices: %w", err)
+		} else {
+			machineInfo.USBDevices = d
+			warnings = append(warnings, w...)
+		}
 	}
 
 	return &machineInfo, warnings, nil

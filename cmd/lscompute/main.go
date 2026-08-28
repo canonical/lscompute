@@ -14,13 +14,14 @@ func main() {
 	log.SetFlags(0) // no timestamps
 
 	format := flag.String("format", FormatPlain, "output serialization format: plain or json")
+	all := flag.Bool("all", false, "List all devices, even those that are not useful for computational tasks.")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage:\n\nOptions:\n")
 		flag.PrintDefaults()
 	}
 	flag.Parse()
 
-	output, warnings, err := machine.Get(host.Real(), true)
+	output, warnings, err := machine.Get(host.Real(), true, *all)
 	if err != nil {
 		log.Fatalf("Error: %s", err)
 	}

@@ -42,7 +42,7 @@ func TestGet_AllFakeHosts(t *testing.T) {
 			_, pciErr := os.Stat(pciIDs)
 			friendlyNames := pciErr == nil
 
-			got, _, err := machine.Get(host.Fake(machineRoot), friendlyNames)
+			got, _, err := machine.Get(host.Fake(machineRoot), friendlyNames, true)
 			if err != nil {
 				t.Fatalf("Get() failed: %v", err)
 			}
