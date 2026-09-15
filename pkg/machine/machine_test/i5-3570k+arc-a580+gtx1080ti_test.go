@@ -13,6 +13,7 @@ func init() {
 		CPUs: []cpu.CPU{
 			{
 				Architecture:   "amd64",
+				Processor:      4,
 				ManufacturerId: "GenuineIntel",
 				BrandString:    "Intel(R) Core(TM) i5-3570K CPU @ 3.40GHz",
 				Flags:          []string{"fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce", "cx8", "apic", "sep", "mtrr", "pge", "mca", "cmov", "pat", "pse36", "clflush", "dts", "acpi", "mmx", "fxsr", "sse", "sse2", "ss", "ht", "tm", "pbe", "syscall", "nx", "rdtscp", "lm", "constant_tsc", "arch_perfmon", "pebs", "bts", "rep_good", "nopl", "xtopology", "nonstop_tsc", "cpuid", "aperfmperf", "pni", "pclmulqdq", "dtes64", "monitor", "ds_cpl", "est", "tm2", "ssse3", "cx16", "xtpr", "pdcm", "pcid", "sse4_1", "sse4_2", "popcnt", "tsc_deadline_timer", "aes", "xsave", "avx", "f16c", "rdrand", "lahf_lm", "cpuid_fault", "epb", "pti", "ssbd", "ibrs", "ibpb", "stibp", "fsgsbase", "smep", "erms", "xsaveopt", "dtherm", "ida", "arat", "pln", "pts", "md_clear", "flush_l1d"},

@@ -13,6 +13,7 @@ func init() {
 		CPUs: []cpu.CPU{
 			{
 				Architecture:  "arm64",
+				Processor:     128,
 				ImplementerId: 0x41,
 				PartNumber:    0xD0C,
 				Features:      []string{"fp", "asimd", "evtstrm", "aes", "pmull", "sha1", "sha2", "crc32", "atomics", "fphp", "asimdhp", "cpuid", "asimdrdm", "lrcpc", "dcpop", "asimddp", "ssbs"},
