@@ -13,7 +13,9 @@ type CPU struct {
 	Features      []string
 
 	// riscv64
-	Isa []string
+	Isa         []string
+	BrandString string
+	ModelName   *string
 }
 
 // procCpuInfo contains general information about a system CPU found in /proc/cpuinfo.
