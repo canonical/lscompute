@@ -13,7 +13,10 @@ type CPU struct {
 	Features      []string
 
 	// riscv64
-	Isa         []string
+	Isa []string
+
+	// CPU friendly info
+	Processor   int64
 	BrandString string
 	ModelName   *string
 }

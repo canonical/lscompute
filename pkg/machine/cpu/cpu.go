@@ -94,16 +94,19 @@ func cpuInfoFromProc(procCpus []procCpuInfo) ([]CPU, error) {
 			cpuInfo.ManufacturerId = procCpu.ManufacturerId
 			cpuInfo.Flags = procCpu.Flags
 			cpuInfo.BrandString = procCpu.BrandString
+			cpuInfo.Processor = procCpu.Processor
 		} else if procCpu.Architecture == Arm64 {
 			cpuInfo.Architecture = procCpu.Architecture
 			cpuInfo.ImplementerId = procCpu.ImplementerId
 			cpuInfo.PartNumber = procCpu.PartNumber
 			cpuInfo.Features = procCpu.Features
 			cpuInfo.ModelName = procCpu.ModelName
+			cpuInfo.Processor = procCpu.Processor
 		} else if procCpu.Architecture == Riscv64 {
 			cpuInfo.Architecture = procCpu.Architecture
 			cpuInfo.Isa = procCpu.Isa
 			cpuInfo.ModelName = procCpu.ModelName
+			cpuInfo.Processor = procCpu.Processor
 		} else {
 			return nil, fmt.Errorf("unsupported architecture: %s", procCpu.Architecture)
 		}
