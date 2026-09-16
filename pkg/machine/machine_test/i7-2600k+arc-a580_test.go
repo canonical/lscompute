@@ -13,10 +13,12 @@ func init() {
 		CPUs: []cpu.CPU{
 			{
 				Architecture:   "amd64",
-				Processor:      8,
 				ManufacturerId: "GenuineIntel",
-				BrandString:    "Intel(R) Core(TM) i7-2600K CPU @ 3.40GHz",
-				Flags:          []string{"fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce", "cx8", "apic", "sep", "mtrr", "pge", "mca", "cmov", "pat", "pse36", "clflush", "dts", "acpi", "mmx", "fxsr", "sse", "sse2", "ht", "tm", "pbe", "syscall", "nx", "rdtscp", "lm", "constant_tsc", "arch_perfmon", "pebs", "bts", "rep_good", "nopl", "xtopology", "nonstop_tsc", "cpuid", "aperfmperf", "pni", "pclmulqdq", "dtes64", "monitor", "ds_cpl", "vmx", "est", "tm2", "ssse3", "cx16", "xtpr", "pdcm", "pcid", "sse4_1", "sse4_2", "popcnt", "tsc_deadline_timer", "aes", "xsave", "avx", "lahf_lm", "epb", "pti", "ssbd", "ibrs", "ibpb", "stibp", "tpr_shadow", "flexpriority", "ept", "vpid", "xsaveopt", "dtherm", "ida", "arat", "pln", "pts", "vnmi", "md_clear", "flush_l1d"},
+				FriendlyNames: cpu.FriendlyNames{
+					Threads:     8,
+					BrandString: "Intel(R) Core(TM) i7-2600K CPU @ 3.40GHz",
+				},
+				Flags: []string{"fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce", "cx8", "apic", "sep", "mtrr", "pge", "mca", "cmov", "pat", "pse36", "clflush", "dts", "acpi", "mmx", "fxsr", "sse", "sse2", "ht", "tm", "pbe", "syscall", "nx", "rdtscp", "lm", "constant_tsc", "arch_perfmon", "pebs", "bts", "rep_good", "nopl", "xtopology", "nonstop_tsc", "cpuid", "aperfmperf", "pni", "pclmulqdq", "dtes64", "monitor", "ds_cpl", "vmx", "est", "tm2", "ssse3", "cx16", "xtpr", "pdcm", "pcid", "sse4_1", "sse4_2", "popcnt", "tsc_deadline_timer", "aes", "xsave", "avx", "lahf_lm", "epb", "pti", "ssbd", "ibrs", "ibpb", "stibp", "tpr_shadow", "flexpriority", "ept", "vpid", "xsaveopt", "dtherm", "ida", "arat", "pln", "pts", "vnmi", "md_clear", "flush_l1d"},
 			},
 		},
 		Memory: memory.Memory{TotalRam: 11439935488, TotalSwap: 2147479552},

@@ -13,10 +13,12 @@ func init() {
 		CPUs: []cpu.CPU{
 			{
 				Architecture:   "amd64",
-				Processor:      1,
 				ManufacturerId: "GenuineIntel",
-				BrandString:    "12th Gen Intel(R) Core(TM) i7-12850HX",
-				Flags:          []string{"fpu", "vme", "de"},
+				FriendlyNames: cpu.FriendlyNames{
+					Threads:     1,
+					BrandString: "12th Gen Intel(R) Core(TM) i7-12850HX",
+				},
+				Flags: []string{"fpu", "vme", "de"},
 			},
 		},
 		Memory: memory.Memory{TotalRam: 67012501504, TotalSwap: 0},

@@ -13,10 +13,12 @@ func init() {
 		CPUs: []cpu.CPU{
 			{
 				Architecture:  "arm64",
-				Processor:     192,
 				ImplementerId: 0xC0,
 				PartNumber:    0xAC4,
-				Features:      []string{"fp", "asimd", "evtstrm", "aes", "pmull", "sha1", "sha2", "crc32", "atomics", "fphp", "asimdhp", "cpuid", "asimdrdm", "jscvt", "fcma", "lrcpc", "dcpop", "sha3", "sm3", "sm4", "asimddp", "sha512", "asimdfhm", "dit", "uscat", "ilrcpc", "flagm", "ssbs", "sb", "paca", "pacg", "dcpodp", "flagm2", "frint", "i8mm", "bf16", "rng", "bti", "ecv"},
+				FriendlyNames: cpu.FriendlyNames{
+					Threads: 192,
+				},
+				Features: []string{"fp", "asimd", "evtstrm", "aes", "pmull", "sha1", "sha2", "crc32", "atomics", "fphp", "asimdhp", "cpuid", "asimdrdm", "jscvt", "fcma", "lrcpc", "dcpop", "sha3", "sm3", "sm4", "asimddp", "sha512", "asimdfhm", "dit", "uscat", "ilrcpc", "flagm", "ssbs", "sb", "paca", "pacg", "dcpodp", "flagm2", "frint", "i8mm", "bf16", "rng", "bti", "ecv"},
 			},
 		},
 		Memory: memory.Memory{TotalRam: 32876765184, TotalSwap: 8589930496},
