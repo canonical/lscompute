@@ -14,6 +14,14 @@ type CPU struct {
 
 	// riscv64
 	Isa []string
+
+	FriendlyNames FriendlyNames
+}
+
+type FriendlyNames struct {
+	Threads     int64
+	BrandString string
+	ModelName   *string
 }
 
 // procCpuInfo contains general information about a system CPU found in /proc/cpuinfo.
