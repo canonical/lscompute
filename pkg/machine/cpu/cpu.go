@@ -10,7 +10,7 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
-func Info(h host.Host) ([]CPU, error) {
+func Info(h host.Host, friendlyNames bool) ([]CPU, error) {
 	procCpuData, err := fs.ReadFile(h.FS(), "proc/cpuinfo")
 	if err != nil {
 		return nil, fmt.Errorf("reading proc/cpuinfo: %w", err)
@@ -24,6 +24,12 @@ func Info(h host.Host) ([]CPU, error) {
 	cpus, err := infoFromRawData(string(procCpuData), archData)
 	if err != nil {
 		return nil, fmt.Errorf("parsing cpu data: %w", err)
+	}
+
+	if !friendlyNames {
+		for i := range cpus {
+			cpus[i].FriendlyNames = FriendlyNames{}
+		}
 	}
 
 	return cpus, nil
@@ -67,14 +73,21 @@ func infoFromRawData(procCpuInfoData string, uname string) ([]CPU, error) {
 }
 
 func uniqueCpuInfo(procCpus []procCpuInfo) ([]CPU, error) {
-	// Set processor index to 0 to only check other fields for uniqueness
-	for i := range procCpus {
-		procCpus[i].Processor = 0
+	var unique []procCpuInfo
+	for _, p := range procCpus {
+		p.Processor = 0
+		if i := slices.IndexFunc(unique, func(u procCpuInfo) bool {
+			u.Processor = 0
+			return isDuplicate(u, p)
+		}); i != -1 {
+			unique[i].Processor++
+			continue
+		}
+		p.Processor = 1
+		unique = append(unique, p)
 	}
 
-	procCpus = slices.CompactFunc(procCpus, isDuplicate)
-
-	cpuInfos, err := cpuInfoFromProc(procCpus)
+	cpuInfos, err := cpuInfoFromProc(unique)
 	if err != nil {
 		return nil, fmt.Errorf("converting cpu info: %w", err)
 	}
@@ -93,14 +106,20 @@ func cpuInfoFromProc(procCpus []procCpuInfo) ([]CPU, error) {
 			cpuInfo.Architecture = procCpu.Architecture
 			cpuInfo.ManufacturerId = procCpu.ManufacturerId
 			cpuInfo.Flags = procCpu.Flags
+			cpuInfo.FriendlyNames.BrandString = procCpu.BrandString
+			cpuInfo.FriendlyNames.Threads = procCpu.Processor
 		} else if procCpu.Architecture == Arm64 {
 			cpuInfo.Architecture = procCpu.Architecture
 			cpuInfo.ImplementerId = procCpu.ImplementerId
 			cpuInfo.PartNumber = procCpu.PartNumber
 			cpuInfo.Features = procCpu.Features
+			cpuInfo.FriendlyNames.ModelName = procCpu.ModelName
+			cpuInfo.FriendlyNames.Threads = procCpu.Processor
 		} else if procCpu.Architecture == Riscv64 {
 			cpuInfo.Architecture = procCpu.Architecture
 			cpuInfo.Isa = procCpu.Isa
+			cpuInfo.FriendlyNames.ModelName = procCpu.ModelName
+			cpuInfo.FriendlyNames.Threads = procCpu.Processor
 		} else {
 			return nil, fmt.Errorf("unsupported architecture: %s", procCpu.Architecture)
 		}

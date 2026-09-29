@@ -10,6 +10,7 @@ import (
 const xps13MachineRoot = "../../../test_data/machines/xps13-9350/machine-root"
 const rpiMachineRoot = "../../../test_data/machines/raspberry-pi-5/machine-root"
 const p550MachineRoot = "../../../test_data/machines/sifive-p550-premier/machine-root"
+
 func machineHost(t *testing.T, root string) host.Host {
 	t.Helper()
 	abs, err := filepath.Abs(root)
@@ -22,7 +23,7 @@ func machineHost(t *testing.T, root string) host.Host {
 // TestInfo_Amd64 exercises the full Info() pipeline on an x86_64 machine fixture.
 func TestInfo_Amd64(t *testing.T) {
 	h := machineHost(t, xps13MachineRoot)
-	cpus, err := Info(h)
+	cpus, err := Info(h, true)
 	if err != nil {
 		t.Fatalf("Info() error: %v", err)
 	}
@@ -42,7 +43,7 @@ func TestInfo_Amd64(t *testing.T) {
 // TestInfo_Arm64 exercises the full Info() pipeline on an aarch64 machine fixture.
 func TestInfo_Arm64(t *testing.T) {
 	h := machineHost(t, rpiMachineRoot)
-	cpus, err := Info(h)
+	cpus, err := Info(h, true)
 	if err != nil {
 		t.Fatalf("Info() error: %v", err)
 	}
@@ -59,7 +60,7 @@ func TestInfo_Arm64(t *testing.T) {
 // TestInfo_Riscv64 exercises the full Info() pipeline on an riscv64 machine fixture.
 func TestInfo_Riscv64(t *testing.T) {
 	h := machineHost(t, p550MachineRoot)
-	cpus, err := Info(h)
+	cpus, err := Info(h, true)
 	if err != nil {
 		t.Fatalf("Info() error: %v", err)
 	}
@@ -77,7 +78,7 @@ func TestInfo_Riscv64(t *testing.T) {
 func TestInfo_MissingCpuInfo(t *testing.T) {
 	// Empty host — proc/cpuinfo is missing → Info must return an error.
 	h := host.Fake(t.TempDir())
-	_, err := Info(h)
+	_, err := Info(h, true)
 	if err == nil {
 		t.Fatal("expected error for missing proc/cpuinfo, got nil")
 	}
@@ -242,7 +243,7 @@ func TestCpuInfoFromProc_Arm64(t *testing.T) {
 // TestCpuInfoFromProc_Riscv64 spot-checks the riscv64 field mapping.
 func TestCpuInfoFromProc_Riscv64(t *testing.T) {
 	pci := procCpuInfo{
-		Architecture:  Riscv64,
+		Architecture: Riscv64,
 	}
 	result, err := cpuInfoFromProc([]procCpuInfo{pci})
 	if err != nil {
