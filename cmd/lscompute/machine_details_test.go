@@ -517,3 +517,26 @@ func TestHexIntYAMLRoundTrip(t *testing.T) {
 		}
 	}
 }
+
+func Example_marshalPlain_arm64() {
+	info := &machine.Machine{
+		CPUs: []cpu.CPU{{
+			Architecture:  "arm64",
+			ImplementerId: 0x41,
+			PartNumber:    0xd0b,
+			Features:      []string{"fp", "asimd"},
+		}},
+	}
+	output, err := NewMachineDetails(info).Marshal(FormatPlain)
+	if err != nil {
+		fmt.Printf("Marshal() failed: %v", err)
+		return
+	}
+	fmt.Println(string(output))
+	// Output:
+	// cpus:
+	//   - architecture: arm64
+	//     implementer-id: "0x41"
+	//     part-number: "0xD0B"
+	//     features: [fp, asimd]
+}
