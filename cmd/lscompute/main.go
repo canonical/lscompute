@@ -21,7 +21,7 @@ func main() {
 	}
 	flag.Parse()
 
-	output, warnings, err := machine.Get(host.Real(), true, *all)
+	output, warnings, err := machine.Get(host.Real(), machine.Options{All: *all, FriendlyNames: true})
 	if err != nil {
 		log.Fatalf("Error: %s", err)
 	}

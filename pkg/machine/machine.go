@@ -23,7 +23,12 @@ type Machine struct {
 	APUSYSDevices  []apusys.Device
 }
 
-func Get(h host.Host, friendlyNames bool, all bool) (*Machine, []string, error) {
+type Options struct {
+	FriendlyNames bool
+	All           bool
+}
+
+func Get(h host.Host, opts Options) (*Machine, []string, error) {
 	var machineInfo Machine
 
 	memoryInfo, err := memory.Info(h)
@@ -46,7 +51,7 @@ func Get(h host.Host, friendlyNames bool, all bool) (*Machine, []string, error) 
 
 	var warnings []string
 
-	pciBus := pci.NewBus(h, pci.Options{FriendlyNames: friendlyNames, All: all})
+	pciBus := pci.NewBus(h, pci.Options{FriendlyNames: opts.FriendlyNames, All: opts.All})
 	if d, w, err := pciBus.Devices(); err != nil {
 		return nil, nil, fmt.Errorf("getting PCI devices: %w", err)
 	} else {
@@ -70,8 +75,8 @@ func Get(h host.Host, friendlyNames bool, all bool) (*Machine, []string, error) 
 		warnings = append(warnings, w...)
 	}
 
-	if all {
-		usbBus := usb.NewBus(h, usb.Options{FriendlyNames: friendlyNames})
+	if opts.All {
+		usbBus := usb.NewBus(h, usb.Options{FriendlyNames: opts.FriendlyNames})
 		if d, w, err := usbBus.Devices(); err != nil {
 			return nil, nil, fmt.Errorf("getting USB devices: %w", err)
 		} else {
