@@ -29,7 +29,7 @@ type Device struct {
 	FriendlyNames
 
 	// Vendor specific device key-value pairs
-	AdditionalProperties map[string]string
+	AdditionalProperties map[string]any
 }
 
 // FriendlyNames holds human-readable names resolved from the pci.ids database.

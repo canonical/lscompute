@@ -10,8 +10,8 @@ import (
 	"github.com/canonical/lscompute/pkg/machine/host"
 )
 
-func gpuProperties(h host.Host, slot string) (map[string]string, error) {
-	properties := make(map[string]string)
+func gpuProperties(h host.Host, slot string) (map[string]any, error) {
+	properties := make(map[string]any)
 
 	vRamVal, err := vRam(h, slot)
 	if err != nil {

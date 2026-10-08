@@ -12,14 +12,18 @@ import (
 
 const nvidiaSmiTimeout = 30 * time.Second
 
-func gpuProperties(h host.Host, slot string) (map[string]string, error) {
-	properties := make(map[string]string)
+func gpuProperties(h host.Host, slot string) (map[string]any, error) {
+	properties := make(map[string]any)
 
 	vRamVal, err := vRam(h, slot)
 	if err != nil {
 		return nil, fmt.Errorf("looking up vram: %w", err)
 	}
-	properties["vram"] = *vRamVal
+	if vRamVal != nil {
+		properties["vram"] = strconv.FormatUint(*vRamVal, 10)
+	} else {
+		properties["vram"] = nil
+	}
 
 	ccVal, err := computeCapability(h, slot)
 	if err != nil {
@@ -32,7 +36,7 @@ func gpuProperties(h host.Host, slot string) (map[string]string, error) {
 	return properties, nil
 }
 
-func vRam(h host.Host, slot string) (*string, error) {
+func vRam(h host.Host, slot string) (*uint64, error) {
 	/*
 		Nvidia: LANG=C nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits
 
@@ -49,10 +53,9 @@ func vRam(h host.Host, slot string) (*string, error) {
 	return parseVramAmount(strings.TrimSpace(string(output)))
 }
 
-func parseVramAmount(smiOutputString string) (*string, error) {
+func parseVramAmount(smiOutputString string) (*uint64, error) {
 	if smiOutputString == "[N/A]" {
-		val := new(string("[N/A]"))
-		return val, nil
+		return nil, nil
 	}
 
 	valueStr, unit, hasUnit := strings.Cut(smiOutputString, " ")
@@ -72,9 +75,7 @@ func parseVramAmount(smiOutputString string) (*string, error) {
 		}
 	}
 
-	vramValueStr := strconv.FormatUint(vramValue, 10)
-
-	return &vramValueStr, nil
+	return &vramValue, nil
 }
 
 func computeCapability(h host.Host, slot string) (string, error) {

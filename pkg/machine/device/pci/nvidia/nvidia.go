@@ -9,8 +9,8 @@ import (
 // AdditionalProperties returns device specific properties as a map[string]string.
 // No error is returned as a failure to look up properties is considered non-fatal, and likely due to missing drivers.
 // Any errors are logged to STDERR.
-func AdditionalProperties(h host.Host, slot string, isGpu bool) (map[string]string, error) {
-	var properties map[string]string
+func AdditionalProperties(h host.Host, slot string, isGpu bool) (map[string]any, error) {
+	var properties map[string]any
 	var err error
 
 	if isGpu {

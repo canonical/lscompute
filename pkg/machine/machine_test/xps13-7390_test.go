@@ -43,7 +43,7 @@ func init() {
 				SubvendorId:          new(uint16(0x1028)),
 				SubdeviceId:          new(uint16(0x962)),
 				FriendlyNames:        pci.FriendlyNames{VendorName: "Intel Corporation", DeviceName: "CometLake-U GT2 [UHD Graphics]", SubvendorName: "Dell"},
-				AdditionalProperties: map[string]string{"vram": "14477950976"},
+				AdditionalProperties: map[string]any{"vram": "14477950976"},
 			},
 			{
 				Bus:           "pci",

@@ -35,10 +35,10 @@ type CpuDetails struct {
 	// arm64
 	ImplementerId HexInt   `json:"implementer-id,omitempty" yaml:"implementer-id,omitempty"`
 	PartNumber    HexInt   `json:"part-number,omitempty" yaml:"part-number,omitempty"`
-	Features      []string `json:"features,omitempty" yaml:"features,omitempty"`
+	Features      []string `json:"features,omitempty" yaml:"features,flow,omitempty"`
 
 	// riscv64
-	Isa []string `json:"isa,omitempty" yaml:"isa,omitempty"`
+	Isa []string `json:"isa,omitempty" yaml:"isa,flow,omitempty"`
 }
 
 type MemoryDetails struct {
@@ -122,7 +122,7 @@ type ApusysDeviceDetails struct {
 
 type PciAdditionalDeviceProperties struct {
 	Microarchitecture string `json:"microarchitecture,omitempty" yaml:"microarchitecture,omitempty"`
-	Vram              uint64 `json:"vram,omitempty" yaml:"vram,omitempty"`
+	Vram              any    `json:"vram,omitempty" yaml:"vram,omitempty"`
 	ComputeCapability string `json:"compute-capability,omitempty" yaml:"compute-capability,omitempty"`
 }
 
@@ -276,36 +276,48 @@ func (m *MachineDetails) marshalPlain() ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func FormatBytes(b uint64) any {
+func FormatBytes(b any) any {
 	const (
 		mib = 1024 * 1024
 		gib = 1024 * mib
 		tib = 1024 * gib
 	)
-	switch {
-	case b >= tib:
-		return fmt.Sprintf("%.1fT", float64(b)/tib)
-	case b >= gib:
-		return fmt.Sprintf("%.1fG", float64(b)/gib)
-	case b >= mib:
-		return fmt.Sprintf("%.1fM", float64(b)/mib)
+	switch v := b.(type) {
+	case uint64:
+		switch {
+		case v >= tib:
+			return fmt.Sprintf("%.1fT", float64(v)/tib)
+		case v >= gib:
+			return fmt.Sprintf("%.1fG", float64(v)/gib)
+		case v >= mib:
+			return fmt.Sprintf("%.1fM", float64(v)/mib)
+		default:
+			return v
+		}
 	default:
 		return b
 	}
 }
 
-func newPciAdditionalDeviceProperties(props map[string]string) *PciAdditionalDeviceProperties {
+func newPciAdditionalDeviceProperties(props map[string]any) *PciAdditionalDeviceProperties {
 	if len(props) == 0 {
 		return nil
 	}
 
-	ap := &PciAdditionalDeviceProperties{
-		Microarchitecture: props["microarchitecture"],
-		ComputeCapability: props["compute-capability"],
+	ap := &PciAdditionalDeviceProperties{}
+	if v, ok := props["microarchitecture"].(string); ok {
+		ap.Microarchitecture = v
+	}
+	if v, ok := props["compute-capability"].(string); ok {
+		ap.ComputeCapability = v
 	}
 	if v, ok := props["vram"]; ok {
-		if n, err := strconv.ParseUint(v, 10, 64); err == nil {
-			ap.Vram = n
+		if v != nil {
+			if n, err := strconv.ParseUint(v.(string), 10, 64); err == nil {
+				ap.Vram = n
+			}
+		} else {
+			ap.Vram = nil
 		}
 	}
 	if *ap == (PciAdditionalDeviceProperties{}) {

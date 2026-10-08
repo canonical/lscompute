@@ -58,7 +58,7 @@ func machineInfoForExamples() *machine.Machine {
 				DeviceId:    0x9B41,
 				SubvendorId: new(uint16(0x1028)),
 				SubdeviceId: new(uint16(0x962)),
-				AdditionalProperties: map[string]string{
+				AdditionalProperties: map[string]any{
 					"vram": "14477950976",
 				},
 			},
@@ -71,7 +71,7 @@ func machineInfoForExamples() *machine.Machine {
 				DeviceId:    0x1B06,
 				SubvendorId: new(uint16(0x10DE)),
 				SubdeviceId: new(uint16(0x1B06)),
-				AdditionalProperties: map[string]string{
+				AdditionalProperties: map[string]any{
 					"vram":               "11811160064",
 					"compute-capability": "6.1",
 				},
@@ -85,7 +85,7 @@ func machineInfoForExamples() *machine.Machine {
 				DeviceId:    0x73E1,
 				SubvendorId: new(uint16(0x103C)),
 				SubdeviceId: new(uint16(0x89C6)),
-				AdditionalProperties: map[string]string{
+				AdditionalProperties: map[string]any{
 					"microarchitecture": "gfx1032",
 					"vram":              "8573157376",
 				},
@@ -516,4 +516,27 @@ func TestHexIntYAMLRoundTrip(t *testing.T) {
 			t.Errorf("round-trip 0x%x: got 0x%x", int(v), int(got.Val))
 		}
 	}
+}
+
+func Example_marshalPlain_arm64() {
+	info := &machine.Machine{
+		CPUs: []cpu.CPU{{
+			Architecture:  "arm64",
+			ImplementerId: 0x41,
+			PartNumber:    0xd0b,
+			Features:      []string{"fp", "asimd"},
+		}},
+	}
+	output, err := NewMachineDetails(info).Marshal(FormatPlain)
+	if err != nil {
+		fmt.Printf("Marshal() failed: %v", err)
+		return
+	}
+	fmt.Println(string(output))
+	// Output:
+	// cpus:
+	//   - architecture: arm64
+	//     implementer-id: "0x41"
+	//     part-number: "0xD0B"
+	//     features: [fp, asimd]
 }
