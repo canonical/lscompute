@@ -122,14 +122,14 @@ type ApusysDeviceDetails struct {
 
 type PciAdditionalDeviceProperties struct {
 	Microarchitecture string `json:"microarchitecture,omitempty" yaml:"microarchitecture,omitempty"`
-	Vram              any    `json:"vram,omitempty" yaml:"vram,omitempty"`
+	Vram              any    `json:"vram" yaml:"vram"`
 	ComputeCapability string `json:"compute-capability,omitempty" yaml:"compute-capability,omitempty"`
 }
 
 func (a PciAdditionalDeviceProperties) MarshalYAML() (any, error) {
 	return struct {
 		Microarchitecture string `yaml:"microarchitecture,omitempty"`
-		Vram              any    `yaml:"vram,omitempty"`
+		Vram              any    `yaml:"vram"`
 		ComputeCapability string `yaml:"compute-capability,omitempty"`
 	}{
 		Microarchitecture: a.Microarchitecture,
@@ -312,8 +312,8 @@ func newPciAdditionalDeviceProperties(props map[string]any) *PciAdditionalDevice
 		ap.ComputeCapability = v
 	}
 	if v, ok := props["vram"]; ok {
-		if v != nil {
-			if n, err := strconv.ParseUint(v.(string), 10, 64); err == nil {
+		if s, ok := v.(string); ok {
+			if n, err := strconv.ParseUint(s, 10, 64); err == nil {
 				ap.Vram = n
 			}
 		} else {

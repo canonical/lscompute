@@ -201,8 +201,8 @@ func TestGpuProperties_Nvidia_NilVram(t *testing.T) {
 	if err != nil {
 		t.Fatalf("gpuProperties() unexpected error: %v", err)
 	}
-	if val, _ := props["vram"]; val != nil {
-		t.Errorf("expected 'vram' nil when vram is [N/A], it is %v", props["vram"])
+	if val, ok := props["vram"]; !ok || val != nil {
+		t.Errorf("expected 'vram' key present and nil when vram is [N/A], got %v (present=%v)", val, ok)
 	}
 	if v, ok := props["compute-capability"]; !ok || v != "6.1" {
 		t.Errorf("expected compute-capability=6.1, got %q (ok=%v)", v, ok)
