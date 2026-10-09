@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
@@ -21,7 +20,7 @@ func gpuProperties(h host.Host, slot string) (map[string]any, error) {
 		return nil, fmt.Errorf("looking up vram: %w", err)
 	}
 	if vRamVal != nil {
-		properties["vram"] = strconv.FormatUint(*vRamVal, 10)
+		properties["vram"] = *vRamVal
 	}
 
 	return properties, nil

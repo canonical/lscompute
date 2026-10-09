@@ -278,7 +278,7 @@ func init() {
 				DeviceId:             0x1114,
 				SubvendorId:          new(uint16(0x17AA)),
 				SubdeviceId:          new(uint16(0x512F)),
-				AdditionalProperties: map[string]any{"microarchitecture": "gfx1152", "vram": "8589934592"},
+				AdditionalProperties: map[string]any{"microarchitecture": "gfx1152", "vram": uint64(8589934592)},
 			},
 			{
 				Bus:         "pci",

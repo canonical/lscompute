@@ -48,8 +48,8 @@ type MemoryDetails struct {
 
 func (m MemoryDetails) MarshalYAML() (any, error) {
 	return struct {
-		TotalRam  any `yaml:"total-ram"`
-		TotalSwap any `yaml:"total-swap"`
+		TotalRam  string `yaml:"total-ram"`
+		TotalSwap string `yaml:"total-swap"`
 	}{
 		TotalRam:  FormatBytes(m.TotalRam),
 		TotalSwap: FormatBytes(m.TotalSwap),
@@ -67,8 +67,8 @@ func (d DiskDetails) MarshalYAML() (any, error) {
 	return struct {
 		MountPoint *string `yaml:"mount-point,omitempty"`
 		Path       string  `yaml:"path"`
-		Total      any     `yaml:"total"`
-		Avail      any     `yaml:"avail"`
+		Total      string  `yaml:"total"`
+		Avail      string  `yaml:"avail"`
 	}{
 		MountPoint: d.MountPoint,
 		Path:       d.Path,
@@ -121,19 +121,27 @@ type ApusysDeviceDetails struct {
 }
 
 type PciAdditionalDeviceProperties struct {
-	Microarchitecture string `json:"microarchitecture,omitempty" yaml:"microarchitecture,omitempty"`
-	Vram              any    `json:"vram" yaml:"vram"`
-	ComputeCapability string `json:"compute-capability,omitempty" yaml:"compute-capability,omitempty"`
+	Microarchitecture string  `json:"microarchitecture,omitempty" yaml:"microarchitecture,omitempty"`
+	Vram              *uint64 `json:"vram,omitempty" yaml:"vram,omitempty"`
+	ComputeCapability string  `json:"compute-capability,omitempty" yaml:"compute-capability,omitempty"`
 }
 
 func (a PciAdditionalDeviceProperties) MarshalYAML() (any, error) {
+
+	var vram *string
+	if a.Vram != nil {
+		vram = new(FormatBytes(*a.Vram))
+	} else {
+		vram = nil
+	}
+
 	return struct {
-		Microarchitecture string `yaml:"microarchitecture,omitempty"`
-		Vram              any    `yaml:"vram"`
-		ComputeCapability string `yaml:"compute-capability,omitempty"`
+		Microarchitecture string  `yaml:"microarchitecture,omitempty"`
+		Vram              *string `yaml:"vram"`
+		ComputeCapability string  `yaml:"compute-capability,omitempty"`
 	}{
 		Microarchitecture: a.Microarchitecture,
-		Vram:              FormatBytes(a.Vram),
+		Vram:              vram,
 		ComputeCapability: a.ComputeCapability,
 	}, nil
 }
@@ -276,26 +284,21 @@ func (m *MachineDetails) marshalPlain() ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func FormatBytes(b any) any {
+func FormatBytes(b uint64) string {
 	const (
 		mib = 1024 * 1024
 		gib = 1024 * mib
 		tib = 1024 * gib
 	)
-	switch v := b.(type) {
-	case uint64:
-		switch {
-		case v >= tib:
-			return fmt.Sprintf("%.1fT", float64(v)/tib)
-		case v >= gib:
-			return fmt.Sprintf("%.1fG", float64(v)/gib)
-		case v >= mib:
-			return fmt.Sprintf("%.1fM", float64(v)/mib)
-		default:
-			return v
-		}
+	switch {
+	case b >= tib:
+		return fmt.Sprintf("%.1fT", float64(b)/tib)
+	case b >= gib:
+		return fmt.Sprintf("%.1fG", float64(b)/gib)
+	case b >= mib:
+		return fmt.Sprintf("%.1fM", float64(b)/mib)
 	default:
-		return b
+		return fmt.Sprintf("%dB", b)
 	}
 }
 
@@ -312,9 +315,9 @@ func newPciAdditionalDeviceProperties(props map[string]any) *PciAdditionalDevice
 		ap.ComputeCapability = v
 	}
 	if v, ok := props["vram"]; ok {
-		if s, ok := v.(string); ok {
-			if n, err := strconv.ParseUint(s, 10, 64); err == nil {
-				ap.Vram = n
+		if v != nil {
+			if n, ok := v.(uint64); ok {
+				ap.Vram = new(n)
 			}
 		} else {
 			ap.Vram = nil

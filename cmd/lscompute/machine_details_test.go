@@ -59,7 +59,7 @@ func machineInfoForExamples() *machine.Machine {
 				SubvendorId: new(uint16(0x1028)),
 				SubdeviceId: new(uint16(0x962)),
 				AdditionalProperties: map[string]any{
-					"vram": "14477950976",
+					"vram": uint64(14477950976),
 				},
 			},
 			{
@@ -72,7 +72,7 @@ func machineInfoForExamples() *machine.Machine {
 				SubvendorId: new(uint16(0x10DE)),
 				SubdeviceId: new(uint16(0x1B06)),
 				AdditionalProperties: map[string]any{
-					"vram":               "11811160064",
+					"vram":               uint64(11811160064),
 					"compute-capability": "6.1",
 				},
 			},
@@ -87,7 +87,7 @@ func machineInfoForExamples() *machine.Machine {
 				SubdeviceId: new(uint16(0x89C6)),
 				AdditionalProperties: map[string]any{
 					"microarchitecture": "gfx1032",
-					"vram":              "8573157376",
+					"vram":              uint64(8573157376),
 				},
 			},
 		},
@@ -295,7 +295,7 @@ func Example_marshalPlain() {
 	//     flags: [fpu, vme, de]
 	// memory:
 	//   total-ram: 62.4G
-	//   total-swap: 0
+	//   total-swap: 0B
 	// disks:
 	//   - mount-point: /
 	//     path: /var/lib/snapd/snaps
