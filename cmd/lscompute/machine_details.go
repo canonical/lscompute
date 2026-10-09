@@ -48,8 +48,8 @@ type MemoryDetails struct {
 
 func (m MemoryDetails) MarshalYAML() (any, error) {
 	return struct {
-		TotalRam  any `yaml:"total-ram"`
-		TotalSwap any `yaml:"total-swap"`
+		TotalRam  string `yaml:"total-ram"`
+		TotalSwap string `yaml:"total-swap"`
 	}{
 		TotalRam:  FormatBytes(m.TotalRam),
 		TotalSwap: FormatBytes(m.TotalSwap),
@@ -67,8 +67,8 @@ func (d DiskDetails) MarshalYAML() (any, error) {
 	return struct {
 		MountPoint *string `yaml:"mount-point,omitempty"`
 		Path       string  `yaml:"path"`
-		Total      any     `yaml:"total"`
-		Avail      any     `yaml:"avail"`
+		Total      string     `yaml:"total"`
+		Avail      string     `yaml:"avail"`
 	}{
 		MountPoint: d.MountPoint,
 		Path:       d.Path,
@@ -127,13 +127,25 @@ type PciAdditionalDeviceProperties struct {
 }
 
 func (a PciAdditionalDeviceProperties) MarshalYAML() (any, error) {
+	
+	var vram *uint64
+	if d.Vram != nil {
+		// cast, error out if not uint64
+		if v, ok := d.Vram.(uint64); ok {
+			vram = new(FormatBytes(v))	
+		} else {
+			// throw error
+		}
+	}
+	
+	
 	return struct {
 		Microarchitecture string `yaml:"microarchitecture,omitempty"`
 		Vram              any    `yaml:"vram"`
 		ComputeCapability string `yaml:"compute-capability,omitempty"`
 	}{
 		Microarchitecture: a.Microarchitecture,
-		Vram:              FormatBytes(a.Vram),
+		Vram:              vram,
 		ComputeCapability: a.ComputeCapability,
 	}, nil
 }
@@ -276,7 +288,7 @@ func (m *MachineDetails) marshalPlain() ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func FormatBytes(b any) any {
+func FormatBytes(b uint64) string {
 	const (
 		mib = 1024 * 1024
 		gib = 1024 * mib
