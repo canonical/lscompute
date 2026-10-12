@@ -58,8 +58,8 @@ func machineInfoForExamples() *machine.Machine {
 				DeviceId:    0x9B41,
 				SubvendorId: new(uint16(0x1028)),
 				SubdeviceId: new(uint16(0x962)),
-				AdditionalProperties: map[string]string{
-					"vram": "14477950976",
+				AdditionalProperties: map[string]any{
+					"vram": uint64(14477950976),
 				},
 			},
 			{
@@ -71,8 +71,8 @@ func machineInfoForExamples() *machine.Machine {
 				DeviceId:    0x1B06,
 				SubvendorId: new(uint16(0x10DE)),
 				SubdeviceId: new(uint16(0x1B06)),
-				AdditionalProperties: map[string]string{
-					"vram":               "11811160064",
+				AdditionalProperties: map[string]any{
+					"vram":               uint64(11811160064),
 					"compute-capability": "6.1",
 				},
 			},
@@ -85,9 +85,9 @@ func machineInfoForExamples() *machine.Machine {
 				DeviceId:    0x73E1,
 				SubvendorId: new(uint16(0x103C)),
 				SubdeviceId: new(uint16(0x89C6)),
-				AdditionalProperties: map[string]string{
+				AdditionalProperties: map[string]any{
 					"microarchitecture": "gfx1032",
-					"vram":              "8573157376",
+					"vram":              uint64(8573157376),
 				},
 			},
 		},
@@ -295,7 +295,7 @@ func Example_marshalPlain() {
 	//     flags: [fpu, vme, de]
 	// memory:
 	//   total-ram: 62.4G
-	//   total-swap: 0
+	//   total-swap: 0B
 	// disks:
 	//   - mount-point: /
 	//     path: /var/lib/snapd/snaps
@@ -539,4 +539,24 @@ func Example_marshalPlain_arm64() {
 	//     implementer-id: "0x41"
 	//     part-number: "0xD0B"
 	//     features: [fp, asimd]
+}
+
+func TestFormatBytes(t *testing.T) {
+	tests := []struct {
+		input    uint64
+		expected string
+	}{
+		{0, "0B"},
+		{1023, "1023B"},
+		{1024, "1.0K"},
+		{1048576, "1.0M"},
+		{1073741824, "1.0G"},
+		{1099511627776, "1.0T"},
+	}
+	for _, tc := range tests {
+		got := FormatBytes(tc.input)
+		if got != tc.expected {
+			t.Errorf("FormatBytes(%d) = %q, want %q", tc.input, got, tc.expected)
+		}
+	}
 }

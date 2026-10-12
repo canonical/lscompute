@@ -12,15 +12,17 @@ import (
 
 const nvidiaSmiTimeout = 30 * time.Second
 
-func gpuProperties(h host.Host, slot string) (map[string]string, error) {
-	properties := make(map[string]string)
+func gpuProperties(h host.Host, slot string) (map[string]any, error) {
+	properties := make(map[string]any)
 
 	vRamVal, err := vRam(h, slot)
 	if err != nil {
 		return nil, fmt.Errorf("looking up vram: %w", err)
 	}
 	if vRamVal != nil {
-		properties["vram"] = strconv.FormatUint(*vRamVal, 10)
+		properties["vram"] = *vRamVal
+	} else {
+		properties["vram"] = nil
 	}
 
 	ccVal, err := computeCapability(h, slot)

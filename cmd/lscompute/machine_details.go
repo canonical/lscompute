@@ -38,7 +38,7 @@ type CpuDetails struct {
 	Features      []string `json:"features,omitempty" yaml:"features,flow,omitempty"`
 
 	// riscv64
-	Isa []string `json:"isa,omitempty" yaml:"isa,omitempty"`
+	Isa []string `json:"isa,omitempty" yaml:"isa,flow,omitempty"`
 }
 
 type MemoryDetails struct {
@@ -48,8 +48,8 @@ type MemoryDetails struct {
 
 func (m MemoryDetails) MarshalYAML() (any, error) {
 	return struct {
-		TotalRam  any `yaml:"total-ram"`
-		TotalSwap any `yaml:"total-swap"`
+		TotalRam  string `yaml:"total-ram"`
+		TotalSwap string `yaml:"total-swap"`
 	}{
 		TotalRam:  FormatBytes(m.TotalRam),
 		TotalSwap: FormatBytes(m.TotalSwap),
@@ -67,8 +67,8 @@ func (d DiskDetails) MarshalYAML() (any, error) {
 	return struct {
 		MountPoint *string `yaml:"mount-point,omitempty"`
 		Path       string  `yaml:"path"`
-		Total      any     `yaml:"total"`
-		Avail      any     `yaml:"avail"`
+		Total      string  `yaml:"total"`
+		Avail      string  `yaml:"avail"`
 	}{
 		MountPoint: d.MountPoint,
 		Path:       d.Path,
@@ -129,7 +129,7 @@ type PciAdditionalDeviceProperties struct {
 func (a PciAdditionalDeviceProperties) MarshalYAML() (any, error) {
 	return struct {
 		Microarchitecture string `yaml:"microarchitecture,omitempty"`
-		Vram              any    `yaml:"vram,omitempty"`
+		Vram              string `yaml:"vram,omitempty"`
 		ComputeCapability string `yaml:"compute-capability,omitempty"`
 	}{
 		Microarchitecture: a.Microarchitecture,
@@ -276,9 +276,10 @@ func (m *MachineDetails) marshalPlain() ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func FormatBytes(b uint64) any {
+func FormatBytes(b uint64) string {
 	const (
-		mib = 1024 * 1024
+		kib = 1024
+		mib = 1024 * kib
 		gib = 1024 * mib
 		tib = 1024 * gib
 	)
@@ -289,23 +290,30 @@ func FormatBytes(b uint64) any {
 		return fmt.Sprintf("%.1fG", float64(b)/gib)
 	case b >= mib:
 		return fmt.Sprintf("%.1fM", float64(b)/mib)
+	case b >= kib:
+		return fmt.Sprintf("%.1fK", float64(b)/kib)
 	default:
-		return b
+		return fmt.Sprintf("%dB", b)
 	}
 }
 
-func newPciAdditionalDeviceProperties(props map[string]string) *PciAdditionalDeviceProperties {
+func newPciAdditionalDeviceProperties(props map[string]any) *PciAdditionalDeviceProperties {
 	if len(props) == 0 {
 		return nil
 	}
 
-	ap := &PciAdditionalDeviceProperties{
-		Microarchitecture: props["microarchitecture"],
-		ComputeCapability: props["compute-capability"],
+	ap := &PciAdditionalDeviceProperties{}
+	if v, ok := props["microarchitecture"].(string); ok {
+		ap.Microarchitecture = v
+	}
+	if v, ok := props["compute-capability"].(string); ok {
+		ap.ComputeCapability = v
 	}
 	if v, ok := props["vram"]; ok {
-		if n, err := strconv.ParseUint(v, 10, 64); err == nil {
-			ap.Vram = n
+		if v != nil {
+			if n, ok := v.(uint64); ok {
+				ap.Vram = n
+			}
 		}
 	}
 	if *ap == (PciAdditionalDeviceProperties{}) {

@@ -40,7 +40,7 @@ func addAdditionalProperties(h host.Host, devices []Device) ([]Device, []string)
 
 // additionalProperties dispatches to the correct vendor package based on the
 // device's vendor ID. Add a new case here when a new vendor is supported.
-func additionalProperties(h host.Host, device Device) (map[string]string, error) {
+func additionalProperties(h host.Host, device Device) (map[string]any, error) {
 	switch device.VendorId {
 	case vendorAmd:
 		props, err := amd.AdditionalProperties(h, device.Slot, device.IsGpu())

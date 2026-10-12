@@ -197,7 +197,7 @@ func init() {
 				DeviceId:             0x1B06,
 				SubvendorId:          new(uint16(0x10DE)),
 				SubdeviceId:          new(uint16(0x1B06)),
-				AdditionalProperties: map[string]string{"compute-capability": "6.1", "vram": "11811160064"},
+				AdditionalProperties: map[string]any{"compute-capability": "6.1", "vram": uint64(11811160064)},
 			},
 			{
 				Bus:         "pci",

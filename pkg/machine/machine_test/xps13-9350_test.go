@@ -44,7 +44,7 @@ func init() {
 				SubvendorId:          new(uint16(0x1028)),
 				SubdeviceId:          new(uint16(0xCC9)),
 				FriendlyNames:        pci.FriendlyNames{VendorName: "Intel Corporation", DeviceName: "Lunar Lake [Intel Arc Graphics 130V / 140V]", SubvendorName: "Dell"},
-				AdditionalProperties: map[string]string{"vram": "30221971456"},
+				AdditionalProperties: map[string]any{"vram": uint64(30221971456)},
 			},
 			{
 				Bus:           "pci",
