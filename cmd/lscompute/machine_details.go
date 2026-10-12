@@ -278,7 +278,8 @@ func (m *MachineDetails) marshalPlain() ([]byte, error) {
 
 func FormatBytes(b uint64) string {
 	const (
-		mib = 1024 * 1024
+		kib = 1024
+		mib = 1024 * kib
 		gib = 1024 * mib
 		tib = 1024 * gib
 	)
@@ -289,10 +290,10 @@ func FormatBytes(b uint64) string {
 		return fmt.Sprintf("%.1fG", float64(b)/gib)
 	case b >= mib:
 		return fmt.Sprintf("%.1fM", float64(b)/mib)
-	case b == 0:
-		return fmt.Sprintf("%dB", b)
+	case b >= kib:
+		return fmt.Sprintf("%.1fK", float64(b)/kib)
 	default:
-		return fmt.Sprintf("%d", b)
+		return fmt.Sprintf("%dB", b)
 	}
 }
 

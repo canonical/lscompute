@@ -540,3 +540,23 @@ func Example_marshalPlain_arm64() {
 	//     part-number: "0xD0B"
 	//     features: [fp, asimd]
 }
+
+func TestFormatBytes(t *testing.T) {
+	tests := []struct {
+		input    uint64
+		expected string
+	}{
+		{0, "0B"},
+		{1023, "1023B"},
+		{1024, "1.0K"},
+		{1048576, "1.0M"},
+		{1073741824, "1.0G"},
+		{1099511627776, "1.0T"},
+	}
+	for _, tc := range tests {
+		got := FormatBytes(tc.input)
+		if got != tc.expected {
+			t.Errorf("FormatBytes(%d) = %q, want %q", tc.input, got, tc.expected)
+		}
+	}
+}
