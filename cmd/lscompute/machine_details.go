@@ -121,27 +121,19 @@ type ApusysDeviceDetails struct {
 }
 
 type PciAdditionalDeviceProperties struct {
-	Microarchitecture string  `json:"microarchitecture,omitempty" yaml:"microarchitecture,omitempty"`
-	Vram              *uint64 `json:"vram,omitempty" yaml:"vram,omitempty"`
-	ComputeCapability string  `json:"compute-capability,omitempty" yaml:"compute-capability,omitempty"`
+	Microarchitecture string `json:"microarchitecture,omitempty" yaml:"microarchitecture,omitempty"`
+	Vram              uint64 `json:"vram,omitempty" yaml:"vram,omitempty"`
+	ComputeCapability string `json:"compute-capability,omitempty" yaml:"compute-capability,omitempty"`
 }
 
 func (a PciAdditionalDeviceProperties) MarshalYAML() (any, error) {
-
-	var vram *string
-	if a.Vram != nil {
-		vram = new(FormatBytes(*a.Vram))
-	} else {
-		vram = nil
-	}
-
 	return struct {
-		Microarchitecture string  `yaml:"microarchitecture,omitempty"`
-		Vram              *string `yaml:"vram"`
-		ComputeCapability string  `yaml:"compute-capability,omitempty"`
+		Microarchitecture string `yaml:"microarchitecture,omitempty"`
+		Vram              string `yaml:"vram,omitempty"`
+		ComputeCapability string `yaml:"compute-capability,omitempty"`
 	}{
 		Microarchitecture: a.Microarchitecture,
-		Vram:              vram,
+		Vram:              FormatBytes(a.Vram),
 		ComputeCapability: a.ComputeCapability,
 	}, nil
 }
@@ -297,8 +289,10 @@ func FormatBytes(b uint64) string {
 		return fmt.Sprintf("%.1fG", float64(b)/gib)
 	case b >= mib:
 		return fmt.Sprintf("%.1fM", float64(b)/mib)
-	default:
+	case b == 0:
 		return fmt.Sprintf("%dB", b)
+	default:
+		return fmt.Sprintf("%d", b)
 	}
 }
 
@@ -317,10 +311,8 @@ func newPciAdditionalDeviceProperties(props map[string]any) *PciAdditionalDevice
 	if v, ok := props["vram"]; ok {
 		if v != nil {
 			if n, ok := v.(uint64); ok {
-				ap.Vram = new(n)
+				ap.Vram = n
 			}
-		} else {
-			ap.Vram = nil
 		}
 	}
 	if *ap == (PciAdditionalDeviceProperties{}) {
