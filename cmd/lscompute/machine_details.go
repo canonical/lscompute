@@ -121,20 +121,23 @@ type ApusysDeviceDetails struct {
 }
 
 type PciAdditionalDeviceProperties struct {
-	Microarchitecture string `json:"microarchitecture,omitempty" yaml:"microarchitecture,omitempty"`
-	Vram              uint64 `json:"vram,omitempty" yaml:"vram,omitempty"`
-	ComputeCapability string `json:"compute-capability,omitempty" yaml:"compute-capability,omitempty"`
+	Microarchitecture   string `json:"microarchitecture,omitempty" yaml:"microarchitecture,omitempty"`
+	Vram                uint64 `json:"vram,omitempty" yaml:"vram,omitempty"`
+	ComputeCapability   string `json:"compute-capability,omitempty" yaml:"compute-capability,omitempty"`
+	NvidiaDriverVersion string `json:"nvidia-driver-version,omitempty" yaml:"nvidia-driver-version,omitempty"`
 }
 
 func (a PciAdditionalDeviceProperties) MarshalYAML() (any, error) {
 	return struct {
-		Microarchitecture string `yaml:"microarchitecture,omitempty"`
-		Vram              string `yaml:"vram,omitempty"`
-		ComputeCapability string `yaml:"compute-capability,omitempty"`
+		Microarchitecture   string `yaml:"microarchitecture,omitempty"`
+		Vram                string `yaml:"vram,omitempty"`
+		ComputeCapability   string `yaml:"compute-capability,omitempty"`
+		NvidiaDriverVersion string `yaml:"nvidia-driver-version,omitempty"`
 	}{
-		Microarchitecture: a.Microarchitecture,
-		Vram:              FormatBytes(a.Vram),
-		ComputeCapability: a.ComputeCapability,
+		Microarchitecture:   a.Microarchitecture,
+		Vram:                FormatBytes(a.Vram),
+		ComputeCapability:   a.ComputeCapability,
+		NvidiaDriverVersion: a.NvidiaDriverVersion,
 	}, nil
 }
 
@@ -308,6 +311,9 @@ func newPciAdditionalDeviceProperties(props map[string]any) *PciAdditionalDevice
 	}
 	if v, ok := props["compute-capability"].(string); ok {
 		ap.ComputeCapability = v
+	}
+	if v, ok := props["nvidia-driver-version"].(string); ok {
+		ap.NvidiaDriverVersion = v
 	}
 	if v, ok := props["vram"]; ok {
 		if v != nil {
