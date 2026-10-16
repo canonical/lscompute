@@ -72,8 +72,9 @@ func machineInfoForExamples() *machine.Machine {
 				SubvendorId: new(uint16(0x10DE)),
 				SubdeviceId: new(uint16(0x1B06)),
 				AdditionalProperties: map[string]any{
-					"vram":               uint64(11811160064),
-					"compute-capability": "6.1",
+					"vram":                  uint64(11811160064),
+					"compute-capability":    "6.1",
+					"nvidia-driver-version": "580.95.05",
 				},
 			},
 			{
@@ -241,7 +242,8 @@ func Example_marshalJson() {
 	//       "subdevice-id": "0x1B06",
 	//       "additional-properties": {
 	//         "vram": 11811160064,
-	//         "compute-capability": "6.1"
+	//         "compute-capability": "6.1",
+	//         "nvidia-driver-version": "580.95.05"
 	//       }
 	//     },
 	//     {
@@ -334,6 +336,7 @@ func Example_marshalPlain() {
 	//     additional-properties:
 	//       vram: 11.0G
 	//       compute-capability: "6.1"
+	//       nvidia-driver-version: 580.95.05
 	//   - bus: pci
 	//     slot: '0000:03:00.0'
 	//     bus-number: "0x3"

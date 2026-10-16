@@ -33,6 +33,14 @@ func gpuProperties(h host.Host, slot string) (map[string]any, error) {
 		properties["compute-capability"] = ccVal
 	}
 
+	driverVal, err := driverVersion(h, slot)
+	if err != nil {
+		return nil, fmt.Errorf("looking up driver version: %w", err)
+	}
+	if driverVal != "" {
+		properties["nvidia-driver-version"] = driverVal
+	}
+
 	return properties, nil
 }
 
@@ -83,6 +91,17 @@ func computeCapability(h host.Host, slot string) (string, error) {
 	defer cancel()
 	output, err := h.RunCommand(ctx, "nvidia-smi", []string{"LANG=C"},
 		"--id="+slot, "--query-gpu=compute_cap", "--format=csv,noheader")
+	if err != nil {
+		return "", fmt.Errorf("executing nvidia-smi: %w", err)
+	}
+	return strings.TrimSpace(string(output)), nil
+}
+
+func driverVersion(h host.Host, slot string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), nvidiaSmiTimeout)
+	defer cancel()
+	output, err := h.RunCommand(ctx, "nvidia-smi", []string{"LANG=C"},
+		"--id="+slot, "--query-gpu=driver_version", "--format=csv,noheader")
 	if err != nil {
 		return "", fmt.Errorf("executing nvidia-smi: %w", err)
 	}

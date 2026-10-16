@@ -24,6 +24,7 @@ test_data/machines/<machine-name>/
         run/clinfo.json                         ← Intel GPU only; clinfo --json output
         run/nvidia-smi/<slot>/memory.total      ← NVIDIA GPU only
         run/nvidia-smi/<slot>/compute_cap       ← NVIDIA GPU only
+        run/nvidia-smi/<slot>/driver_version    ← NVIDIA GPU only
     lscompute.json                          ← golden file (curated machines only)
 ```
 Every machine directory **must** have a `lscompute.json` golden file.
@@ -91,6 +92,8 @@ nvidia-smi --id=$SLOT --query-gpu=memory.total --format=csv,noheader \
     > "$ROOT/run/nvidia-smi/$SLOT/memory.total"
 nvidia-smi --id=$SLOT --query-gpu=compute_cap --format=csv,noheader \
     > "$ROOT/run/nvidia-smi/$SLOT/compute_cap"
+nvidia-smi --id=$SLOT --query-gpu=driver_version --format=csv,noheader \
+    > "$ROOT/run/nvidia-smi/$SLOT/driver_version"
 ```
 ### AMD GPU (optional — only if the machine has an AMD GPU)
 ```bash

@@ -136,6 +136,26 @@ func TestComputeCapability_MissingFixture(t *testing.T) {
 	}
 }
 
+func TestDriverVersion(t *testing.T) {
+	h := host.Fake(i5gtxMachineRoot)
+	got, err := driverVersion(h, gtxSlot)
+	if err != nil {
+		t.Fatalf("driverVersion() unexpected error: %v", err)
+	}
+	// Fixture has "580.95.05"
+	if got != "580.95.05" {
+		t.Errorf("driverVersion() = %q, want %q", got, "580.95.05")
+	}
+}
+
+func TestDriverVersion_MissingFixture(t *testing.T) {
+	h := host.Fake(t.TempDir())
+	_, err := driverVersion(h, gtxSlot)
+	if err == nil {
+		t.Fatal("expected error for missing nvidia-smi fixture, got nil")
+	}
+}
+
 func TestGpuProperties_Nvidia(t *testing.T) {
 	h := host.Fake(i5gtxMachineRoot)
 	props, err := gpuProperties(h, gtxSlot)
@@ -147,6 +167,9 @@ func TestGpuProperties_Nvidia(t *testing.T) {
 	}
 	if v, ok := props["compute-capability"]; !ok || v == "" {
 		t.Errorf("expected 'compute-capability' property, got %v", props)
+	}
+	if v, ok := props["nvidia-driver-version"]; !ok || v != "580.95.05" {
+		t.Errorf("expected 'nvidia-driver-version' property, got %v", props)
 	}
 }
 
@@ -194,6 +217,9 @@ func TestGpuProperties_Nvidia_NilVram(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := os.WriteFile(filepath.Join(smiDir, "compute_cap"), []byte("6.1\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(smiDir, "driver_version"), []byte("580.95.05\n"), 0644); err != nil {
 		t.Fatal(err)
 	}
 	h := host.Fake(dir)
