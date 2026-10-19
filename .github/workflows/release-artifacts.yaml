@@ -45,11 +45,11 @@ jobs:
           GOOS: ${{ matrix.runner.goos }}
           GOARCH: ${{ matrix.runner.goarch }}
         run: |
-          go build -ldflags="-s -w" -o ./cli ./cmd/lscompute
+          go build -ldflags="-s -w" -o ./lscompute ./cmd/lscompute
 
       - name: Generate artifact
         run: |
-          tar -Jcvf ${{ env.ARTIFACT_NAME }} ./cli ./LICENSE
+          tar -Jcvf ${{ env.ARTIFACT_NAME }} ./lscompute ./LICENSE
 
       - name: Upload release asset
         run: |
