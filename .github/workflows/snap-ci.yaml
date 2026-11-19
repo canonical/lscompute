@@ -39,6 +39,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
+        with:
+          # the snap version comes from the latest tag
+          fetch-depth: 0
 
       - name: Build snap
         uses: snapcore/action-build@v1
