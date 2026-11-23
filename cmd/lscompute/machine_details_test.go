@@ -308,7 +308,7 @@ func Example_marshalPlain() {
 	//     avail: 38.1M
 	// devices:
 	//   - bus: pci
-	//     slot: '0000:00:00.0'
+	//     slot: "0000:00:00.0"
 	//     bus-number: "0x0"
 	//     device-class: "0x600"
 	//     vendor-id: "0x8086"
@@ -316,7 +316,7 @@ func Example_marshalPlain() {
 	//     subvendor-id: "0x103C"
 	//     subdevice-id: "0x89C6"
 	//   - bus: pci
-	//     slot: '0000:00:02.0'
+	//     slot: "0000:00:02.0"
 	//     bus-number: "0x0"
 	//     device-class: "0x300"
 	//     vendor-id: "0x8086"
@@ -326,7 +326,7 @@ func Example_marshalPlain() {
 	//     additional-properties:
 	//       vram: 13.5G
 	//   - bus: pci
-	//     slot: '0000:01:00.0'
+	//     slot: "0000:01:00.0"
 	//     bus-number: "0x1"
 	//     device-class: "0x300"
 	//     vendor-id: "0x10DE"
@@ -338,7 +338,7 @@ func Example_marshalPlain() {
 	//       compute-capability: "6.1"
 	//       nvidia-driver-version: 580.95.05
 	//   - bus: pci
-	//     slot: '0000:03:00.0'
+	//     slot: "0000:03:00.0"
 	//     bus-number: "0x3"
 	//     device-class: "0x300"
 	//     vendor-id: "0x1002"
