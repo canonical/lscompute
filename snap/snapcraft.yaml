@@ -103,6 +103,8 @@ parts:
     build-snaps: 
       - go/1.26/stable
     source: .
+    build-packages:
+      - git
     override-pull: |
       craftctl default
       # version: git only reads annotated tags, and the release tags are lightweight
