@@ -1,6 +1,6 @@
 name: lscompute
 base: core24
-version: git
+adopt-info: commands
 summary: A hardware discovery utility for AI workloads
 description: |
   lscompute is a command-line utility that provides detailed information about
@@ -103,6 +103,12 @@ parts:
     build-snaps: 
       - go/1.26/stable
     source: .
+    build-packages:
+      - git
+    override-pull: |
+      craftctl default
+      # version: git only reads annotated tags, and the release tags are lightweight
+      craftctl set version="$(git -C "$CRAFT_PROJECT_DIR" describe --tags --dirty --always | sed 's/^v//')"
 
 apps:
   lscompute:
