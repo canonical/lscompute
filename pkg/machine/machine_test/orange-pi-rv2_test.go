@@ -13,7 +13,11 @@ func init() {
 		CPUs: []cpu.CPU{
 			{
 				Architecture: "riscv64",
-				Isa:          []string{"rv64imafdcv", "zicbom", "zicboz", "zicntr", "zicond", "zicsr", "zifencei", "zihintpause", "zihpm", "zfh", "zfhmin", "zca", "zcd", "zba", "zbb", "zbc", "zbs", "zkt", "zve32f", "zve32x", "zve64d", "zve64f", "zve64x", "zvfh", "zvfhmin", "zvkt", "sscofpmf", "sstc", "svinval", "svnapot", "svpbmt"},
+				FriendlyNames: cpu.FriendlyNames{
+					Threads:   8,
+					ModelName: new("Ky(R) X1"),
+				},
+				Isa: []string{"rv64imafdcv", "zicbom", "zicboz", "zicntr", "zicond", "zicsr", "zifencei", "zihintpause", "zihpm", "zfh", "zfhmin", "zca", "zcd", "zba", "zbb", "zbc", "zbs", "zkt", "zve32f", "zve32x", "zve64d", "zve64f", "zve64x", "zvfh", "zvfhmin", "zvkt", "sscofpmf", "sstc", "svinval", "svnapot", "svpbmt"},
 			},
 		},
 		Memory: memory.Memory{TotalRam: 8323276800, TotalSwap: 0},

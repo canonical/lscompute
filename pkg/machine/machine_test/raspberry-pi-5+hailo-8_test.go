@@ -15,7 +15,10 @@ func init() {
 				Architecture:  "arm64",
 				ImplementerId: 0x41,
 				PartNumber:    0xD0B,
-				Features:      []string{"fp", "asimd", "evtstrm", "aes", "pmull", "sha1", "sha2", "crc32", "atomics", "fphp", "asimdhp", "cpuid", "asimdrdm", "lrcpc", "dcpop", "asimddp"},
+				FriendlyNames: cpu.FriendlyNames{
+					Threads: 4,
+				},
+				Features: []string{"fp", "asimd", "evtstrm", "aes", "pmull", "sha1", "sha2", "crc32", "atomics", "fphp", "asimdhp", "cpuid", "asimdrdm", "lrcpc", "dcpop", "asimddp"},
 			},
 		},
 		Memory: memory.Memory{TotalRam: 8317198336, TotalSwap: 1073737728},

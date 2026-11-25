@@ -32,7 +32,7 @@ func Get(h host.Host, friendlyNames bool, all bool) (*Machine, []string, error) 
 	}
 	machineInfo.Memory = memoryInfo
 
-	cpus, err := cpu.Info(h)
+	cpus, err := cpu.Info(h, true)
 	if err != nil {
 		return nil, nil, fmt.Errorf("getting cpu info: %w", err)
 	}
