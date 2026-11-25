@@ -4,7 +4,6 @@
 
 ```bash
 sudo snap install lscompute
-sudo snap connect lscompute:hardware-observe # TODO: auto connect
 ```
 
 To build and install from source, refer to [here](#build-snap).
@@ -56,6 +55,7 @@ snapcraft -v
 Then install the snap and connect the required interfaces:
 ```bash
 sudo snap install --dangerous *.snap
-sudo snap connect lscompute:hardware-observe 
+sudo snap connect lscompute:hardware-observe
+sudo snap connect lscompute:mount-observe
 ```
 
